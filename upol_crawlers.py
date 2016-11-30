@@ -1,8 +1,8 @@
 from crawler import UpolCrawler
 
-logs = "/Users/tomasmikula/crawlers/"
-results = "/Users/tomasmikula/crawlers/"
-disabled_domains = ["portal.upol.cz", "stag.upol.cz"]
+logs = "/Users/tomasmikula/crawlers/inf/"
+results = "/Users/tomasmikula/crawlers/inf/"
+disabled_domains = ["portal.upol.cz", "stag.upol.cz", "stagservices.upol.cz", "courseware.upol.cz", "helpdesk.upol.cz"]
 
 # geology_crawler = UpolCrawler("http://www.geology.upol.cz", results, logs, True)
 # geology_crawler.start()
@@ -34,5 +34,5 @@ disabled_domains = ["portal.upol.cz", "stag.upol.cz"]
 # inf_crawler = UpolCrawler("http://inf.upol.cz", results, logs, True)
 # inf_crawler.start()
 
-upol_crawler = UpolCrawler("http://www.upol.cz/", results, logs, True, )
+upol_crawler = UpolCrawler("http://inf.upol.cz", results, logs, disabled_domains, True)
 upol_crawler.start()

@@ -14,26 +14,36 @@ import time
 
 class UpolCrawler:
     def __init__(self, url, results_path, logs_path, ignored_domains = [], debug = False,):
-        self.start_url = self.url_clean(url)
-        self.url_queue = set()
-        self.url_queue.add(self.start_url)
-        self.debug = debug
-        self.regex = re.compile(self.url_regex(self.start_url))
         self.logs_path = logs_path
         self.results_path = results_path
+        self.version = "0.2"
+        self.start_url = self.url_clean(url)
+        # self.number_of_unvisited = 1
         self._db_init()
-        self.user_agent = 'Mozilla/5.0'
-        self.sleep_time = 0.5
+
+        self.regex = re.compile(self.url_regex(self.start_url))
         self.ignored_domains = ignored_domains
+        # self.url_queue = set()
+        # self.url_queue.add(self.start_url)
+        self.db_url_insert(self.start_url)
+        # self.db_url_set_visited(self.start_url)
+
+
+        self.debug = debug
+
+        self.user_agent = 'Mozilla/5.0'
+        self.sleep_time = 0.2
+
+
 
     def _db_init(self):
         """Inicializuje pripojeni do databaze"""
-        path = os.path.join(self.results_path, "results/"+urllib.parse.urlsplit(self.start_url).netloc + ".db")
+        path = os.path.join(self.results_path, "results" + self.version + "/"+urllib.parse.urlsplit(self.start_url).netloc + ".db")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         self.db_connection = sqlite3.connect(path)
         self.db_cursor = self.db_connection.cursor()
         self.db_cursor.execute('''CREATE TABLE IF NOT EXISTS urls
-                 (id INTEGER PRIMARY KEY, url TEXT, url_hash TEXT, number_of_inlink INTEGER DEFAULT 0)''')
+                 (id INTEGER PRIMARY KEY, url TEXT, url_hash TEXT, number_of_inlink INTEGER DEFAULT 0, visited INTEGER DEFAULT 0)''')
         self.db_cursor.execute('''CREATE INDEX IF NOT EXISTS index_hash ON urls (url_hash)''')
         self.db_connection.commit()
 
@@ -49,6 +59,27 @@ class UpolCrawler:
 
         self.db_cursor.execute('''INSERT INTO urls (url, url_hash) VALUES (?,?)''', query)
         self.db_connection.commit()
+        # self.number_of_unvisited = self.number_of_unvisited + 1
+
+    def db_url_delete(self, url):
+        """Smaze url z databaze"""
+        url = self.url_decode(url)
+        url_hash = self.url_hash(url)
+        query = (url_hash,)
+
+        self.db_cursor.execute('''DELETE FROM urls WHERE url_hash = ?''', query)
+        self.db_connection.commit()
+
+    def db_get_random_unvisited_url(self):
+        """Vrati nahodnou nenavstivenou url z DB"""
+        # SELECT * FROM table ORDER BY RANDOM() LIMIT 1;
+        self.db_cursor.execute('SELECT url FROM urls WHERE visited = 0 ORDER BY RANDOM() LIMIT 1')
+        result = self.db_cursor.fetchone()
+
+        if result is None:
+            return None
+        else:
+            return result[0]
 
     def db_url_exists(self, url):
         """Zjistuje zda je url v databazi"""
@@ -69,6 +100,29 @@ class UpolCrawler:
 
         self.db_cursor.execute('UPDATE urls SET number_of_inlink = number_of_inlink + 1 WHERE url_hash = ?', query)
         self.db_connection.commit()
+
+    def db_url_set_visited(self, url):
+        """Nastavi url v DB jako navstivenou"""
+        url = self.url_decode(url)
+        url_hash = self.url_hash(url)
+        query = (url_hash,)
+
+        # print(url)
+
+        self.db_cursor.execute('UPDATE urls SET visited = 1 WHERE url_hash = ?', query)
+        self.db_connection.commit()
+        # self.number_of_unvisited = self.number_of_unvisited - 1
+
+    def db_is_url_visited(self, url):
+        """Zjisti zda je url jiz navstivena nebo nikoli"""
+        url = self.url_decode(url)
+        url_hash = self.url_hash(url)
+        query = (url_hash,)
+
+        self.db_cursor.execute('SELECT visited FROM urls WHERE url_hash = ?', query)
+        result = self.db_cursor.fetchone()
+
+        return result[0] == 1
 
     # @retry(urllib.error.URLError, tries=2, delay=3, backoff=2)
     # def url_request(self, url):
@@ -92,14 +146,24 @@ class UpolCrawler:
 
     def url_request(self, url):
         headers = {'user-agent': self.user_agent}
-        response = requests.get(url, headers=headers, verify=False)
-        return response
+        response = requests.head(url, headers=headers, verify=False)
+        if 'text/html' in response.headers['Content-Type']:
+            return requests.get(url, headers=headers, verify=False)
+        else:
+            return None
 
     def url_connect(self, url):
-        request = None
         response = self.url_request(url)
+
+        if response is None:
+            return None, url, url
+
+        if len(response.history) > 0:
+            url = self.url_clean(response.history[0].url)
+        else:
+            url = self.url_clean(response.url)
         response_url = self.url_clean(response.url)
-        return request, response, response_url
+        return response, url, response_url
 
     def url_remove_www(self, url):
         """Odstrani z url WWW"""
@@ -122,6 +186,11 @@ class UpolCrawler:
         path = urllib.parse.unquote(path)
         qs = urllib.parse.unquote_plus(qs)
         return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+
+    def url_domain(self, url):
+        """Vraci domenu url"""
+        scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+        return netloc
 
     def url_clean(self, url):
         """Vycisti URL, odstrani www a konecne lomitko"""
@@ -226,7 +295,7 @@ class UpolCrawler:
         base_url = self.page_base_url(soup, url)
 
         if self.is_wiki(soup):
-            print("IS WIKI!")
+            # print("IS WIKI!")
             content_div = soup.find('div', id='content')
 
             for div in content_div.find_all('div', {'class':'printfooter'}):
@@ -241,7 +310,7 @@ class UpolCrawler:
 
 
         elif self.is_phpbb(soup):
-            print("IS PHPBB!")
+            # print("IS PHPBB!")
             content_div = soup.find('div', id='page-body')
 
             for p in content_div.find_all('p', {'class':'jumpbox-return'}):
@@ -269,7 +338,7 @@ class UpolCrawler:
                 urls_on_page.add(page_url)
             else:
                 if self.debug:
-                    path = os.path.join(self.logs_path, "logs/"+urllib.parse.urlsplit(self.start_url).netloc+"_not_valid.txt")
+                    path = os.path.join(self.logs_path, "logs" + self.version + "/"+urllib.parse.urlsplit(self.start_url).netloc+"_not_valid.txt")
                     os.makedirs(os.path.dirname(path), exist_ok=True)
                     with open(path, "a") as not_valid_file:
                         not_valid_file.write(page_url + "\n")
@@ -279,13 +348,17 @@ class UpolCrawler:
     def crawl_url(self, url):
         # print("URL: ", url)
         try:
-            request, response, url = self.url_connect(url)
+            # url_before_redirect = self.url_clean(url)
+            response, url_before, url = self.url_connect(url)
+            # print("TRY!!!")
         # except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.TooManyRedirects, requests.exceptions.InvalidURL, requests.exceptions.ChunkedEncodingError, requests.exceptions.SSLError, requests.exceptions.ConnectTimeout, requests.exceptions.URLRequired, ) as exception:
-        except:
+        except Exception as e:
             if self.debug:
-                path = os.path.join(self.logs_path, "logs/"+urllib.parse.urlsplit(self.start_url).netloc+"_error.txt")
+                path = os.path.join(self.logs_path, "logs"+ self.version +"/"+urllib.parse.urlsplit(self.start_url).netloc+"_error.txt")
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 with open(path, "a") as error_file:
+                    error_file.write(str(e))
+                    error_file.write("\n")
                     error_file.write(url + "\n")
                     # if hasattr(exception, 'reason'):
                     #     error_file.write('We failed to reach a server.')
@@ -299,24 +372,40 @@ class UpolCrawler:
                     #     error_file.write("\n")
         else:
             # print("RESPONSE: ", url)
+            if response is None:
+                self.db_url_delete(url_before)
+                return
+
             if not self.url_validator(url):
+                self.db_url_delete(url_before)
                 # Pokud neni validni preskoc, muze nastat po redirectu
                 return
 
-            if self.db_url_exists(url):
-                self.db_url_iterate_inlinks(url)
-                return
-            else:
-                self.db_url_insert(url)
+            # print(url)
+            self.db_url_set_visited(url)
 
-                if self.debug:
-                    # print("URL: " + self.url_decode(url))
-                    path = os.path.join(self.logs_path, "logs/"+urllib.parse.urlsplit(self.start_url).netloc+"_logs.txt")
-                    os.makedirs(os.path.dirname(path), exist_ok=True)
-                    with open(path, "a") as log_file:
-                        log_file.write("URL: " + self.url_decode(url))
-                        log_file.write("\n")
+            if url_before != url:
+                self.db_url_delete(url_before)
+                # self.db_url_set_visited(url_before)
+
+                if self.db_url_exists(url):
+                    self.db_url_iterate_inlinks
+                    if self.db_is_url_visited:
+                        # print("URL IS VISITED!!!!!")
+                        return
+                else:
+                    self.db_url_insert(url)
+
+            if self.debug:
+                # print("URL: " + self.url_decode(url))
+                path = os.path.join(self.logs_path, "logs"+ self.version +"/"+urllib.parse.urlsplit(self.start_url).netloc+"_logs.txt")
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "a") as log_file:
+                    log_file.write("URL: " + self.url_decode(url))
+                    log_file.write("\n")
                     # print("URL: " + url)
+
+
 
             # html = response.read()
             html = response.text
@@ -325,35 +414,59 @@ class UpolCrawler:
             urls_on_page = self.page_urls(soup, url)
 
             for page_url in urls_on_page:
-                if (self.db_url_exists(page_url)) or (page_url in self.url_queue):
+                if (self.db_url_exists(page_url)):
                     self.db_url_iterate_inlinks(page_url)
                 else:
-                    self.url_queue.add(page_url)
+                    self.db_url_insert(page_url)
 
     def start(self):
         start_time = datetime.datetime.now()
+        time.sleep(self.sleep_time)
+        start_tick_time = datetime.datetime.now()
+        sleep_time_length = start_tick_time - start_time
+        end_tick_time = datetime.datetime.now()
+
+
+
+        url = ""
 
         if self.debug:
             number = 0
 
-        while (len(self.url_queue) != 0):
-            url = self.url_queue.pop()
+        while (True):
+            # url = self.url_queue.pop()
+            start_tick_time = datetime.datetime.now()
+            elapsed_tick_time = end_tick_time - start_tick_time
+
+            url_last = url
+            url = self.db_get_random_unvisited_url()
+
+            print(url)
+
+            if url == None:
+                break;
+
+            if (self.url_domain(url_last) == self.url_domain(url)):
+                if elapsed_tick_time >= sleep_time_length:
+                    time.sleep(self.sleep_time)
+
             self.crawl_url(url)
+
             if self.debug:
                 number = number + 1
-                path = os.path.join(self.logs_path, "logs/"+urllib.parse.urlsplit(self.start_url).netloc+"_logs.txt")
+                path = os.path.join(self.logs_path, "logs"+ self.version +"/"+urllib.parse.urlsplit(self.start_url).netloc+"_logs.txt")
                 os.makedirs(os.path.dirname(path), exist_ok=True)
                 with open(path, "a") as log_file:
                     log_file.write("#" + str(number))
                     log_file.write("\n")
 
-            time.sleep(self.sleep_time)
+            start_tick_time = datetime.datetime.now()
 
         end_time = datetime.datetime.now()
         elapsed = end_time - start_time
 
         if self.debug:
-            path = os.path.join(self.logs_path, "logs/"+urllib.parse.urlsplit(self.start_url).netloc+"_result.txt")
+            path = os.path.join(self.logs_path, "logs"+ self.version +"/"+urllib.parse.urlsplit(self.start_url).netloc+"_result.txt")
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as result_file:
                 result_file.write("Number of pages:")
