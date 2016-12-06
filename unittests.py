@@ -22,8 +22,8 @@ class TestBlacklistMethods(unittest.TestCase):
         self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
 
-@patch('crawler.db.db', redis.Redis(host='localhost', port=6379, db=10))
-@patch('crawler.db.db_visited', redis.Redis(host='localhost', port=6379, db=11))
+@patch('crawler.db.db', redis.StrictRedis(host='localhost', port=6379, db=10))
+@patch('crawler.db.db_visited', redis.StrictRedis(host='localhost', port=6379, db=11))
 class TestDbMethods(unittest.TestCase):
     def setUp(self):
         self.url = "http://upol.cz"

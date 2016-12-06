@@ -1,8 +1,8 @@
 import redis
 from . import url
 
-db = redis.Redis(host='localhost', port=6379, db=1)
-db_visited = redis.Redis(host='localhost', port=6379, db=2)
+db = redis.StrictRedis(host='localhost', port=6379, db=1)
+db_visited = redis.StrictRedis(host='localhost', port=6379, db=2)
 
 def insert_url(url):
     """Insert url into db and set visited False and inlinks 0"""
@@ -23,14 +23,11 @@ def delete_url(url):
     """Try to delete url from db, returns True if case of success"""
     result = db.delete(url)
 
-    return True if result == 1 else False
+    return result == 1
 
 def exists_url(url):
     """Return if url is exists in db"""
-    if (db.exists(url) > 0) or (db_visited.exists(url) > 0):
-        return True
-    else:
-        return False
+    return (db.exists(url) > 0) or (db_visited.exists(url) > 0)
 
 def set_visited_url(url):
     """Try to set url to visited"""
