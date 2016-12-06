@@ -4,12 +4,23 @@ from unittest.mock import patch
 
 from crawler import url
 from crawler import db
+from crawler import blacklist
 
 class TestUrlMethods(unittest.TestCase):
 
     def test_url_clean(self):
         self.assertEqual(url.clean("http://upol.cz/"), "http://upol.cz")
         self.assertEqual(url.clean("http://upol.cz"), "http://upol.cz")
+
+    def test_url_domain(self):
+        self.assertEqual(url.domain("http://upol.cz/"), "upol.cz")
+
+@patch('crawler.blacklist.blacklist', ["test.com"])
+class TestBlacklistMethods(unittest.TestCase):
+
+    def test_is_url_blocked(self):
+        self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
+        self.assertTrue(blacklist.is_url_blocked("http://test.com"))
 
 @patch('crawler.db.db', redis.Redis(host='localhost', port=6379, db=10))
 @patch('crawler.db.db_visited', redis.Redis(host='localhost', port=6379, db=11))
