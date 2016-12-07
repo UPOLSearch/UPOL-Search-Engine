@@ -14,9 +14,6 @@ Goal of the UPOL-Crawler is crawl http://upol.cz domain for gathering all avalib
   Disallow: *
 ```
 
-## Where the crawler runs?
-Crawler runs from ```apollo.inf.upol.cz``` machine ```158.194.92.7```
-
 ---
 
 # UPOL-Crawler (Czech)
@@ -34,6 +31,3 @@ Cílem crawleru je procházet doménu http://upol.cz za účelem získání vše
   User-Agent: UPOL-Crawler
   Disallow: *
 ```
-
-## Kde crawler běží?
-Crawler běží z adresy ```apollo.inf.upol.cz - 158.194.92.7```
