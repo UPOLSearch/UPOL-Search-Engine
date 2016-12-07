@@ -2,11 +2,14 @@ import unittest
 import redis
 import pymongo
 from unittest.mock import patch
+import responses
+import requests
 
 from crawler import urls
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
-from crawler import blacklist
+from crawler.validator import blacklist
+from crawler.validator import validator
 
 class TestUrlMethods(unittest.TestCase):
 
@@ -17,12 +20,39 @@ class TestUrlMethods(unittest.TestCase):
     def test_url_domain(self):
         self.assertEqual(urls.domain("http://upol.cz/"), "upol.cz")
 
-@patch('crawler.blacklist.blacklist', ["test.com"])
+@patch('crawler.validator.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
 
     def test_is_url_blocked(self):
         self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
+
+@patch('crawler.validator.validator.content_type_whitelist', ["text/html"])
+class TestValidatorMethods(unittest.TestCase):
+
+    @responses.activate
+    def test_content_type(self):
+        responses.add(responses.GET, 'http://upol.cz',
+            body='{"error": "not found"}', status=404,
+            content_type='application/json')
+
+        responses.add(responses.GET, 'http://upol2.cz',
+            body='{"error": "not found"}', status=404,
+            content_type='text/html')
+
+        response = requests.get('http://upol.cz')
+        self.assertFalse(validator.content_type(response.headers['Content-Type']))
+
+        response = requests.get('http://upol2.cz')
+        self.assertTrue(validator.content_type(response.headers['Content-Type']))
+
+    @patch('crawler.validator.validator.file_extension_whitelist', [".php"])
+    def test_file_extension(self):
+        self.assertTrue(validator.file_extension("http://test.com/index.php"))
+        self.assertTrue(validator.file_extension("http://test.com/index"))
+        self.assertTrue(validator.file_extension("http://test.com/aaa.jpg/index"))
+        self.assertFalse(validator.file_extension("http://test.com/index.jpg"))
+        self.assertFalse(validator.file_extension("http://test.com/aaa.jpg/index.jpg"))
 
 class TesstDbMethodsMongoDb(unittest.TestCase):
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
