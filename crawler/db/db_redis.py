@@ -1,12 +1,12 @@
 import redis
-from crawler import url
+from crawler import urls
 
 db = redis.StrictRedis(host='localhost', port=6379, db=1)
 db_visited = redis.StrictRedis(host='localhost', port=6379, db=2)
 
 def insert_url(url):
     """Insert url into db and set visited False and inlinks 0"""
-    args = {'url': url.encode('utf-8')}
+    args = {'url': urls.encode('utf-8')}
 
     return db.hmset(url, args)
 
