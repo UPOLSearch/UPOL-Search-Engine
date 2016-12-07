@@ -1,19 +1,21 @@
 import unittest
 import redis
+import pymongo
 from unittest.mock import patch
 
-from crawler import url
-from crawler.db import db_redis
+from crawler import urls
+from crawler.db import db_redis as db
+from crawler.db import db_mongodb as db
 from crawler import blacklist
 
 class TestUrlMethods(unittest.TestCase):
 
     def test_url_clean(self):
-        self.assertEqual(url.clean("http://upol.cz/"), "http://upol.cz")
-        self.assertEqual(url.clean("http://upol.cz"), "http://upol.cz")
+        self.assertEqual(urls.clean("http://upol.cz/"), "http://upol.cz")
+        self.assertEqual(urls.clean("http://upol.cz"), "http://upol.cz")
 
     def test_url_domain(self):
-        self.assertEqual(url.domain("http://upol.cz/"), "upol.cz")
+        self.assertEqual(urls.domain("http://upol.cz/"), "upol.cz")
 
 @patch('crawler.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
@@ -22,13 +24,39 @@ class TestBlacklistMethods(unittest.TestCase):
         self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
 
+class TesstDbMethodsMongoDb(unittest.TestCase):
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def setUp(self):
+        self.url = "https://forum.inf.upol.cz/viewforum.php?f=18&sid=301bc96d2d47656f0d1a3f82e897a812"
+        db.init()
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_url_insert(self):
+        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.insert_url(self.url), False)
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_url_delete(self):
+        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.delete_url(self.url), True)
+        self.assertEqual(db.delete_url(self.url), False)
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_url_exists(self):
+        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.exists_url(self.url), True)
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def tearDown(self):
+        db.flush_db()
+
 # @patch('crawler.db_redis.db', redis.StrictRedis(host='localhost', port=6379, db=10))
 # @patch('crawler.db_redis.db_visited', redis.StrictRedis(host='localhost', port=6379, db=11))
 # class TestDbMethods(unittest.TestCase):
 #     def setUp(self):
 #         self.url = "http://upol.cz"
 #
-#     def test_url_inser(self):
+#     def test_url_insert(self):
 #         self.assertFalse(db_redis.exists_url(self.url))
 #         self.assertTrue(db_redis.insert_url(self.url))
 #         self.assertTrue(db_redis.exists_url(self.url))
