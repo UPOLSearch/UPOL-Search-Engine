@@ -23,6 +23,7 @@ def domain(url):
     """Return domain of the url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
+    #TODO - Maybe implement in higher layer
     if not scheme:
         url = add_scheme(url)
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
