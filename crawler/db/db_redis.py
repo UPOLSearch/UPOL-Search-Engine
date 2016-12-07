@@ -1,5 +1,5 @@
 import redis
-from . import url
+from crawler import url
 
 db = redis.StrictRedis(host='localhost', port=6379, db=1)
 db_visited = redis.StrictRedis(host='localhost', port=6379, db=2)
@@ -28,6 +28,10 @@ def delete_url(url):
 def exists_url(url):
     """Return if url is exists in db"""
     return (db.exists(url) > 0) or (db_visited.exists(url) > 0)
+
+def random_unvisited_url():
+    """Return random unvisited url"""
+    return db.randomkey()
 
 def set_visited_url(url):
     """Try to set url to visited"""
