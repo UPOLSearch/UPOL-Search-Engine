@@ -5,29 +5,29 @@ from unittest.mock import patch
 import responses
 import requests
 
-from crawler import urls
+from crawler.urls import url_tools
+from crawler.urls import validator
+from crawler.urls import blacklist
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
-from crawler.validator import blacklist
-from crawler.validator import validator
 
 class TestUrlMethods(unittest.TestCase):
 
     def test_url_clean(self):
-        self.assertEqual(urls.clean("http://upol.cz/"), "http://upol.cz")
-        self.assertEqual(urls.clean("http://upol.cz"), "http://upol.cz")
+        self.assertEqual(url_tools.clean("http://upol.cz/"), "http://upol.cz")
+        self.assertEqual(url_tools.clean("http://upol.cz"), "http://upol.cz")
 
     def test_url_domain(self):
-        self.assertEqual(urls.domain("http://upol.cz/"), "upol.cz")
+        self.assertEqual(url_tools.domain("http://upol.cz/"), "upol.cz")
 
-@patch('crawler.validator.blacklist.blacklist', ["test.com"])
+@patch('crawler.urls.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
 
     def test_is_url_blocked(self):
         self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
 
-@patch('crawler.validator.validator.content_type_whitelist', ["text/html"])
+@patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
 
     @responses.activate
@@ -41,18 +41,42 @@ class TestValidatorMethods(unittest.TestCase):
             content_type='text/html')
 
         response = requests.get('http://upol.cz')
-        self.assertFalse(validator.content_type(response.headers['Content-Type']))
+        self.assertFalse(validator.validate_content_type(response.headers['Content-Type']))
 
         response = requests.get('http://upol2.cz')
-        self.assertTrue(validator.content_type(response.headers['Content-Type']))
+        self.assertTrue(validator.validate_content_type(response.headers['Content-Type']))
 
-    @patch('crawler.validator.validator.file_extension_whitelist', [".php"])
+    @patch('crawler.urls.validator.file_extension_whitelist', [".php"])
     def test_file_extension(self):
-        self.assertTrue(validator.file_extension("http://test.com/index.php"))
-        self.assertTrue(validator.file_extension("http://test.com/index"))
-        self.assertTrue(validator.file_extension("http://test.com/aaa.jpg/index"))
-        self.assertFalse(validator.file_extension("http://test.com/index.jpg"))
-        self.assertFalse(validator.file_extension("http://test.com/aaa.jpg/index.jpg"))
+        self.assertTrue(validator.validate_file_extension("http://test.com/index.php"))
+        self.assertTrue(validator.validate_file_extension("http://test.com/index"))
+        self.assertTrue(validator.validate_file_extension("http://test.com/aaa.jpg/index"))
+        self.assertFalse(validator.validate_file_extension("http://test.com/index.jpg"))
+        self.assertFalse(validator.validate_file_extension("http://test.com/aaa.jpg/index.jpg"))
+
+    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
+    def test_regex(self):
+        self.assertTrue(validator.validate_regex("http://upol.cz"))
+        self.assertTrue(validator.validate_regex("https://upol.cz"))
+        self.assertTrue(validator.validate_regex("www.upol.cz"))
+        self.assertTrue(validator.validate_regex("https://www.upol.cz"))
+        self.assertTrue(validator.validate_regex("http://upol.cz/"))
+        self.assertTrue(validator.validate_regex("https://upol.cz/"))
+        self.assertTrue(validator.validate_regex("www.upol.cz/"))
+        self.assertTrue(validator.validate_regex("http://inf.upol.cz/"))
+        self.assertTrue(validator.validate_regex("https://inf.upol.cz/"))
+
+        self.assertFalse(validator.validate_regex("http://upool.cz"))
+        self.assertFalse(validator.validate_regex("https://upool.cz"))
+        self.assertFalse(validator.validate_regex("www.upool.cz"))
+        self.assertFalse(validator.validate_regex("https://www.upool.cz"))
+        self.assertFalse(validator.validate_regex("http://upool.cz/"))
+        self.assertFalse(validator.validate_regex("https://upool.cz/"))
+        self.assertFalse(validator.validate_regex("www.upool.cz/"))
+        self.assertFalse(validator.validate_regex("http://inf.upool.cz/"))
+        self.assertFalse(validator.validate_regex("https://inf.upool.cz/"))
+        self.assertFalse(validator.validate_regex("htp://upol.cz"))
+
 
 class TesstDbMethodsMongoDb(unittest.TestCase):
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
@@ -62,23 +86,23 @@ class TesstDbMethodsMongoDb(unittest.TestCase):
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def test_url_insert(self):
-        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
         self.assertEqual(db.insert_url(self.url), False)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def test_url_delete(self):
-        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
         self.assertEqual(db.delete_url(self.url), True)
         self.assertEqual(db.delete_url(self.url), False)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def test_url_exists(self):
-        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
         self.assertEqual(db.exists_url(self.url), True)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def test_url_set_visited(self):
-        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
         self.assertTrue(db.set_visited_url(self.url))
         self.assertFalse(db.set_visited_url(self.url))
         self.assertTrue(db.exists_url(self.url))

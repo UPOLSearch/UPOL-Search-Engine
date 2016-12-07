@@ -1,6 +1,6 @@
 import pymongo
 import urllib.parse
-from crawler import urls
+from crawler.urls import url_tools
 
 client = pymongo.MongoClient('localhost', 27017)
 db = client.upol_crawler
@@ -11,7 +11,7 @@ def init():
     # db.urls_visited.create_index('url_hash', unique=True)
 
 def _universal_insert_url(url, collection):
-    url_object = {"_id": urls.hash(url),
+    url_object = {"_id": url_tools.hash(url),
                   "url": url}
     try:
         result = collection.insert_one(url_object).inserted_id
@@ -26,13 +26,13 @@ def insert_url(url):
 
 def delete_url(url):
     """Try to delete url from db, returns True if case of success"""
-    result = db.urls.delete_one({'_id': urls.hash(url)})
+    result = db.urls.delete_one({'_id': url_tools.hash(url)})
 
     return result.deleted_count > 0
 
 def exists_url(url):
     """Return if url is exists in db"""
-    url_hash = urls.hash(url)
+    url_hash = url_tools.hash(url)
 
     result = db.urls.find({"_id": url_hash}).limit(1)
     result_visited = db.urls_visited.find({"_id": url_hash}).limit(1)
