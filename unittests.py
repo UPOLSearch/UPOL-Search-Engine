@@ -19,6 +19,8 @@ class TestUrlMethods(unittest.TestCase):
 
     def test_url_domain(self):
         self.assertEqual(url_tools.domain("http://upol.cz/"), "upol.cz")
+        self.assertEqual(url_tools.domain("www.upol.cz/"), "www.upol.cz")
+        self.assertEqual(url_tools.domain("www.upol.cz"), "www.upol.cz")
 
 @patch('crawler.urls.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
@@ -26,6 +28,7 @@ class TestBlacklistMethods(unittest.TestCase):
     def test_is_url_blocked(self):
         self.assertTrue(blacklist.is_url_blocked("http://test.com/aaa.html"))
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
+        self.assertTrue(blacklist.is_url_blocked("www.test.com"))
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
@@ -53,6 +56,8 @@ class TestValidatorMethods(unittest.TestCase):
         self.assertTrue(validator.validate_file_extension("http://test.com/aaa.jpg/index"))
         self.assertFalse(validator.validate_file_extension("http://test.com/index.jpg"))
         self.assertFalse(validator.validate_file_extension("http://test.com/aaa.jpg/index.jpg"))
+        self.assertTrue(validator.validate_file_extension("www.upol.cz"))
+        self.assertFalse(validator.validate_file_extension("www.upol.cz/aaaaa.jpg"))
 
     @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
     def test_regex(self):
@@ -76,6 +81,46 @@ class TestValidatorMethods(unittest.TestCase):
         self.assertFalse(validator.validate_regex("http://inf.upool.cz/"))
         self.assertFalse(validator.validate_regex("https://inf.upool.cz/"))
         self.assertFalse(validator.validate_regex("htp://upol.cz"))
+
+    def test_validate_anchor(self):
+        self.assertTrue(validator.validate_anchor("http://upol.cz"))
+        self.assertFalse(validator.validate_anchor("http://upol.cz/asdasd#asdad"))
+        self.assertFalse(validator.validate_anchor("www.upol.cz/asdasd#asdad"))
+
+    @patch('crawler.urls.validator.file_extension_whitelist', [".php"])
+    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
+    @patch('crawler.urls.blacklist.blacklist', ["test.com"])
+    def test_validator(self):
+        self.assertTrue(validator.validate("http://upol.cz/index.php"))
+        self.assertTrue(validator.validate("http://upol.cz/index"))
+        self.assertTrue(validator.validate("http://upol.cz/aaa.jpg/index"))
+        self.assertFalse(validator.validate("http://upol.cz/index.jpg"))
+        self.assertFalse(validator.validate("http://upol.cz/aaa.jpg/index.jpg"))
+
+        self.assertTrue(validator.validate("http://upol.cz"))
+        self.assertTrue(validator.validate("https://upol.cz"))
+        self.assertTrue(validator.validate("www.upol.cz"))
+        self.assertTrue(validator.validate("https://www.upol.cz"))
+        self.assertTrue(validator.validate("http://upol.cz/"))
+        self.assertTrue(validator.validate("https://upol.cz/"))
+        self.assertTrue(validator.validate("www.upol.cz/"))
+        self.assertTrue(validator.validate("http://inf.upol.cz/"))
+        self.assertTrue(validator.validate("https://inf.upol.cz/"))
+
+        self.assertFalse(validator.validate("http://upool.cz"))
+        self.assertFalse(validator.validate("https://upool.cz"))
+        self.assertFalse(validator.validate("www.upool.cz"))
+        self.assertFalse(validator.validate("https://www.upool.cz"))
+        self.assertFalse(validator.validate("http://upool.cz/"))
+        self.assertFalse(validator.validate("https://upool.cz/"))
+        self.assertFalse(validator.validate("www.upool.cz/"))
+        self.assertFalse(validator.validate("http://inf.upool.cz/"))
+        self.assertFalse(validator.validate("https://inf.upool.cz/"))
+        self.assertFalse(validator.validate("htp://upol.cz"))
+
+        self.assertTrue(validator.validate("http://upol.cz"))
+        self.assertFalse(validator.validate("http://upol.cz/asdasd#asdad"))
+
 
 
 class TesstDbMethodsMongoDb(unittest.TestCase):

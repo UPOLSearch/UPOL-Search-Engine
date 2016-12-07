@@ -1,4 +1,5 @@
 from crawler.urls import url_tools
+import urllib.parse
 
 #TODO - load values from file
 blacklist = ["portal.upol.cz",
@@ -8,4 +9,8 @@ blacklist = ["portal.upol.cz",
             "helpdesk.upol.cz"]
 
 def is_url_blocked(url):
-    return True if url_tools.domain(url) in blacklist else False
+    """Check if url domain is blocked"""
+    if url_tools.domain(url).replace("www.", "") in blacklist:
+        return True
+
+    return False

@@ -11,9 +11,22 @@ def clean(url):
     """Remove last backslash from url"""
     return url.rstrip('/')
 
+def add_scheme(url):
+    """Add missing scheme to url"""
+    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+    scheme = "http"
+    netloc = path
+    path = ""
+    return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+
 def domain(url):
     """Return domain of the url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+
+    if not scheme:
+        url = add_scheme(url)
+        scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+
     return netloc
 
 def generate_regex(url):
