@@ -47,6 +47,13 @@ class TesstDbMethodsMongoDb(unittest.TestCase):
         self.assertEqual(db.exists_url(self.url), True)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_url_set_visited(self):
+        self.assertEqual(db.insert_url(self.url), urls.hash(self.url))
+        self.assertTrue(db.set_visited_url(self.url))
+        self.assertFalse(db.set_visited_url(self.url))
+        self.assertTrue(db.exists_url(self.url))
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def tearDown(self):
         db.flush_db()
 
