@@ -4,12 +4,15 @@ import pymongo
 from unittest.mock import patch
 import responses
 import requests
+from bs4 import BeautifulSoup
 
 from crawler.urls import url_tools
 from crawler.urls import validator
 from crawler.urls import blacklist
+from crawler.urls import parser
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
+
 
 class TestUrlMethods(unittest.TestCase):
 
@@ -26,6 +29,7 @@ class TestUrlMethods(unittest.TestCase):
         self.assertTrue(url_tools.is_url_absolute("http://upol.cz/"))
         self.assertFalse(url_tools.is_url_absolute("ahoj/test.jpg"))
 
+
 @patch('crawler.urls.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
 
@@ -34,18 +38,35 @@ class TestBlacklistMethods(unittest.TestCase):
         self.assertTrue(blacklist.is_url_blocked("http://test.com"))
         self.assertTrue(blacklist.is_url_blocked("www.test.com"))
 
+
+class TestParserMethods(unittest.TestCase):
+
+    def test_is_page_wiki(self):
+        html = '<meta name="generator" content="MediaWiki 1.26.2">'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertTrue(parser.is_page_wiki(soup))
+
+        html = '<meta name="generator" content="AAA"><meta name="generator" content="MediaWiki 1.26.2">'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertTrue(parser.is_page_wiki(soup))
+
+        html = '<html></html>'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertFalse(parser.is_page_wiki(soup))
+
+
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
 
     @responses.activate
     def test_content_type(self):
         responses.add(responses.GET, 'http://upol.cz',
-            body='{"error": "not found"}', status=404,
-            content_type='application/json')
+                      body='{"error": "not found"}', status=404,
+                      content_type='application/json')
 
         responses.add(responses.GET, 'http://upol2.cz',
-            body='{"error": "not found"}', status=404,
-            content_type='text/html')
+                      body='{"error": "not found"}', status=404,
+                      content_type='text/html')
 
         response = requests.get('http://upol.cz')
         self.assertFalse(validator.validate_content_type(response.headers['Content-Type']))
@@ -124,7 +145,6 @@ class TestValidatorMethods(unittest.TestCase):
 
         self.assertTrue(validator.validate("http://upol.cz"))
         self.assertFalse(validator.validate("http://upol.cz/asdasd#asdad"))
-
 
 
 class TesstDbMethodsMongoDb(unittest.TestCase):

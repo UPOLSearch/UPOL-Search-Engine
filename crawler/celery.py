@@ -3,7 +3,7 @@ from celery import Celery
 
 app = Celery('crawler',
              broker='redis://localhost:6379/0',
-            #  backend='amqp://',
+             # backend='amqp://',
              include=['crawler.tasks'])
 
 # Optional configuration, see the application user guide.

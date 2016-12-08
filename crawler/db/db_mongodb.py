@@ -5,10 +5,12 @@ from crawler.urls import url_tools
 client = pymongo.MongoClient('localhost', 27017)
 db = client.upol_crawler
 
+
 def init():
     None
     # db.urls.create_index('url_hash', unique=True)
     # db.urls_visited.create_index('url_hash', unique=True)
+
 
 def _universal_insert_url(url, collection):
     url_object = {"_id": url_tools.hash(url),
@@ -20,15 +22,18 @@ def _universal_insert_url(url, collection):
 
     return result
 
+
 def insert_url(url):
     """Insert url into db and set visited False and inlinks 0"""
     return _universal_insert_url(url, db.urls)
+
 
 def delete_url(url):
     """Try to delete url from db, returns True if case of success"""
     result = db.urls.delete_one({'_id': url_tools.hash(url)})
 
     return result.deleted_count > 0
+
 
 def exists_url(url):
     """Return if url is exists in db"""
@@ -39,9 +44,11 @@ def exists_url(url):
 
     return result.count() + result_visited.count() > 0
 
+
 def random_unvisited_url():
     """Return random unvisited url"""
     return list(db.urls.aggregate([{"$sample": {'size': 1}}]))[0]['url']
+
 
 def set_visited_url(url):
     """Try to set url to visited"""
@@ -50,6 +57,7 @@ def set_visited_url(url):
         return True
     else:
         return False
+
 
 def flush_db():
     """Delete everything from database"""

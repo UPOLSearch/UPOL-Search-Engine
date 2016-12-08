@@ -4,6 +4,7 @@ from crawler import urls
 db = redis.StrictRedis(host='localhost', port=6379, db=1)
 db_visited = redis.StrictRedis(host='localhost', port=6379, db=2)
 
+
 def insert_url(url):
     """Insert url into db and set visited False and inlinks 0"""
     args = {'url': urls.encode('utf-8')}
@@ -19,19 +20,23 @@ def insert_url(url):
 #
 #     return result[0].decode('utf-8')
 
+
 def delete_url(url):
     """Try to delete url from db, returns True if case of success"""
     result = db.delete(url)
 
     return result == 1
 
+
 def exists_url(url):
     """Return if url is exists in db"""
     return (db.exists(url) > 0) or (db_visited.exists(url) > 0)
 
+
 def random_unvisited_url():
     """Return random unvisited url"""
     return db.randomkey()
+
 
 def set_visited_url(url):
     """Try to set url to visited"""
@@ -40,6 +45,7 @@ def set_visited_url(url):
         return True
     else:
         return False
+
 
 def flush_db():
     """Delete everything from database"""

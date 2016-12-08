@@ -3,11 +3,12 @@ from crawler.urls import url_tools
 import urllib.parse
 from crawler import config
 
-#TODO - load values from file
+# TODO - load values from file
 content_type_whitelist = ["text/html"]
 file_extension_whitelist = [".php",
                             ".html",
-                            ".xhtml",]
+                            ".xhtml"]
+
 
 def validate_content_type(content_type_header):
     """Validate if content-type is in content-type whitelist"""
@@ -17,12 +18,13 @@ def validate_content_type(content_type_header):
 
     return False
 
+
 def validate_file_extension(url):
     """Check if url include blacklisted file extension"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
-    #In case of www.upol.cz
-    #TODO - Maybe implement in higher layer
+    # In case of www.upol.cz
+    # TODO - Maybe implement in higher layer
     if not scheme:
         return validate_file_extension(url_tools.add_scheme(url))
 
@@ -39,9 +41,11 @@ def validate_file_extension(url):
 
     return valid
 
+
 def validate_regex(url):
     """Check if url is validate with regex"""
     return config.regex.match(url)
+
 
 def validate_anchor(url):
     """Check if url include anchor"""
@@ -50,6 +54,7 @@ def validate_anchor(url):
         return False
     else:
         return True
+
 
 def validate_phpbb(url):
     """Validate if url from phpBB system is valid or blacklisted"""
@@ -64,6 +69,7 @@ def validate_phpbb(url):
 
     return True
 
+
 def validate_wiki(url):
     """Validate if url from wiki system is valid or blacklisted"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
@@ -76,6 +82,7 @@ def validate_wiki(url):
             return False
 
     return True
+
 
 def validate(url):
     """Complete validator"""

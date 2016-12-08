@@ -2,18 +2,22 @@ import hashlib
 import urllib.parse
 import re
 
+
 def hash(url):
     """Returns hash of url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
     return hashlib.sha1(url.encode('utf-8')).hexdigest()
 
+
 def clean(url):
     """Remove last backslash from url"""
     return url.rstrip('/')
 
+
 def is_url_absolute(url):
     """Test if url is absolute"""
     return bool(urllib.parse.urlparse(url).netloc)
+
 
 def add_scheme(url):
     """Add missing scheme to url"""
@@ -23,16 +27,18 @@ def add_scheme(url):
     path = ""
     return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
 
+
 def domain(url):
     """Return domain of the url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
-    #TODO - Maybe implement in higher layer
+    # TODO - Maybe implement in higher layer
     if not scheme:
         url = add_scheme(url)
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     return netloc
+
 
 def generate_regex(url):
     """Generate regex for url"""
