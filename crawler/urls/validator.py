@@ -54,28 +54,28 @@ def validate_anchor(url):
 def validate_phpbb(url):
     """Validate if url from phpBB system is valid or blacklisted"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-        path = path+qs+anchor
+    path = path+qs+anchor
 
-        url_keywords = ["posting.php", "ucp.php", "view=print", "memberlist.php", "mark"]
+    url_keywords = ["posting.php", "ucp.php", "view=print", "memberlist.php", "mark"]
 
-        for url_keyword in url_keywords:
-            if url_keyword in path:
-                return False
+    for url_keyword in url_keywords:
+        if url_keyword in path:
+            return False
 
-        return True
+    return True
 
 def validate_wiki(url):
     """Validate if url from wiki system is valid or blacklisted"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-        path = path+qs+anchor
+    path = path+qs+anchor
 
-        url_keywords = ["&"]
+    url_keywords = ["&"]
 
-        for url_keyword in url_keywords:
-            if url_keyword in path:
-                return False
+    for url_keyword in url_keywords:
+        if url_keyword in path:
+            return False
 
-        return True
+    return True
 
 def validate(url):
     """Complete validator"""
