@@ -63,6 +63,61 @@ class TestParserMethods(unittest.TestCase):
         soup = BeautifulSoup(html, "lxml")
         self.assertFalse(parser.is_page_phpbb(soup))
 
+    def test_base_url(self):
+        url = "http://upol.cz/test"
+        html = '<html><base href="http://upol.cz/" target="_blank"></html>'
+        soup = BeautifulSoup(html, "lxml")
+
+        self.assertEqual(parser.base_url(soup, url), "http://upol.cz/")
+
+        url = "http://upol.cz/test"
+        html = '<html></html>'
+        soup = BeautifulSoup(html, "lxml")
+
+        self.assertEqual(parser.base_url(soup, url), "http://upol.cz/test")
+
+    def test_validated_page_urls(self):
+        url = "http://upol.cz/"
+        html = """<a href="ahoj.html">aaa</a>
+                  <a href="http://upol.cz/ahoj2.html#test">aaa</a>
+                  <a href="http://upol.cz/ahoj.html">aaa</a>
+                  <a href="http://twitter.com/ahoj.html">aaa</a>"""
+        soup = BeautifulSoup(html, "lxml")
+
+        expected_result = {"http://upol.cz/ahoj.html"}
+
+        self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
+
+    def test_validated_page_urls_base_tag(self):
+        url = "http://upol.cz/test"
+        html = """<html><base href="http://upol.cz/" target="_blank">
+                  <body>
+                  <a href="ahoj.html">aaa</a>
+                  <a href="http://upol.cz/ahoj2.html">aaa</a>
+                  </body>
+                  </html>"""
+        soup = BeautifulSoup(html, "lxml")
+
+        expected_result = {"http://upol.cz/ahoj.html", "http://upol.cz/ahoj2.html"}
+
+        self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
+
+    def test_validated_page_urls_phpbb(self):
+        url = "http://upol.cz/test"
+        html = """<html>
+                  <body id="phpbb">
+                  <div id="page-body">
+                  <a href="ahoj.html">aaa</a>
+                  </div>
+                  <a href="http://upol.cz/ahoj2.html">aaa</a>
+                  </body>
+                  </html>"""
+        soup = BeautifulSoup(html, "lxml")
+
+        expected_result = {"http://upol.cz/ahoj.html"}
+
+        self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
+
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
