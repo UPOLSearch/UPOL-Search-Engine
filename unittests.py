@@ -54,6 +54,15 @@ class TestParserMethods(unittest.TestCase):
         soup = BeautifulSoup(html, "lxml")
         self.assertFalse(parser.is_page_wiki(soup))
 
+    def test_is_page_phpbb(self):
+        html = '<body id="phpbb"></body>'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertTrue(parser.is_page_phpbb(soup))
+
+        html = '<body></body>'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertFalse(parser.is_page_phpbb(soup))
+
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
