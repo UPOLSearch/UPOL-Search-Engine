@@ -22,6 +22,7 @@ def validate_file_extension(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     #In case of www.upol.cz
+    #TODO - Maybe implement in higher layer
     if not scheme:
         return validate_file_extension(url_tools.add_scheme(url))
 
@@ -48,6 +49,32 @@ def validate_anchor(url):
     if anchor:
         return False
     else:
+        return True
+
+def validate_phpbb(url):
+    """Validate if url from phpBB system is valid or blacklisted"""
+    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+        path = path+qs+anchor
+
+        url_keywords = ["posting.php", "ucp.php", "view=print", "memberlist.php", "mark"]
+
+        for url_keyword in url_keywords:
+            if url_keyword in path:
+                return False
+
+        return True
+
+def validate_wiki(url):
+    """Validate if url from wiki system is valid or blacklisted"""
+    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+        path = path+qs+anchor
+
+        url_keywords = ["&"]
+
+        for url_keyword in url_keywords:
+            if url_keyword in path:
+                return False
+
         return True
 
 def validate(url):
