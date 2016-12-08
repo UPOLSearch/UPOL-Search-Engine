@@ -11,6 +11,10 @@ def clean(url):
     """Remove last backslash from url"""
     return url.rstrip('/')
 
+def is_url_absolute(url):
+    """Test if url is absolute"""
+    return bool(urllib.parse.urlparse(url).netloc)
+
 def add_scheme(url):
     """Add missing scheme to url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)

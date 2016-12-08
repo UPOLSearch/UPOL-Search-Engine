@@ -22,6 +22,10 @@ class TestUrlMethods(unittest.TestCase):
         self.assertEqual(url_tools.domain("www.upol.cz/"), "www.upol.cz")
         self.assertEqual(url_tools.domain("www.upol.cz"), "www.upol.cz")
 
+    def test_is_url_absolute(self):
+        self.assertTrue(url_tools.is_url_absolute("http://upol.cz/"))
+        self.assertFalse(url_tools.is_url_absolute("ahoj/test.jpg"))
+
 @patch('crawler.urls.blacklist.blacklist', ["test.com"])
 class TestBlacklistMethods(unittest.TestCase):
 
