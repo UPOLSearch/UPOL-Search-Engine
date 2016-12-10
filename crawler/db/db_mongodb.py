@@ -35,6 +35,12 @@ def delete_url(url):
     return result.deleted_count > 0
 
 
+def is_visited(url):
+    result_visited = db.urls_visited.find({"_id": url_hash}).limit(1)
+
+    return result_visited.count() > 0
+
+
 def exists_url(url):
     """Return if url is exists in db"""
     url_hash = url_tools.hash(url)
