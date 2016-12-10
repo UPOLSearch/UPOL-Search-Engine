@@ -14,6 +14,11 @@ Goal of the UPOL-Crawler is crawl http://upol.cz domain for gathering all avalib
   Disallow: *
 ```
 
+Full user-agent string
+```
+Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Crawler)
+```
+
 ---
 
 # UPOL-Crawler (Czech)
@@ -30,4 +35,9 @@ Cílem crawleru je procházet doménu http://upol.cz za účelem získání vše
 ```
   User-Agent: UPOL-Crawler
   Disallow: *
+```
+
+Celkový user-agent
+```
+Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Crawler)
 ```
