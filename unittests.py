@@ -4,6 +4,7 @@ import pymongo
 from unittest.mock import patch
 import responses
 import requests
+import urllib.parse
 from bs4 import BeautifulSoup
 
 from crawler.urls import url_tools
@@ -121,6 +122,17 @@ class TestParserMethods(unittest.TestCase):
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
+
+    @responses.activate
+    def test_url_encode(self):
+        url = 'http://upol.cz/řeřicha'
+        responses.add(responses.GET, 'http://upol.cz/%C5%99e%C5%99icha',
+                      body='{"error": "not found"}', status=404,
+                      content_type='application/json')
+
+        response = requests.get(url)
+
+        self.assertEqual(url_tools.decode(response.url), url)
 
     @responses.activate
     def test_content_type(self):
