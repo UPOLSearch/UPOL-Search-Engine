@@ -39,9 +39,9 @@ def domain(url):
 
     return netloc
 
+
 def decode(url):
     """Decode and return url"""
-    
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
     path = urllib.parse.unquote(path)
     qs = urllib.parse.unquote_plus(qs)
