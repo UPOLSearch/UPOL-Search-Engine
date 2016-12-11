@@ -4,10 +4,11 @@ from time import sleep
 
 from celery.app.control import Control
 from crawler.celery import app
+from celery.utils.log import get_task_logger
 
 # Temporal solution
 db.insert_url("http://www.inf.upol.cz")
-
+logger = get_task_logger(__name__)
 
 def is_worker_running():
     inspect = app.control.inspect()
@@ -30,6 +31,7 @@ while True:
         tasks.crawl_url_task.delay(url)
     else:
         if is_worker_running():
+            logger.error("WORKER IS RUNNING - SLEEPING")
             sleep(5)
         else:
             break
