@@ -29,6 +29,9 @@ def get_url(url):
             redirected = True
             original_url = url
             url = url_tools.clean(response.history[0].url)
+
+            if url == original_url:
+                redirected = False
         else:
             url = url_tools.clean(response.url)
             original_url = url

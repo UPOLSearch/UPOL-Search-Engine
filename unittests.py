@@ -99,6 +99,9 @@ class TestParserMethods(unittest.TestCase):
 
         self.assertEqual(parser.base_url(soup, url), "http://upol.cz/test")
 
+    @patch('crawler.urls.validator.file_extension_whitelist', [".html"])
+    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
+    @patch('crawler.urls.blacklist.blacklist', ["test.com"])
     def test_validated_page_urls(self):
         url = "http://upol.cz/"
         html = """<a href="ahoj.html">aaa</a>
@@ -111,6 +114,9 @@ class TestParserMethods(unittest.TestCase):
 
         self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
 
+    @patch('crawler.urls.validator.file_extension_whitelist', [".html"])
+    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
+    @patch('crawler.urls.blacklist.blacklist', ["test.com"])
     def test_validated_page_urls_base_tag(self):
         url = "http://upol.cz/test"
         html = """<html><base href="http://upol.cz/" target="_blank">
@@ -125,6 +131,9 @@ class TestParserMethods(unittest.TestCase):
 
         self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
 
+    @patch('crawler.urls.validator.file_extension_whitelist', [".html"])
+    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
+    @patch('crawler.urls.blacklist.blacklist', ["test.com"])
     def test_validated_page_urls_phpbb(self):
         url = "http://upol.cz/test"
         html = """<html>
@@ -232,6 +241,10 @@ class TestValidatorMethods(unittest.TestCase):
 
         self.assertTrue(validator.validate("http://upol.cz"))
         self.assertFalse(validator.validate("http://upol.cz/asdasd#asdad"))
+
+    @patch('crawler.config.regex', url_tools.generate_regex("http://inf.upol.cz"))
+    def test_validator_inf(self):
+        self.assertTrue(validator.validate("http://www.inf.upol.cz/vyzkum/archiv-prednasek?akce=DAMOL Seminar&rok=2014"))
 
 
 class TesstDbMethodsMongoDb(unittest.TestCase):

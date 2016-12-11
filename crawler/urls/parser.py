@@ -98,9 +98,5 @@ def validated_page_urls(soup, url):
 
         if validator.validate(link_url):
             valid_urls.add(link_url)
-        else:
-            with open("not_valid.txt", "a") as log_file:
-                log_file.write("URL: " + url)
-                log_file.write("\n")
 
     return valid_urls
