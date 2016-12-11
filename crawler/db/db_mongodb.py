@@ -36,7 +36,7 @@ def delete_url(url):
 
 
 def is_visited(url):
-    result_visited = db.urls_visited.find({"_id": url_hash}).limit(1)
+    result_visited = db.urls_visited.find({"_id": url_tools.hash(url)}).limit(1)
 
     return result_visited.count() > 0
 
@@ -53,7 +53,11 @@ def exists_url(url):
 
 def random_unvisited_url():
     """Return random unvisited url"""
-    return list(db.urls.aggregate([{"$sample": {'size': 1}}]))[0]['url']
+    result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
+    if len(result) > 0:
+        return result[0]['url']
+    else:
+        return None
 
 
 def number_of_unvisited_url():
