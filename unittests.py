@@ -15,6 +15,7 @@ from crawler import crawler
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
 
+
 class TestUrlMethods(unittest.TestCase):
     def test_url_clean(self):
         self.assertEqual(url_tools.clean("http://upol.cz/"), "http://upol.cz")
@@ -267,6 +268,10 @@ class TesstDbMethodsMongoDb(unittest.TestCase):
         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
         self.assertEqual(db.insert_url(self.url + "/aaa"), url_tools.hash(self.url + "/aaa"))
         self.assertEqual(db.number_of_unvisited_url(),  2)
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_random_unvisited_url(self):
+        self.assertEqual(db.random_unvisited_url(), None)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def tearDown(self):
