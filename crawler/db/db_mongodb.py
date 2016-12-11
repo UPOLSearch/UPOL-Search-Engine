@@ -57,7 +57,7 @@ def number_of_unvisited_url():
     """Return number of unvisited url"""
     return db.urls.count()
 
-def random_unvisited_url():
+def random_unvisited_url_deprecated():
     """Return random unvisited url"""
     rand = random.random()
     random_record = db.urls.find_one({ "random": { "gte": rand }})
@@ -67,7 +67,7 @@ def random_unvisited_url():
     else:
         return None
 
-def random_unvisited_url_old():
+def random_unvisited_url():
     """Return random unvisited url"""
     if number_of_unvisited_url() > 0:
         result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
