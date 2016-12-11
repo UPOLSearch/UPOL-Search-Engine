@@ -6,7 +6,15 @@ from celery.app.control import Control
 from crawler.celery import app
 
 # Temporal solution
-db.insert_url("http://www.inf.upol.cz")
+db.insert_url("http://www.upol.cz")
+db.insert_url("http://www.cmtf.upol.cz")
+db.insert_url("http://www.lf.upol.cz")
+db.insert_url("http://www.ff.upol.cz")
+db.insert_url("http://www.prf.upol.cz")
+db.insert_url("http://www.pdf.upol.cz")
+db.insert_url("http://ftk.upol.cz")
+db.insert_url("http://www.pf.upol.cz")
+db.insert_url("http://www.fzv.upol.cz")
 
 
 def is_worker_running():
@@ -14,12 +22,18 @@ def is_worker_running():
 
     active = inspect.active()
     scheduled = inspect.scheduled()
+    reserved = inspect.reserved()
 
-    if (len(active.items()) + len(scheduled.items())) > 0:
+    active_number = len(list(active.values())[0])
+    scheduled_number = len(list(scheduled.values())[0])
+    reserved_number = len(list(reserved.values())[0])
+
+    if active_number + scheduled_number + reserved_number > 0:
         return True
     else:
         return False
 
+start_time = datetime.datetime.now()
 
 while True:
     url = db.random_unvisited_url()
@@ -35,3 +49,7 @@ while True:
         else:
             print("END")
             break
+
+end_time = datetime.datetime.now()
+elapsed = end_time - start_time
+print(str(elapsed))
