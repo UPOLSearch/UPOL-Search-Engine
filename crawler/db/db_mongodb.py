@@ -71,7 +71,7 @@ def random_unvisited_url():
     """Return random unvisited url"""
     if number_of_unvisited_url() > 0:
         result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
-        while len(result) = 0:
+        while len(result) == 0:
             result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
         return result[0]['url']
     else:
