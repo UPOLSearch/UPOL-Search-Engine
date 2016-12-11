@@ -45,7 +45,7 @@ while True:
     else:
         if is_worker_running():
             print("WORKER IS RUNNING - SLEEPING")
-            sleep(5)
+            sleep(2)
         else:
             print("END")
             break
