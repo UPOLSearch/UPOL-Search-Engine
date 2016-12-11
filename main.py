@@ -27,9 +27,8 @@ def is_worker_running():
 
     active_number = len(list(active.values())[0])
     scheduled_number = len(list(scheduled.values())[0])
-    reserved_number = len(list(reserved.values())[0])
 
-    if active_number + scheduled_number + reserved_number > 0:
+    if active_number + scheduled_number > 0:
         return True
     else:
         return False

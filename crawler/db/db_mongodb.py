@@ -1,6 +1,8 @@
 import pymongo
 import urllib.parse
+import random
 from crawler.urls import url_tools
+
 
 client = pymongo.MongoClient('localhost', 27017)
 db = client.upol_crawler
@@ -14,7 +16,8 @@ def init():
 
 def _universal_insert_url(url, collection):
     url_object = {"_id": url_tools.hash(url),
-                  "url": url}
+                  "url": url,
+                  "random": random.random()}
     try:
         result = collection.insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
@@ -50,20 +53,29 @@ def exists_url(url):
 
     return result.count() + result_visited.count() > 0
 
-
-def random_unvisited_url():
-    """Return random unvisited url"""
-    result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
-    if len(result) > 0:
-        return result[0]['url']
-    else:
-        return None
-
-
 def number_of_unvisited_url():
     """Return number of unvisited url"""
     return db.urls.count()
 
+def random_unvisited_url():
+    """Return random unvisited url"""
+    rand = random.random()
+    random_record = db.urls.find_one({ "random": { "gte": rand }})
+
+    if random_record is not None:
+        return random_record['url']
+    else:
+        return None
+
+def random_unvisited_url_old():
+    """Return random unvisited url"""
+    if number_of_unvisited_url() > 0:
+        result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
+        while len(result) > 0:
+            result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
+        return result[0]['url']
+    else:
+        return None
 
 def set_visited_url(url):
     """Try to set url to visited"""
