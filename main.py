@@ -2,7 +2,25 @@ from crawler import tasks
 from crawler.db import db_mongodb as db
 from time import sleep
 
+from celery.app.control import Control
+from crawler.celery import app
+
+# Temporal solution
 db.insert_url("http://www.inf.upol.cz")
+
+
+def is_worker_running():
+    inspect = app.control.inspect()
+
+    active = inspect.active()
+    registered = inspect.registered()
+    scheduled = inspect.scheduled()
+
+    if len(active.items()) + len(registered.items()) + len(scheduled.items()) > 0:
+        return True
+    else:
+        return False
+
 
 while True:
     url = db.random_unvisited_url()
@@ -10,13 +28,8 @@ while True:
     if url is not None:
         db.set_visited_url(url)
         tasks.crawl_url_task.delay(url)
-
-    # Temporal solution
-    if not db.number_of_unvisited_url() > 0:
-        number_of_tries = 2000
-        while number_of_tries != 0:
+    else:
+        if is_worker_running():
             sleep(5)
-            if not db.number_of_unvisited_url() > 0:
-                number_of_tries = number_of_tries - 1
-            else:
-                break
+        else:
+            break
