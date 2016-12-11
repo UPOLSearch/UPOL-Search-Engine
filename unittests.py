@@ -11,12 +11,11 @@ from crawler.urls import url_tools
 from crawler.urls import validator
 from crawler.urls import blacklist
 from crawler.urls import parser
+from crawler import crawler
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
 
-
 class TestUrlMethods(unittest.TestCase):
-
     def test_url_clean(self):
         self.assertEqual(url_tools.clean("http://upol.cz/"), "http://upol.cz")
         self.assertEqual(url_tools.clean("http://upol.cz"), "http://upol.cz")
@@ -29,6 +28,28 @@ class TestUrlMethods(unittest.TestCase):
     def test_is_url_absolute(self):
         self.assertTrue(url_tools.is_url_absolute("http://upol.cz/"))
         self.assertFalse(url_tools.is_url_absolute("ahoj/test.jpg"))
+
+    @responses.activate
+    def test_url_encode(self):
+        url = 'http://upol.cz/řeřicha'
+        responses.add(responses.GET, 'http://upol.cz/%C5%99e%C5%99icha',
+                      body='{"error": "not found"}', status=404,
+                      content_type='application/json')
+
+        response = requests.get(url)
+
+        self.assertEqual(url_tools.decode(response.url), url)
+
+    @responses.activate
+    def test_url_encode(self):
+        url = 'http://upol.cz/'
+        responses.add(responses.GET, 'http://upol.cz/',
+                      body='{"error": "not found"}', status=404,
+                      content_type='application/json')
+
+        response = requests.get(url)
+
+        self.assertEqual(url_tools.decode(response.url), url)
 
 
 @patch('crawler.urls.blacklist.blacklist', ["test.com"])
@@ -122,17 +143,6 @@ class TestParserMethods(unittest.TestCase):
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
-
-    @responses.activate
-    def test_url_encode(self):
-        url = 'http://upol.cz/řeřicha'
-        responses.add(responses.GET, 'http://upol.cz/%C5%99e%C5%99icha',
-                      body='{"error": "not found"}', status=404,
-                      content_type='application/json')
-
-        response = requests.get(url)
-
-        self.assertEqual(url_tools.decode(response.url), url)
 
     @responses.activate
     def test_content_type(self):
@@ -251,6 +261,12 @@ class TesstDbMethodsMongoDb(unittest.TestCase):
         self.assertTrue(db.set_visited_url(self.url))
         self.assertFalse(db.set_visited_url(self.url))
         self.assertTrue(db.exists_url(self.url))
+
+    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+    def test_number_of_unvisited(self):
+        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+        self.assertEqual(db.insert_url(self.url + "/aaa"), url_tools.hash(self.url + "/aaa"))
+        self.assertEqual(db.number_of_unvisited_url(),  2)
 
     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
     def tearDown(self):

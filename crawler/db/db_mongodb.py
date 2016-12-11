@@ -56,6 +56,11 @@ def random_unvisited_url():
     return list(db.urls.aggregate([{"$sample": {'size': 1}}]))[0]['url']
 
 
+def number_of_unvisited_url():
+    """Return number of unvisited url"""
+    return db.urls.count()
+
+
 def set_visited_url(url):
     """Try to set url to visited"""
     if (delete_url(url)):
