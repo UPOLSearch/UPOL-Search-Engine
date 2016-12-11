@@ -13,10 +13,9 @@ def is_worker_running():
     inspect = app.control.inspect()
 
     active = inspect.active()
-    registered = inspect.registered()
     scheduled = inspect.scheduled()
 
-    if len(active.items()) + len(registered.items()) + len(scheduled.items()) > 0:
+    if len(active.items()) + len(scheduled.items()) > 0:
         return True
     else:
         return False
