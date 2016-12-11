@@ -7,7 +7,8 @@ from crawler import config
 content_type_whitelist = ["text/html"]
 file_extension_whitelist = [".php",
                             ".html",
-                            ".xhtml"]
+                            ".xhtml",
+                            ".htm"]
 
 
 def validate_content_type(content_type_header):
