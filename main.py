@@ -19,7 +19,7 @@ def is_worker_running():
     print(len(active.items()))
     print(len(scheduled.items()))
 
-    if len(active.items()) + len(scheduled.items()) > 0:
+    if len(active.items()) - 1 + len(scheduled.items()) - 1 > 0:
         return True
     else:
         return False
