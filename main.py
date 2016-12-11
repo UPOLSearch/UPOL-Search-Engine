@@ -14,12 +14,9 @@ def is_worker_running():
 
     active = inspect.active()
     scheduled = inspect.scheduled()
-    # reserved = inspect.reserved()
+    reserved = inspect.reserved()
 
-    print(len(active.items()))
-    print(len(scheduled.items()))
-
-    if len(active.items()) - 1 + len(scheduled.items()) - 1 > 0:
+    if (len(active.items()) - 1 + len(scheduled.items()) - 1 + len(reserved.items()) - 1) > 0:
         return True
     else:
         return False
