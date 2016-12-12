@@ -53,12 +53,13 @@ while True:
         db.set_visited_url(url)
         tasks.crawl_url_task.delay(url)
     else:
-        if is_worker_running():
-            print("WORKER IS RUNNING - SLEEPING")
-            sleep(5)
-        else:
-            print("END")
-            break
+        print("WORKER IS RUNNING - SLEEPING")
+        # if is_worker_running():
+        #     print("WORKER IS RUNNING - SLEEPING")
+        #     sleep(5)
+        # else:
+        #     print("END")
+        #     break
 
 end_time = datetime.datetime.now()
 elapsed = end_time - start_time
