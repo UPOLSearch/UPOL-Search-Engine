@@ -25,10 +25,20 @@ def is_worker_running():
     scheduled = inspect.scheduled()
     reserved = inspect.reserved()
 
-    active_number = len(list(active.values())[0])
-    scheduled_number = len(list(scheduled.values())[0])
+    if active is not None:
+        active_number = len(list(active.values())[0])
+    else:
+        active_number = 0
+    if scheduled is not None:
+        scheduled_number = len(list(scheduled.values())[0])
+    else:
+        scheduled_number = 0
+    if reserved is not None:
+        reserved_number = len(list(reserved.values())[0])
+    else:
+        reserved_number = 0
 
-    if active_number + scheduled_number > 0:
+    if active_number + scheduled_number + reserved_number > 0:
         return True
     else:
         return False
