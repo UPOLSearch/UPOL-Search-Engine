@@ -9,10 +9,11 @@ db = client.upol_crawler
 
 
 def init():
-    None
-    # db.urls.create_index('url_hash', unique=True)
+    db.urls.create_index('random')
     # db.urls_visited.create_index('url_hash', unique=True)
 
+
+init()
 
 def _universal_insert_url(url, collection):
     url_object = {"_id": url_tools.hash(url),
@@ -53,21 +54,27 @@ def exists_url(url):
 
     return result.count() + result_visited.count() > 0
 
+
 def number_of_unvisited_url():
     """Return number of unvisited url"""
     return db.urls.count()
 
-def random_unvisited_url_deprecated():
+
+def random_unvisited_url():
     """Return random unvisited url"""
     rand = random.random()
-    random_record = db.urls.find_one({ "random": { "gte": rand }})
+    random_record = db.urls.find_one({ "random": { "$gte": rand }})
 
-    if random_record is not None:
+    if (number_of_unvisited_url() > 0):
+        while (random_record is None):
+            rand = random.random()
+            random_record = db.urls.find_one({ "random": { "$gte": rand }})
         return random_record['url']
     else:
         return None
 
-def random_unvisited_url():
+
+def random_unvisited_url_deprecated():
     """Return random unvisited url"""
     if number_of_unvisited_url() > 0:
         result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
@@ -76,6 +83,7 @@ def random_unvisited_url():
         return result[0]['url']
     else:
         return None
+
 
 def set_visited_url(url):
     """Try to set url to visited"""
