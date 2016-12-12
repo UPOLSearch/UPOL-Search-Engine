@@ -11,7 +11,7 @@ class Config(object):
             'important',
             exchange=Exchange('important'),
             routing_key="important",
-            queue_arguments={'x-max-length': 500}
+            queue_arguments={'x-max-length': 100}
         ),
     )
 
