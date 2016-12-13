@@ -8,12 +8,12 @@ client = pymongo.MongoClient('localhost', 27017)
 db = client.upol_crawler
 
 
-def init():
-    db.urls.create_index('random')
+# def init():
+    # db.urls.create_index('random')
     # db.urls_visited.create_index('url_hash', unique=True)
 
 
-init()
+# init()
 
 
 def _universal_insert_url(url, collection):
