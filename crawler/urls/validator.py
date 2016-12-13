@@ -1,5 +1,6 @@
 from crawler.urls import blacklist
 from crawler.urls import url_tools
+from crawler.db import db_mongodb as db
 import urllib.parse
 from crawler import config
 
@@ -39,6 +40,9 @@ def validate_file_extension(url):
                 break
     else:
         valid = True
+
+    if not valid:
+        db.insert_url_visited_file_extension(url)
 
     return valid
 
@@ -93,10 +97,11 @@ def validate(url):
     if not validate_regex(url):
         return False
 
-    if not validate_file_extension(url):
+    if blacklist.is_url_blocked(url):
         return False
 
-    if blacklist.is_url_blocked(url):
+    # Need to be last
+    if not validate_file_extension(url):
         return False
 
     return True

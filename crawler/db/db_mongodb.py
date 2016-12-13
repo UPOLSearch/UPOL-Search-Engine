@@ -15,10 +15,10 @@ def init():
 
 init()
 
+
 def _universal_insert_url(url, collection):
     url_object = {"_id": url_tools.hash(url),
-                  "url": url,
-                  "random": random.random()}
+                  "url": url}
     try:
         result = collection.insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
@@ -28,8 +28,13 @@ def _universal_insert_url(url, collection):
 
 
 def insert_url(url):
-    """Insert url into db and set visited False and inlinks 0"""
+    """Insert url into db"""
     return _universal_insert_url(url, db.urls)
+
+
+def insert_url_visited_file_extension(url):
+    """Insert url into db as visited"""
+    return _universal_insert_url(url, db.urls_visited_file)
 
 
 def delete_url(url):
