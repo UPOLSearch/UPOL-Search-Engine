@@ -43,7 +43,7 @@ def is_worker_running():
     else:
         return False
 
-start_time = datetime.datetime.now()
+# start_time = datetime.datetime.now()
 
 while True:
     url = db.random_unvisited_url()
@@ -54,6 +54,7 @@ while True:
         tasks.crawl_url_task.delay(url)
     else:
         print("WORKER IS RUNNING - SLEEPING")
+        sleep(5)
         # if is_worker_running():
         #     print("WORKER IS RUNNING - SLEEPING")
         #     sleep(5)
@@ -61,6 +62,6 @@ while True:
         #     print("END")
         #     break
 
-end_time = datetime.datetime.now()
-elapsed = end_time - start_time
-print(str(elapsed))
+# end_time = datetime.datetime.now()
+# elapsed = end_time - start_time
+# print(str(elapsed))
