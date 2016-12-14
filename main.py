@@ -56,19 +56,20 @@ while True:
     end_time = datetime.datetime.now()
     elapsed = end_time - start_time
 
-    if elapsed.seconds >= 10:
+    if elapsed.seconds >= 10 and sleeping is True:
         url = db.get_unvisited_url(database)
 
         if url is not None:
+            sleeping = False
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
             # db.inser_url_visited(database, url)
             tasks.crawl_url_task.delay(url)
         else:
             print("WORKER IS RUNNING - SLEEPING")
+            sleeping = True
+            start_time = datetime.datetime.now()
 
-
-        start_time = datetime.datetime.now()
 
         # sleep(2)
         # if is_worker_running():
