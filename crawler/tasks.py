@@ -8,7 +8,6 @@ logger = get_task_logger(__name__)
 
 @app.task(rate_limit="5/s", queue='important')
 def crawl_url_task(url):
-    logger.info(str(url))
     response, status, redirected = crawl_url(url)
     if response is not None:
         logger.info(str(url) + " | " + str(response.status_code) + " | " + str(response.reason) +
