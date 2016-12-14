@@ -1,8 +1,10 @@
 from crawler.urls import blacklist
 from crawler.urls import url_tools
+from crawler.urls import robots
 from crawler.db import db_mongodb as db
 import urllib.parse
 from crawler import config
+import pymongo
 
 # TODO - load values from file
 content_type_whitelist = ["text/html"]
@@ -42,7 +44,10 @@ def validate_file_extension(url):
         valid = True
 
     if not valid:
-        db.insert_url_visited_file_extension(url)
+        client = pymongo.MongoClient('localhost', 27017)
+        database = client.upol_crawler
+        db.insert_url_visited_file_extension(database, url)
+        client.close()
 
     return valid
 
@@ -98,6 +103,9 @@ def validate(url):
         return False
 
     if blacklist.is_url_blocked(url):
+        return False
+
+    if not robots.is_crawler_allowed(url):
         return False
 
     # Need to be last

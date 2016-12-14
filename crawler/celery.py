@@ -8,10 +8,10 @@ class Config(object):
 
     task_queues = (
         Queue(
-            'important',
-            exchange=Exchange('important'),
-            routing_key="important",
-            queue_arguments={'x-max-length': 10}
+            'crawler',
+            exchange=Exchange('crawler'),
+            routing_key="crawler",
+            queue_arguments={'x-max-length': 2000}
         ),
     )
 
