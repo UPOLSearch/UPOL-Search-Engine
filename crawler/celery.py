@@ -11,14 +11,14 @@ class Config(object):
             'important',
             exchange=Exchange('important'),
             routing_key="important",
-            queue_arguments={'x-max-length': 30}
+            queue_arguments={'x-max-length': 10}
         ),
     )
 
     enable_utc = True
     timezone = 'Europe/Prague'
     include = ['crawler.tasks']
-
+    
 app = Celery('crawler')
 app.config_from_object(Config)
 
