@@ -70,7 +70,7 @@ def crawl_url(url):
         if redirected:
             # Set original_url to visited, because it was redirected
             # db.set_visited_url(original_url)
-
+            
             if not db.exists_url(database, url):
                 db.insert_url(database, url)
             else:

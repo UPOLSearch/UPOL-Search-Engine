@@ -9,8 +9,8 @@ from crawler.urls import url_tools
 
 
 def init():
-    None
-    # db.urls.create_index('random')
+    # None
+    db.urls.create_index('visited')
     # db.urls_visited.create_index('url_hash', unique=True)
 
 # init()
@@ -25,9 +25,10 @@ def init():
 #         return function(arg)
 
 
-def _universal_insert_url(url, collection):
+def _universal_insert_url(url, collection, visited):
     url_object = {"_id": url_tools.hash(url),
-                  "url": url}
+                  "url": url,
+                  "visited": visited}
     try:
         result = collection.insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
@@ -38,12 +39,17 @@ def _universal_insert_url(url, collection):
 
 def insert_url(db, url):
     """Insert url into db"""
-    return _universal_insert_url(url, db.urls)
+    return _universal_insert_url(url, db.urls, False)
 
 
 def insert_url_visited_file_extension(db, url):
     """Insert url into db as visited"""
-    return _universal_insert_url(url, db.urls_visited_file)
+    return _universal_insert_url(url, db.urls_file, True)
+
+
+def inser_url_visited(db, url):
+    """Insert url into db as visited"""
+    return _universal_insert_url(url, db.urls, True)
 
 
 def delete_url(db, url):
@@ -54,24 +60,35 @@ def delete_url(db, url):
 
 
 def is_visited(db, url):
-    result_visited = db.urls_visited.find({"_id": url_tools.hash(url)}).limit(1)
+    result = db.urls_visited.find_one({"_id": url_tools.hash(url)})
 
-    return result_visited.count() > 0
+    return result is not None
 
 
 def exists_url(db, url):
     """Return if url is exists in db"""
     url_hash = url_tools.hash(url)
 
-    result = db.urls.find({"_id": url_hash}).limit(1)
-    result_visited = db.urls_visited.find({"_id": url_hash}).limit(1)
+    result = db.urls.find_one({"_id": url_hash})
+    result_visited = db.urls_visited.find_one({"_id": url_hash})
 
-    return result.count() + result_visited.count() > 0
+    return (result is not None) or (result_visited is not None)
 
 
 def number_of_unvisited_url(db):
     """Return number of unvisited url"""
     return db.urls.count()
+
+
+def get_unvisited_url(db):
+    """Return unvisited url from db"""
+    result = db.urls.find_one({'visited': False})
+
+    if result is not None:
+        return result['url']
+    else:
+        return None
+
 
 
 def random_unvisited_url_random(db):
@@ -110,11 +127,11 @@ def random_unvisited_url(db):
 
 def set_visited_url(db, url):
     """Try to set url to visited"""
-    if (delete_url(db, url)):
-        _universal_insert_url(url, db.urls_visited)
-        return True
-    else:
-        return False
+    url_hash = url_tools.hash(url)
+
+    result = db.urls.find_one_and_update({"_id": url_hash}, {'$set': {'visited': True}})
+
+    return result is not None
 
 
 def flush_db():
