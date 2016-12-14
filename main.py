@@ -54,7 +54,7 @@ while True:
         tasks.crawl_url_task.delay(url)
     else:
         print("WORKER IS RUNNING - SLEEPING")
-        sleep(5)
+        sleep(2)
         # if is_worker_running():
         #     print("WORKER IS RUNNING - SLEEPING")
         #     sleep(5)
