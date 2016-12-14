@@ -15,7 +15,6 @@ def is_crawler_allowed(url):
 
     try:
         lock.acquire()
-        # cache = Robots.fetch(robots_url, headers=headers)
         allowed = cache.allowed(url, config.user_agent)
     finally:
         lock.release()
