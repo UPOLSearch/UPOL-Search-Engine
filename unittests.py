@@ -189,6 +189,7 @@ class TestValidatorMethods(unittest.TestCase):
         self.assertFalse(validator.validate_file_extension("http://test.com/index.jpg"))
         self.assertFalse(validator.validate_file_extension("http://test.com/aaa.jpg/index.jpg"))
         self.assertTrue(validator.validate_file_extension("www.upol.cz"))
+        self.assertTrue(validator.validate_file_extension("https://upol.cz"))
         self.assertFalse(validator.validate_file_extension("www.upol.cz/aaaaa.jpg"))
 
     @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
@@ -219,87 +220,53 @@ class TestValidatorMethods(unittest.TestCase):
         self.assertFalse(validator.validate_anchor("http://upol.cz/asdasd#asdad"))
         self.assertFalse(validator.validate_anchor("www.upol.cz/asdasd#asdad"))
 
-    @patch('crawler.urls.validator.file_extension_whitelist', [".php"])
-    @patch('crawler.config.regex', url_tools.generate_regex("http://upol.cz"))
-    @patch('crawler.urls.blacklist.blacklist', ["test.com"])
-    def test_validator(self):
-        self.assertTrue(validator.validate("http://upol.cz/index.php"))
-        self.assertTrue(validator.validate("http://upol.cz/index"))
-        self.assertTrue(validator.validate("http://upol.cz/aaa.jpg/index"))
-        self.assertFalse(validator.validate("http://upol.cz/index.jpg"))
-        self.assertFalse(validator.validate("http://upol.cz/aaa.jpg/index.jpg"))
-
-        self.assertTrue(validator.validate("http://upol.cz"))
-        self.assertTrue(validator.validate("https://upol.cz"))
-        self.assertTrue(validator.validate("www.upol.cz"))
-        self.assertTrue(validator.validate("https://www.upol.cz"))
-        self.assertTrue(validator.validate("http://upol.cz/"))
-        self.assertTrue(validator.validate("https://upol.cz/"))
-        self.assertTrue(validator.validate("www.upol.cz/"))
-        self.assertTrue(validator.validate("http://inf.upol.cz/"))
-        self.assertTrue(validator.validate("https://inf.upol.cz/"))
-
-        self.assertFalse(validator.validate("http://upool.cz"))
-        self.assertFalse(validator.validate("https://upool.cz"))
-        self.assertFalse(validator.validate("www.upool.cz"))
-        self.assertFalse(validator.validate("https://www.upool.cz"))
-        self.assertFalse(validator.validate("http://upool.cz/"))
-        self.assertFalse(validator.validate("https://upool.cz/"))
-        self.assertFalse(validator.validate("www.upool.cz/"))
-        self.assertFalse(validator.validate("http://inf.upool.cz/"))
-        self.assertFalse(validator.validate("https://inf.upool.cz/"))
-        self.assertFalse(validator.validate("htp://upol.cz"))
-
-        self.assertTrue(validator.validate("http://upol.cz"))
-        self.assertFalse(validator.validate("http://upol.cz/asdasd#asdad"))
-
     @patch('crawler.config.regex', url_tools.generate_regex("http://inf.upol.cz"))
     def test_validator_inf(self):
         self.assertTrue(validator.validate("http://www.inf.upol.cz/vyzkum/archiv-prednasek?akce=DAMOL Seminar&rok=2014"))
 
 
-class TesstDbMethodsMongoDb(unittest.TestCase):
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def setUp(self):
-        self.url = "https://forum.inf.upol.cz/viewforum.php?f=18&sid=301bc96d2d47656f0d1a3f82e897a812"
-        db.init()
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_url_insert(self):
-        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
-        self.assertEqual(db.insert_url(self.url), False)
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_url_delete(self):
-        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
-        self.assertEqual(db.delete_url(self.url), True)
-        self.assertEqual(db.delete_url(self.url), False)
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_url_exists(self):
-        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
-        self.assertEqual(db.exists_url(self.url), True)
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_url_set_visited(self):
-        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
-        self.assertTrue(db.set_visited_url(self.url))
-        self.assertFalse(db.set_visited_url(self.url))
-        self.assertTrue(db.exists_url(self.url))
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_number_of_unvisited(self):
-        self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
-        self.assertEqual(db.insert_url(self.url + "/aaa"), url_tools.hash(self.url + "/aaa"))
-        self.assertEqual(db.number_of_unvisited_url(),  2)
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def test_random_unvisited_url(self):
-        self.assertEqual(db.random_unvisited_url(), None)
-
-    @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
-    def tearDown(self):
-        db.flush_db()
+# class TesstDbMethodsMongoDb(unittest.TestCase):
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def setUp(self):
+#         self.url = "https://forum.inf.upol.cz/viewforum.php?f=18&sid=301bc96d2d47656f0d1a3f82e897a812"
+#         db.init()
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_url_insert(self):
+#         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+#         self.assertEqual(db.insert_url(self.url), False)
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_url_delete(self):
+#         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+#         self.assertEqual(db.delete_url(self.url), True)
+#         self.assertEqual(db.delete_url(self.url), False)
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_url_exists(self):
+#         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+#         self.assertEqual(db.exists_url(self.url), True)
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_url_set_visited(self):
+#         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+#         self.assertTrue(db.set_visited_url(self.url))
+#         self.assertFalse(db.set_visited_url(self.url))
+#         self.assertTrue(db.exists_url(self.url))
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_number_of_unvisited(self):
+#         self.assertEqual(db.insert_url(self.url), url_tools.hash(self.url))
+#         self.assertEqual(db.insert_url(self.url + "/aaa"), url_tools.hash(self.url + "/aaa"))
+#         self.assertEqual(db.number_of_unvisited_url(),  2)
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def test_random_unvisited_url(self):
+#         self.assertEqual(db.random_unvisited_url(), None)
+#
+#     @patch('crawler.db.db_mongodb.db', pymongo.MongoClient('localhost', 27017).upol_crawler_test)
+#     def tearDown(self):
+#         db.flush_db()
 
 # @patch('crawler.db_redis.db', redis.StrictRedis(host='localhost', port=6379, db=10))
 # @patch('crawler.db_redis.db_visited', redis.StrictRedis(host='localhost', port=6379, db=11))
