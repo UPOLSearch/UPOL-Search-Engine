@@ -50,12 +50,11 @@ def crawl_url(url):
     else:
         if response is None:
             # Set original_url to visited, because original url is invalid.
-            db.set_visited_url(original_url)
+            if redirected:
+                db.set_visited_url(url)
             return response, "Response is None", redirected
 
         if not validator.validate(url):
-            if redirected:
-                db.set_visited_url(original_url)
             return response, "URL is not valid", redirected
 
         if redirected:
