@@ -1,21 +1,11 @@
 from crawler import tasks
 from crawler.db import db_mongodb as db
+import pymongo
 from time import sleep
 import datetime
 
 from celery.app.control import Control
 from crawler.celery import app
-
-# Temporal solution
-db.insert_url("http://www.upol.cz")
-db.insert_url("http://www.cmtf.upol.cz")
-db.insert_url("http://www.lf.upol.cz")
-db.insert_url("http://www.ff.upol.cz")
-db.insert_url("http://www.prf.upol.cz")
-db.insert_url("http://www.pdf.upol.cz")
-db.insert_url("http://ftk.upol.cz")
-db.insert_url("http://www.pf.upol.cz")
-db.insert_url("http://www.fzv.upol.cz")
 
 
 def is_worker_running():
@@ -45,12 +35,26 @@ def is_worker_running():
 
 # start_time = datetime.datetime.now()
 
+client = pymongo.MongoClient('localhost', 27017)
+database = client.upol_crawler
+
+# Temporal solution
+db.insert_url(database, "http://www.upol.cz")
+db.insert_url(database, "http://www.cmtf.upol.cz")
+db.insert_url(database, "http://www.lf.upol.cz")
+db.insert_url(database, "http://www.ff.upol.cz")
+db.insert_url(database, "http://www.prf.upol.cz")
+db.insert_url(database, "http://www.pdf.upol.cz")
+db.insert_url(database, "http://ftk.upol.cz")
+db.insert_url(database, "http://www.pf.upol.cz")
+db.insert_url(database, "http://www.fzv.upol.cz")
+
 while True:
-    url = db.random_unvisited_url()
+    url = db.random_unvisited_url(database)
 
     if url is not None:
         print("FEEDING QUEUE")
-        db.set_visited_url(url)
+        db.set_visited_url(database, url)
         tasks.crawl_url_task.delay(url)
     else:
         print("WORKER IS RUNNING - SLEEPING")

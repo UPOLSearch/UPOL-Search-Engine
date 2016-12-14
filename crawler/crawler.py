@@ -1,4 +1,5 @@
 import requests
+import pymongo
 from bs4 import BeautifulSoup
 from crawler import config
 from crawler.urls import validator
@@ -39,15 +40,18 @@ def get_url(url):
 
         url = url_tools.decode(url)
         original_url = url_tools.decode(original_url)
-        
+
     return url, original_url, redirected, response
 
 
 def crawl_url(url):
+    client = pymongo.MongoClient('localhost', 27017)
+    database = client.upol_crawler
     try:
         if robots.is_crawler_allowed(url):
             url, original_url, redirected, response = get_url(url)
         else:
+            client.close()
             return None, "Crawler is not allowed", False
     except Exception as e:
         raise
@@ -55,23 +59,25 @@ def crawl_url(url):
         if response is None:
             # Set original_url to visited, because original url is invalid.
             if redirected:
-                db.set_visited_url(url)
+                db.set_visited_url(database, url)
+            client.close()
             return response, "Response is None", redirected
 
         if not validator.validate(url):
+            client.close()
             return response, "URL is not valid", redirected
 
         if redirected:
             # Set original_url to visited, because it was redirected
             # db.set_visited_url(original_url)
 
-            if not db.exists_url(url):
-                db.insert_url(url)
+            if not db.exists_url(database, url):
+                db.insert_url(database, url)
             else:
-                if db.is_visited(url):
+                if db.is_visited(database, url):
                     return response, "URL is already visited", redirected
                 else:
-                    db.set_visited_url(url)
+                    db.set_visited_url(database, url)
 
         # db.set_visited_url(url)
 
@@ -84,7 +90,8 @@ def crawl_url(url):
         for page_url in validated_urls_on_page:
             page_url = url_tools.clean(page_url)
 
-            if not db.exists_url(page_url):
-                db.insert_url(page_url)
+            if not db.exists_url(database, page_url):
+                db.insert_url(database, page_url)
 
+        client.close()
         return response, "URL done", redirected
