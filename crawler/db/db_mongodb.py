@@ -8,7 +8,7 @@ from crawler.urls import url_tools
 # db = client.upol_crawler
 
 
-def init():
+def init(db):
     # None
     db.urls.create_index('visited')
     # db.urls_visited.create_index('url_hash', unique=True)
