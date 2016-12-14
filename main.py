@@ -50,17 +50,26 @@ db.insert_url(database, "http://ftk.upol.cz")
 db.insert_url(database, "http://www.pf.upol.cz")
 db.insert_url(database, "http://www.fzv.upol.cz")
 
-while True:
-    # url = db.random_unvisited_url(database)
-    url = db.get_unvisited_url(database)
+start_time = datetime.datetime.now()
 
-    if url is not None:
-        print("FEEDING QUEUE")
-        db.set_visited_url(database, url)
-        # db.inser_url_visited(database, url)
-        tasks.crawl_url_task.delay(url)
-    else:
-        print("WORKER IS RUNNING - SLEEPING")
+while True:
+    end_time = datetime.datetime.now()
+    elapsed = end_time - start_time
+
+    if elapsed.seconds >= 10:
+        url = db.get_unvisited_url(database)
+
+        if url is not None:
+            print("FEEDING QUEUE")
+            db.set_visited_url(database, url)
+            # db.inser_url_visited(database, url)
+            tasks.crawl_url_task.delay(url)
+        else:
+            print("WORKER IS RUNNING - SLEEPING")
+
+
+        start_time = datetime.datetime.now()
+
         # sleep(2)
         # if is_worker_running():
         #     print("WORKER IS RUNNING - SLEEPING")
