@@ -52,10 +52,12 @@ def crawl_url(url):
     except Exception as e:
         raise
     else:
+        # Content type is invalid
         if response is None:
             # Set original_url to visited, because original url is invalid.
             if redirected:
                 db.set_visited_url(database, url)
+
             client.close()
             return response, "Response is None", redirected
 

@@ -4,25 +4,10 @@ import random
 from crawler.urls import url_tools
 
 
-# client = pymongo.MongoClient('localhost', 27017)
-# db = client.upol_crawler
-
-
 def init(db):
     # None
     db.urls.create_index('visited')
     # db.urls_visited.create_index('url_hash', unique=True)
-
-# init()
-
-# def client_wrapper(local_client, function, arg=None):
-#     client = local_client
-#     db = client.upol_crawler
-#
-#     if arg is None:
-#         return function()
-#     else:
-#         return function(arg)
 
 
 def _universal_insert_url(url, collection, visited):
@@ -65,19 +50,28 @@ def is_visited(db, url):
     return result is not None
 
 
+# def exists_url(db, url):
+#     """Return if url is exists in db"""
+#     url_hash = url_tools.hash(url)
+#
+#     result = db.urls.find_one({"_id": url_hash})
+#     result_visited = db.urls_visited.find_one({"_id": url_hash})
+#
+#     return (result is not None) or (result_visited is not None)
+
+
 def exists_url(db, url):
     """Return if url is exists in db"""
     url_hash = url_tools.hash(url)
 
     result = db.urls.find_one({"_id": url_hash})
-    result_visited = db.urls_visited.find_one({"_id": url_hash})
 
-    return (result is not None) or (result_visited is not None)
+    return result is not None
 
 
-def number_of_unvisited_url(db):
-    """Return number of unvisited url"""
-    return db.urls.count()
+# def number_of_unvisited_url(db):
+#     """Return number of unvisited url"""
+#     return db.urls.count()
 
 
 def get_unvisited_url(db):
@@ -90,39 +84,38 @@ def get_unvisited_url(db):
         return None
 
 
-
-def random_unvisited_url_random(db):
-    """Return random unvisited url"""
-    rand = random.random()
-    random_record = db.urls.find_one({ "random": { "$gte": rand }})
-
-    if (number_of_unvisited_url() > 0):
-        while (random_record is None):
-            rand = random.random()
-            random_record = db.urls.find_one({ "random": { "$gte": rand }})
-        return random_record['url']
-    else:
-        return None
-
-
-def random_unvisited_url_while(db):
-    """Return random unvisited url"""
-    if number_of_unvisited_url() > 0:
-        result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
-        while len(result) == 0:
-            result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
-        return result[0]['url']
-    else:
-        return None
-
-
-def random_unvisited_url(db):
-    """Return random unvisited url"""
-    result = list(db.urls.aggregate([{"$sample": {'size': 100}}]))
-    if len(result) != 0:
-        return result[0]['url']
-    else:
-        return None
+# def random_unvisited_url_random(db):
+#     """Return random unvisited url"""
+#     rand = random.random()
+#     random_record = db.urls.find_one({ "random": { "$gte": rand }})
+#
+#     if (number_of_unvisited_url() > 0):
+#         while (random_record is None):
+#             rand = random.random()
+#             random_record = db.urls.find_one({ "random": { "$gte": rand }})
+#         return random_record['url']
+#     else:
+#         return None
+#
+#
+# def random_unvisited_url_while(db):
+#     """Return random unvisited url"""
+#     if number_of_unvisited_url() > 0:
+#         result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
+#         while len(result) == 0:
+#             result = list(db.urls.aggregate([{"$sample": {'size': 1}}]))
+#         return result[0]['url']
+#     else:
+#         return None
+#
+#
+# def random_unvisited_url(db):
+#     """Return random unvisited url"""
+#     result = list(db.urls.aggregate([{"$sample": {'size': 100}}]))
+#     if len(result) != 0:
+#         return result[0]['url']
+#     else:
+#         return None
 
 
 def set_visited_url(db, url):
