@@ -51,12 +51,16 @@ db.insert_url(database, "http://www.pf.upol.cz")
 db.insert_url(database, "http://www.fzv.upol.cz")
 
 start_time = datetime.datetime.now()
+sleeping = False
 
 while True:
     end_time = datetime.datetime.now()
     elapsed = end_time - start_time
 
     if elapsed.seconds >= 10 and sleeping is True:
+        sleeping = False
+        
+    if sleeping is False:
         url = db.get_unvisited_url(database)
 
         if url is not None:
