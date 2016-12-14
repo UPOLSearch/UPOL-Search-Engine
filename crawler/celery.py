@@ -18,7 +18,7 @@ class Config(object):
     enable_utc = True
     timezone = 'Europe/Prague'
     include = ['crawler.tasks']
-    
+
 app = Celery('crawler')
 app.config_from_object(Config)
 

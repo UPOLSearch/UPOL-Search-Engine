@@ -6,7 +6,7 @@ from .crawler import crawl_url
 logger = get_task_logger(__name__)
 
 
-@app.task(rate_limit="5/s", queue='important')
+@app.task(rate_limit="6/s", queue='important')
 def crawl_url_task(url):
     response, status, redirected = crawl_url(url)
     if response is not None:
