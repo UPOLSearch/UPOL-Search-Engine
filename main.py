@@ -39,6 +39,7 @@ client = pymongo.MongoClient('localhost', 27017)
 database = client.upol_crawler
 
 # Temporal solution
+db.init()
 db.insert_url(database, "http://www.upol.cz")
 db.insert_url(database, "http://www.cmtf.upol.cz")
 db.insert_url(database, "http://www.lf.upol.cz")
