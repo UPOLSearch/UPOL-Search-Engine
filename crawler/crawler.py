@@ -4,6 +4,7 @@ from crawler import config
 from crawler.urls import validator
 from crawler.urls import parser
 from crawler.urls import url_tools
+from crawler.urls import robots
 from crawler.db import db_mongodb as db
 
 
@@ -38,13 +39,16 @@ def get_url(url):
 
         url = url_tools.decode(url)
         original_url = url_tools.decode(original_url)
-
+        
     return url, original_url, redirected, response
 
 
 def crawl_url(url):
     try:
-        url, original_url, redirected, response = get_url(url)
+        if robots.is_crawler_allowed(url):
+            url, original_url, redirected, response = get_url(url)
+        else:
+            return None, "Crawler is not allowed", False
     except Exception as e:
         raise
     else:

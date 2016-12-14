@@ -14,6 +14,17 @@ from crawler.urls import parser
 from crawler import crawler
 from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
+from crawler.urls import robots
+
+
+class TestRobotsMethods(unittest.TestCase):
+    def test_robots(self):
+        url = "http://inf.upol.cz/"
+        self.assertEqual(robots.is_crawler_allowed(url), True)
+
+    def test_robots(self):
+        url = "http://inf.upol.cz/languages/"
+        self.assertEqual(robots.is_crawler_allowed(url), False)
 
 
 class TestUrlMethods(unittest.TestCase):
