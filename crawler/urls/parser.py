@@ -81,14 +81,56 @@ def link_extractor(soup, url):
         return set(soup.find_all('a', href=True))
 
 
+def check_rel_attribute(link):
+    """Check rel attribute of link"""
+    try:
+        rel = link['rel']
+
+        if rel == "nofollow":
+            return False
+        elif rel == "alternate":
+            return False
+        elif rel == "license":
+            return False
+        elif rel == "search":
+            return False
+        else:
+            return True
+    except:
+        return True
+
+
+def check_meta_robots(soup):
+    """Check meta tag robots"""
+    meta = soup.find("meta", {"name": "robots"})
+
+    try:
+        content = meta['content']
+        if "nofollow" in content:
+            return False
+        else:
+            return True
+    except:
+        return True
+
+
 def validated_page_urls(soup, url):
     """Parse page and return set of valid urls"""
 
     valid_urls = set()
+
+    # Check if page has meta robots tag
+    if not check_meta_robots(soup):
+        return valid_urls
+
     links_on_page = link_extractor(soup, url)
     page_base_url = base_url(soup, url)
 
     for link in links_on_page:
+        # if has some rel attributes - ignore
+        if not check_rel_attribute(link):
+            continue
+
         link_url = link['href']
 
         if not url_tools.is_url_absolute(link_url):

@@ -161,6 +161,26 @@ class TestParserMethods(unittest.TestCase):
 
         self.assertEqual(parser.validated_page_urls(soup, url), expected_result)
 
+    def test_check_rel(self):
+        html = '<a href="aaaa" rel="nofolow">'
+        soup = BeautifulSoup(html, "lxml")
+        links = soup.find_all('a', href=True)
+        self.assertTrue(parser.check_rel_attribute(links[0]), False)
+
+        html = '<a href="aaaa">'
+        soup = BeautifulSoup(html, "lxml")
+        links = soup.find_all('a', href=True)
+        self.assertTrue(parser.check_rel_attribute(links[0]), True)
+
+    def test_check_meta_robots(self):
+        html = '<meta name=“robots“ content=“noindex, nofollow“>'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertTrue(parser.check_meta_robots(soup), False)
+
+        html = '<meta name=“robots“ content=“noindex“>'
+        soup = BeautifulSoup(html, "lxml")
+        self.assertTrue(parser.check_meta_robots(soup), True)
+
 
 @patch('crawler.urls.validator.content_type_whitelist', ["text/html"])
 class TestValidatorMethods(unittest.TestCase):
