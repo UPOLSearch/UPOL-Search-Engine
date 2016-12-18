@@ -82,10 +82,10 @@ def crawl_url(url, value):
 
         # db.set_visited_url(url)
 
-        # Max depth was reached
-        if value == 0:
-            client.close()
-            return response, "URL done - max depth was reached", redirected
+        # # Max depth was reached
+        # if value == 0:
+        #     client.close()
+        #     return response, "URL done - max depth was reached", redirected
 
         # Begin parse part
         html = response.text
@@ -97,7 +97,8 @@ def crawl_url(url, value):
             page_url = url_tools.clean(page_url)
 
             if url_tools.is_same_domain(url, page_url):
-                db.insert_url(database, page_url, False, value - 1)
+                if value - 1 != 0:
+                    db.insert_url(database, page_url, False, value - 1)
             else:
                 db.insert_url(database, page_url, False, config.max_value)
 
