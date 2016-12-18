@@ -7,8 +7,8 @@ from .crawler import crawl_url
 
 
 @app.task(rate_limit="6/s", queue='crawler')
-def crawl_url_task(url):
-    crawl_url(url)
+def crawl_url_task(url, value):
+    crawl_url(url, value)
     # response, status, redirected = crawl_url(url)
     # if response is not None:
     #     logger.info(str(url) + " | " + str(response.status_code) + " | " + str(response.reason) +

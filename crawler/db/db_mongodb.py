@@ -10,10 +10,11 @@ def init(db):
     # db.urls_visited.create_index('url_hash', unique=True)
 
 
-def _universal_insert_url(url, collection, visited):
+def _universal_insert_url(url, collection, visited, value):
     url_object = {"_id": url_tools.hash(url),
                   "url": url,
-                  "visited": visited}
+                  "visited": visited,
+                  "value": value}
     try:
         result = collection.insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
@@ -22,19 +23,19 @@ def _universal_insert_url(url, collection, visited):
     return result
 
 
-def insert_url(db, url):
+def insert_url(db, url, visited, value):
     """Insert url into db"""
-    return _universal_insert_url(url, db.urls, False)
+    return _universal_insert_url(url, db.urls, visited, value)
 
 
 def insert_url_visited_file_extension(db, url):
     """Insert url into db as visited"""
-    return _universal_insert_url(url, db.urls_file, True)
+    return _universal_insert_url(url, db.urls_file, True, -1)
 
 
-def inser_url_visited(db, url):
-    """Insert url into db as visited"""
-    return _universal_insert_url(url, db.urls, True)
+# def inser_url_visited(db, url):
+#     """Insert url into db as visited"""
+#     return _universal_insert_url(url, db.urls, True)
 
 
 def delete_url(db, url):
@@ -79,9 +80,9 @@ def get_unvisited_url(db):
     result = db.urls.find_one({'visited': False})
 
     if result is not None:
-        return result['url']
+        return result['url'], result['value']
     else:
-        return None
+        return None, None
 
 
 # def random_unvisited_url_random(db):

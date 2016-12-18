@@ -1,5 +1,6 @@
 from crawler import tasks
 from crawler.db import db_mongodb as db
+from crawler import config
 import pymongo
 from time import sleep
 import datetime
@@ -40,15 +41,15 @@ database = client.upol_crawler
 
 # Temporal solution
 db.init(database)
-db.insert_url(database, "http://www.upol.cz")
-db.insert_url(database, "http://www.cmtf.upol.cz")
-db.insert_url(database, "http://www.lf.upol.cz")
-db.insert_url(database, "http://www.ff.upol.cz")
-db.insert_url(database, "http://www.prf.upol.cz")
-db.insert_url(database, "http://www.pdf.upol.cz")
-db.insert_url(database, "http://ftk.upol.cz")
-db.insert_url(database, "http://www.pf.upol.cz")
-db.insert_url(database, "http://www.fzv.upol.cz")
+db.insert_url(database, "http://www.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.cmtf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.lf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.ff.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.prf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.pdf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://ftk.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.pf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.fzv.upol.cz", False, config.max_value)
 
 start_time = datetime.datetime.now()
 sleeping = False
@@ -59,16 +60,16 @@ while True:
 
     if elapsed.seconds >= 10 and sleeping is True:
         sleeping = False
-        
+
     if sleeping is False:
-        url = db.get_unvisited_url(database)
+        url, value = db.get_unvisited_url(database)
 
         if url is not None:
             sleeping = False
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
             # db.inser_url_visited(database, url)
-            tasks.crawl_url_task.delay(url)
+            tasks.crawl_url_task.delay(url, value)
         else:
             print("WORKER IS RUNNING - SLEEPING")
             sleeping = True

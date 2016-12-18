@@ -44,7 +44,7 @@ def get_url(url):
     return url, original_url, redirected, response
 
 
-def crawl_url(url):
+def crawl_url(url, value):
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
     try:
@@ -70,7 +70,10 @@ def crawl_url(url):
             # db.set_visited_url(original_url)
 
             if not db.exists_url(database, url):
-                db.insert_url(database, url)
+                if url_tools.is_same_domain(url, original_url):
+                    db.insert_url(database, url, False, value - 1)
+                else:
+                    db.insert_url(database, url, False, config.max_value)
             else:
                 if db.is_visited(database, url):
                     return response, "URL is already visited", redirected
@@ -78,6 +81,11 @@ def crawl_url(url):
                     db.set_visited_url(database, url)
 
         # db.set_visited_url(url)
+
+        # Max depth was reached
+        if value == 0:
+            client.close()
+            return response, "URL done - max depth was reached", redirected
 
         # Begin parse part
         html = response.text
@@ -88,8 +96,13 @@ def crawl_url(url):
         for page_url in validated_urls_on_page:
             page_url = url_tools.clean(page_url)
 
-            if not db.exists_url(database, page_url):
-                db.insert_url(database, page_url)
+            if url_tools.is_same_domain(url, page_url):
+                db.insert_url(database, page_url, False, value - 1)
+            else:
+                db.insert_url(database, page_url, False, config.max_value)
+
+            # if not db.exists_url(database, page_url):
+            # db.insert_url(database, page_url)
 
         client.close()
         return response, "URL done", redirected
