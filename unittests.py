@@ -41,6 +41,12 @@ class TestUrlMethods(unittest.TestCase):
         self.assertTrue(url_tools.is_url_absolute("http://upol.cz/"))
         self.assertFalse(url_tools.is_url_absolute("ahoj/test.jpg"))
 
+    def test_is_same_domain(self):
+        self.assertTrue(url_tools.is_same_domain("http://upol.cz/lol", "http://upol.cz/lol2"))
+        self.assertTrue(url_tools.is_same_domain("https://upol.cz/lol", "http://upol.cz/lol2"))
+        self.assertTrue(url_tools.is_same_domain("http://www.upol.cz/lol", "http://upol.cz/lol2"))
+        self.assertFalse(url_tools.is_same_domain("http://upol.cz/lol", "http://upol2.cz/lol2"))
+
     @responses.activate
     def test_url_encode(self):
         url = 'http://upol.cz/řeřicha'
