@@ -73,9 +73,9 @@ while True:
             # db.inser_url_visited(database, url)
             tasks.crawl_url_task.delay(url, value)
             with open("main_logs.log", "a") as result_file:
-                result_file.write("Number of pages:" + str(number_of_tasks))
-                result_file.write(str(url))
-                result_file.write("Value:" + str(value))
+                result_file.write("Number of pages:" + str(number_of_tasks) + "\n")
+                result_file.write(str(url)+ "\n")
+                result_file.write("Value:" + str(value)+ "\n")
         else:
             print("WORKER IS RUNNING - SLEEPING")
             sleeping = True
