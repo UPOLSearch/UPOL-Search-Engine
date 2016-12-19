@@ -16,6 +16,8 @@ def is_crawler_allowed(url):
     try:
         lock.acquire()
         allowed = cache.allowed(url, config.user_agent)
+    except:
+        raise
     finally:
         lock.release()
 
