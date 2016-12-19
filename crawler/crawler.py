@@ -27,19 +27,22 @@ def get_url(url):
     original_url = url
 
     if response is not None:
-        if len(response.history) > 0:
+        # if len(response.history) > 0:
+        #     redirected = True
+        #     original_url = url
+        #     url = url_tools.clean(response.history[0].url)
+        #
+        #     if url == original_url:
+        #         redirected = False
+        # else:
+        #     url = url_tools.clean(response.url)
+        #     original_url = url
+        #
+        # url = url_tools.decode(url)
+        # original_url = url_tools.decode(original_url)
+        url = url_tools.clean(response.url)
+        if original_url != url:
             redirected = True
-            original_url = url
-            url = url_tools.clean(response.history[0].url)
-
-            if url == original_url:
-                redirected = False
-        else:
-            url = url_tools.clean(response.url)
-            original_url = url
-
-        url = url_tools.decode(url)
-        original_url = url_tools.decode(original_url)
 
     return url, original_url, redirected, response
 
@@ -71,9 +74,9 @@ def crawl_url(url, value):
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
-                    db.insert_url(database, url, False, value - 1)
+                    db.insert_url(database, url, True, value - 1)
                 else:
-                    db.insert_url(database, url, False, config.max_value)
+                    db.insert_url(database, url, True, config.max_value)
             else:
                 if db.is_visited(database, url):
                     return response, "URL is already visited", redirected

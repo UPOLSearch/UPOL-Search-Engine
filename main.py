@@ -74,22 +74,9 @@ while True:
             tasks.crawl_url_task.delay(url, value)
             with open("main_logs.log", "a") as result_file:
                 result_file.write("Number of pages:" + str(number_of_tasks) + "\n")
-                result_file.write(str(url)+ "\n")
-                result_file.write("Value:" + str(value)+ "\n")
+                result_file.write(str(url) + "\n")
+                result_file.write("Value:" + str(value) + "\n")
         else:
             print("WORKER IS RUNNING - SLEEPING")
             sleeping = True
             start_time = datetime.datetime.now()
-
-
-        # sleep(2)
-        # if is_worker_running():
-        #     print("WORKER IS RUNNING - SLEEPING")
-        #     sleep(5)
-        # else:
-        #     print("END")
-        #     break
-
-# end_time = datetime.datetime.now()
-# elapsed = end_time - start_time
-# print(str(elapsed))
