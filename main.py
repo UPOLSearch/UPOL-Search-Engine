@@ -72,7 +72,7 @@ while True:
             number_of_tasks = number_of_tasks + 1
             # db.inser_url_visited(database, url)
             tasks.crawl_url_task.delay(url, value)
-            with open(main_logs.log, "a") as result_file:
+            with open("main_logs.log", "a") as result_file:
                 result_file.write("Number of pages:" + str(number_of_tasks))
                 result_file.write(str(url))
                 result_file.write("Value:" + str(value))
