@@ -36,6 +36,9 @@ def domain(url):
         url = add_scheme(url)
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
+    if ":" in netloc:
+        netloc = netloc[:-3]
+
     return netloc
 
 
