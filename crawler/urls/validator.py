@@ -107,9 +107,12 @@ def validate(url):
         crawler.tasks.log_url_validator_task.delay(url, "blacklist")
         return False
 
-    if not robots.is_crawler_allowed(url):
-        crawler.tasks.log_url_validator_task.delay(url, "robots_block")
-        return False
+    try:
+        if not robots.is_crawler_allowed(url):
+            crawler.tasks.log_url_validator_task.delay(url, "robots_block")
+            return False
+    except:
+        pass
 
     # Need to be last
     if not validate_file_extension(url):
