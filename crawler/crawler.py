@@ -79,6 +79,7 @@ def crawl_url(url, value):
                     db.insert_url(database, url, True, config.max_value)
             else:
                 if db.is_visited(database, url):
+                    client.close()
                     return response, "URL is already visited", redirected
                 else:
                     db.set_visited_url(database, url)
