@@ -66,7 +66,7 @@ def log_url_validator(url, validator):
     elif validator == "not_valid_redirect":
         log_object = {"_id": url_tools.hash(url),
                       "url": url,
-                      "exception": True}
+                      "not_valid_redirect": True}
 
     try:
         database.urls_logs_not_valid.insert_one(log_object).inserted_id
