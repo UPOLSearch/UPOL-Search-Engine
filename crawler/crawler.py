@@ -115,7 +115,7 @@ def crawl_url(url, value):
                 else:
                     db.insert_url(database, page_url, False, config.max_value)
         except:
-            pass
+            raise
 
             # if not db.exists_url(database, page_url):
             # db.insert_url(database, page_url)

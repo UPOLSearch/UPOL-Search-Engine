@@ -136,7 +136,7 @@ def validated_page_urls(soup, url):
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
 
         if not scheme:
-            link_url = add_scheme(url)
+            link_url = url_tools.add_scheme(url)
 
         if not url_tools.is_url_absolute(link_url):
             link_url = urllib.parse.urljoin(page_base_url, link_url)
