@@ -17,7 +17,7 @@ class Config(object):
             'logger',
             exchange=Exchange('logger'),
             routing_key="logger",
-            queue_arguments={'x-max-length': 20000}
+            queue_arguments={'x-max-length': 8000}
         ),
     )
 
