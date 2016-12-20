@@ -7,7 +7,8 @@ from crawler.urls import parser
 from crawler.urls import url_tools
 from crawler.urls import robots
 from crawler.db import db_mongodb as db
-
+from crawler import tasks
+from crawler import logger
 
 def request_url(url):
     """Request url and check if content-type is valid"""
@@ -80,6 +81,9 @@ def crawl_url(url, value):
             else:
                 if db.is_visited(database, url):
                     client.close()
+
+                    tasks.log_url_task.delay(url, logger.get_log_format(response))
+
                     return response, "URL is already visited", redirected
                 else:
                     db.set_visited_url(database, url)
@@ -110,4 +114,8 @@ def crawl_url(url, value):
             # db.insert_url(database, page_url)
 
         client.close()
+
+
+
+        tasks.log_url_task.delay(url, logger.get_log_format(response))
         return response, "URL done", redirected
