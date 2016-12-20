@@ -12,12 +12,14 @@ from crawler.db import db_mongodb as db
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': config.user_agent}
-    response = requests.head(url, headers=headers, verify=config.verify_ssl)
+    # response = requests.head(url, headers=headers, verify=config.verify_ssl)
 
-    if validator.validate_content_type(response.headers['Content-Type']):
-        return requests.get(url, headers=headers, verify=config.verify_ssl)
-    else:
-        return None
+    # if validator.validate_content_type(response.headers['Content-Type']):
+    #     return requests.get(url, headers=headers, verify=config.verify_ssl)
+    # else:
+    #     return None
+
+    return requests.get(url, headers=headers, verify=config.verify_ssl)
 
 
 def get_url(url):
@@ -26,7 +28,7 @@ def get_url(url):
     redirected = False
     original_url = url
 
-    if response is not None:
+    # if response is not None:
         # if len(response.history) > 0:
         #     redirected = True
         #     original_url = url
@@ -40,9 +42,9 @@ def get_url(url):
         #
         # url = url_tools.decode(url)
         # original_url = url_tools.decode(original_url)
-        url = url_tools.clean(response.url)
-        if original_url != url:
-            redirected = True
+    url = url_tools.clean(response.url)
+    if original_url != url:
+        redirected = True
 
     return url, original_url, redirected, response
 
@@ -56,21 +58,19 @@ def crawl_url(url, value):
         raise
     else:
         # Content type is invalid
-        if response is None:
-            # Set original_url to visited, because original url is invalid.
-            if redirected:
-                db.set_visited_url(database, url)
-
-            client.close()
-            return response, "Response is None", redirected
-
-        if not validator.validate(url):
-            client.close()
-            return response, "URL is not valid", redirected
+        # if response is None:
+        #     # Set original_url to visited, because original url is invalid.
+        #     if redirected:
+        #         db.set_visited_url(database, url)
+        #
+        #     client.close()
+        #     return response, "Response is", redirected
 
         if redirected:
-            # Set original_url to visited, because it was redirected
-            # db.set_visited_url(original_url)
+            # Check if redirected url is valid
+            if not validator.validate(url):
+                client.close()
+                return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
