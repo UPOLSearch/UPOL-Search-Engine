@@ -21,7 +21,7 @@ class Config(object):
         ),
     )
 
-    enable_utc = True
+    enable_utc = False
     timezone = 'Europe/Prague'
     include = ['crawler.tasks']
 
