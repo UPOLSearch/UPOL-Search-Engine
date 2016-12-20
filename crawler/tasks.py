@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+# from __future__ import absolute_import, unicode_literals
 from .celery import app
 from celery.utils.log import get_task_logger
 from crawler import crawler
