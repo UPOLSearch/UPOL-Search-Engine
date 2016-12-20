@@ -14,10 +14,10 @@ def is_crawler_allowed(url):
         robots_url = Robots.robots_url(url)
         allowed = False
 
-
         lock.acquire()
         allowed = cache.allowed(url, config.user_agent)
     except:
+        allowed = True
         pass
     finally:
         lock.release()

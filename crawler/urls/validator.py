@@ -105,12 +105,8 @@ def validate(url):
     if blacklist.is_url_blocked(url):
         return False
 
-    # If something happen in robots.txt parser, crawler should continue
-    try:
-        if not robots.is_crawler_allowed(url):
-            return False
-    except:
-        pass
+    if not robots.is_crawler_allowed(url):
+        return False
 
     # Need to be last
     if not validate_file_extension(url):
