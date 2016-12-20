@@ -1,5 +1,6 @@
 import requests
 import pymongo
+import crawler
 from bs4 import BeautifulSoup
 from crawler import config
 from crawler.urls import validator
@@ -7,7 +8,7 @@ from crawler.urls import parser
 from crawler.urls import url_tools
 from crawler.urls import robots
 from crawler.db import db_mongodb as db
-from crawler import tasks
+# from crawler import tasks
 from crawler import logger
 
 def request_url(url):
@@ -82,7 +83,7 @@ def crawl_url(url, value):
                 if db.is_visited(database, url):
                     client.close()
 
-                    tasks.log_url_task.delay(url, logger.get_log_format(response))
+                    crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
 
                     return response, "URL is already visited", redirected
                 else:
@@ -117,5 +118,5 @@ def crawl_url(url, value):
 
 
 
-        tasks.log_url_task.delay(url, logger.get_log_format(response))
+        crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
         return response, "URL done", redirected
