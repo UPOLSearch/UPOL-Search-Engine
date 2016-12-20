@@ -98,20 +98,24 @@ def crawl_url(url, value):
         #     client.close()
         #     return response, "URL done - max depth was reached", redirected
 
-        # Begin parse part
-        html = response.text
-        soup = BeautifulSoup(html, "lxml")
+        # Begin parse part, should avoid 404
 
-        validated_urls_on_page = parser.validated_page_urls(soup, url)
+        try:
+            html = response.text
+            soup = BeautifulSoup(html, "lxml")
 
-        for page_url in validated_urls_on_page:
-            page_url = url_tools.clean(page_url)
+            validated_urls_on_page = parser.validated_page_urls(soup, url)
 
-            if url_tools.is_same_domain(url, page_url):
-                if value - 1 != 0:
-                    db.insert_url(database, page_url, False, value - 1)
-            else:
-                db.insert_url(database, page_url, False, config.max_value)
+            for page_url in validated_urls_on_page:
+                page_url = url_tools.clean(page_url)
+
+                if url_tools.is_same_domain(url, page_url):
+                    if value - 1 != 0:
+                        db.insert_url(database, page_url, False, value - 1)
+                else:
+                    db.insert_url(database, page_url, False, config.max_value)
+        except:
+            pass
 
             # if not db.exists_url(database, page_url):
             # db.insert_url(database, page_url)
