@@ -58,6 +58,16 @@ def log_url_validator(url, validator):
                       "url": url,
                       "robots_block": True}
 
+    elif validator == "exception":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "exception": True}
+
+    elif validator == "not_valid_redirect":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "exception": True}
+
     try:
         database.urls_logs_not_valid.insert_one(log_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
