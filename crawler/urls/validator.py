@@ -1,4 +1,3 @@
-from crawler import tasks
 from crawler.urls import blacklist
 from crawler.urls import url_tools
 from crawler.urls import robots
@@ -6,6 +5,7 @@ from crawler.db import db_mongodb as db
 import urllib.parse
 from crawler import config
 import pymongo
+import crawler
 
 # TODO - load values from file
 content_type_whitelist = ["text/html"]
@@ -104,11 +104,11 @@ def validate(url):
         return False
 
     if blacklist.is_url_blocked(url):
-        log_url_validator_task.delay(url, "blacklist")
+        crawler.tasks.log_url_validator_task.delay(url, "blacklist")
         return False
 
     if not robots.is_crawler_allowed(url):
-        log_url_validator_task.delay(url, "robots_block")
+        crawler.tasks.log_url_validator_task.delay(url, "robots_block")
         return False
 
     # Need to be last
