@@ -11,13 +11,13 @@ class Config(object):
             'crawler',
             exchange=Exchange('crawler'),
             routing_key="crawler",
-            queue_arguments={'x-max-length': 2000}
+            queue_arguments={'x-max-length': 200}
         ),
         Queue(
             'logger',
             exchange=Exchange('logger'),
             routing_key="logger",
-            queue_arguments={'x-max-length': 8000}
+            queue_arguments={'x-max-length': 1000}
         ),
     )
 
