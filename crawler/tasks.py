@@ -8,7 +8,7 @@ from .logger import log_url_validator
 logger = get_task_logger(__name__)
 
 
-@app.task(rate_limit="6/s", queue='crawler')
+@app.task(rate_limit="6/s", queue='crawler', ignore_result=True)
 def crawl_url_task(url, value):
     # crawl_url(url, value)
     response, status, redirected = crawler.crawl_url(url, value)
@@ -19,11 +19,11 @@ def crawl_url_task(url, value):
         logger.info(url + " | " + str(status) + " | Redirected: " + str(redirected))
 
 
-@app.task(queue='logger')
+@app.task(queue='logger', ignore_result=True)
 def log_url_task(url, response):
     log_url(url, response)
 
 
-@app.task(queue='logger')
+@app.task(queue='logger', ignore_result=True)
 def log_url_validator_task(url, validator):
     log_url_validator(url, validator)
