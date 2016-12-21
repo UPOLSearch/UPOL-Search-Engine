@@ -71,32 +71,30 @@ def phpBB_page(soup):
 def link_extractor(soup, url):
     """Extract all links from page"""
 
-    if is_page_wiki(soup):
-        return wiki_page(soup)
-
-    elif is_page_phpbb(soup):
-        return phpBB_page(soup)
-
-    else:
-        return set(soup.find_all('a', href=True))
+    # if is_page_wiki(soup):
+    #     return wiki_page(soup)
+    #
+    # elif is_page_phpbb(soup):
+    #     return phpBB_page(soup)
+    #
+    # else:
+    return set(soup.find_all('a', href=True))
 
 
 def check_rel_attribute(link):
     """Check rel attribute of link"""
-    try:
-        rel = link['rel']
 
-        if rel == "nofollow":
-            return False
-        elif rel == "alternate":
-            return False
-        elif rel == "license":
-            return False
-        elif rel == "search":
-            return False
-        else:
-            return True
-    except:
+    rel = link.get('rel')
+
+    if rel == "nofollow":
+        return False
+    elif rel == "alternate":
+        return False
+    elif rel == "license":
+        return False
+    elif rel == "search":
+        return False
+    else:
         return True
 
 
@@ -104,13 +102,10 @@ def check_meta_robots(soup):
     """Check meta tag robots"""
     meta = soup.find("meta", {"name": "robots"})
 
-    try:
-        content = meta['content']
-        if "nofollow" in content:
-            return False
-        else:
-            return True
-    except:
+    content = meta.get('content')
+    if "nofollow" in content:
+        return False
+    else:
         return True
 
 
@@ -137,8 +132,10 @@ def validated_page_urls(soup, url):
 
         if not scheme:
             link_url = url_tools.add_scheme(url)
-
+            
         if not url_tools.is_url_absolute(link_url):
+            if "www" in link_url:
+                raise ValueError(url + " absolute url is invalid " + link_url)
             link_url = urllib.parse.urljoin(page_base_url, link_url)
 
         link_url = url_tools.clean(link_url)

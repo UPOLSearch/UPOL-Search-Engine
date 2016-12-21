@@ -32,9 +32,9 @@ def domain(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     # TODO - Maybe implement in higher layer
-    if not scheme:
-        url = add_scheme(url)
-        scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+    # if not scheme:
+    #     url = add_scheme(url)
+    #     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     if ":" in netloc:
         netloc = netloc[:-3]

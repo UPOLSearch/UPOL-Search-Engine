@@ -12,18 +12,18 @@ logger = get_task_logger(__name__)
 def crawl_url_task(url, value):
     # crawl_url(url, value)
     response, status, redirected = crawler.crawl_url(url, value)
-    if response is not None:
-        logger.info(str(url) + " | " + str(response.status_code) + " | " + str(response.reason) +
-                    " | " + str(response.headers['Content-Type']) + " | " + str(status) + " | Redirected: " + str(redirected))
-    else:
-        logger.info(url + " | " + str(status) + " | Redirected: " + str(redirected))
+    # if response is not None:
+    #     logger.info(str(url) + " | " + str(response.status_code) + " | " + str(response.reason) +
+    #                 " | " + str(response.headers['Content-Type']) + " | " + str(status) + " | Redirected: " + str(redirected))
+    # else:
+    #     logger.info(url + " | " + str(status) + " | Redirected: " + str(redirected))
 
 
-@app.task(queue='logger', ignore_result=True)
-def log_url_task(url, response):
-    log_url(url, response)
-
-
-@app.task(queue='logger', ignore_result=True)
-def log_url_validator_task(url, validator):
-    log_url_validator(url, validator)
+# @app.task(queue='logger', ignore_result=True)
+# def log_url_task(url, response):
+#     log_url(url, response)
+#
+#
+# @app.task(queue='logger', ignore_result=True)
+# def log_url_validator_task(url, validator):
+#     log_url_validator(url, validator)

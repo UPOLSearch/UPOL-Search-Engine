@@ -11,13 +11,10 @@ headers = {'user-agent': config.user_agent}
 
 def is_crawler_allowed(url):
     allowed = True
-    try:
-        robots_url = Robots.robots_url(url)
-        lock.acquire()
-        allowed = cache.allowed(url, config.user_agent)
-    except:
-        pass
-    finally:
-        lock.release()
+
+    lock.acquire()
+    robots_url = Robots.robots_url(url)
+    allowed = cache.allowed(url, config.user_agent)
+    lock.release()
 
     return allowed
