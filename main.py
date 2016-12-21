@@ -63,7 +63,7 @@ while True:
     #     sleeping = False
 
     if sleeping is False:
-        url, value = db.random_unvisited_url(database)
+        url, value = db.get_unvisited_url(database)
 
         if url is not None:
             # sleeping = False
@@ -82,4 +82,4 @@ while True:
         else:
             print("WORKER IS RUNNING - SLEEPING")
             # sleeping = True
-            start_time = datetime.datetime.now()
+            # start_time = datetime.datetime.now()
