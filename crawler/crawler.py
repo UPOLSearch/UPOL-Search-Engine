@@ -57,7 +57,7 @@ def crawl_url(url, value):
     try:
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
-        crawler.tasks.log_url_validator_task.delay(url, "exception")
+        # crawler.tasks.log_url_validator_task.delay(url, "exception")
         raise
     else:
         # Content type is invalid
@@ -73,7 +73,7 @@ def crawl_url(url, value):
             # Check if redirected url is valid
             if not validator.validate(url):
                 client.close()
-                crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
+                # crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
@@ -85,7 +85,7 @@ def crawl_url(url, value):
                 if db.is_visited(database, url):
                     client.close()
 
-                    crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
+                    # crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
 
                     return response, "URL is already visited", redirected
                 else:
@@ -124,5 +124,5 @@ def crawl_url(url, value):
 
 
 
-        crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
+        # crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
         return response, "URL done", redirected
