@@ -44,11 +44,11 @@ def validate_file_extension(url):
     else:
         valid = True
 
-    if not valid:
-        client = pymongo.MongoClient('localhost', 27017)
-        database = client.upol_crawler
-        db.insert_url_visited_file_extension(database, url)
-        client.close()
+    # if not valid:
+    #     client = pymongo.MongoClient('localhost', 27017)
+    #     database = client.upol_crawler
+    #     db.insert_url_visited_file_extension(database, url)
+    #     client.close()
 
     return valid
 
