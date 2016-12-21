@@ -114,9 +114,9 @@ def random_unvisited_url(db):
     """Return random unvisited url"""
     result = list(db.urls.aggregate([{"$sample": {'size': 100}}]))
     if len(result) != 0:
-        return result[0]['url']
+        return result[0]['url'], result[0]['value']
     else:
-        return None
+        return None, None
 
 
 def set_visited_url(db, url):
