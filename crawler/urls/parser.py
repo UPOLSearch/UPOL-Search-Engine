@@ -101,10 +101,13 @@ def check_rel_attribute(link):
 def check_meta_robots(soup):
     """Check meta tag robots"""
     meta = soup.find("meta", {"name": "robots"})
-
-    content = meta.get('content')
-    if "nofollow" in content:
-        return False
+    
+    if meta is not None:
+        content = meta.get('content')
+        if "nofollow" in content:
+            return False
+        else:
+            return True
     else:
         return True
 
@@ -132,7 +135,7 @@ def validated_page_urls(soup, url):
 
         if not scheme:
             link_url = url_tools.add_scheme(url)
-            
+
         if not url_tools.is_url_absolute(link_url):
             if "www" in link_url:
                 raise ValueError(url + " absolute url is invalid " + link_url)
