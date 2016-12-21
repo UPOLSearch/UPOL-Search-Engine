@@ -56,20 +56,20 @@ sleeping = False
 number_of_tasks = 0
 
 while True:
-    end_time = datetime.datetime.now()
-    elapsed = end_time - start_time
+#     end_time = datetime.datetime.now()
+#     elapsed = end_time - start_time
 
-    if elapsed.seconds >= 10 and sleeping is True:
-        sleeping = False
-        
+    # if elapsed.seconds >= 10 and sleeping is True:
+    #     sleeping = False
+
     if sleeping is False:
         url, value = db.random_unvisited_url(database)
-
+        
         if url is not None:
-            sleeping = False
+            # sleeping = False
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
-            number_of_tasks = number_of_tasks + 1
+            # number_of_tasks = number_of_tasks + 1
             # db.inser_url_visited(database, url)
             tasks.crawl_url_task.delay(url, value)
             # try:
@@ -81,5 +81,5 @@ while True:
             #     pass
         else:
             print("WORKER IS RUNNING - SLEEPING")
-            sleeping = True
+            # sleeping = True
             start_time = datetime.datetime.now()
