@@ -112,9 +112,12 @@ def crawl_url(url, value):
                 if url_tools.is_same_domain(url, page_url):
                     if value - 1 != 0:
                         db.insert_url(database, page_url, False, value - 1)
+                    else:
+                        crawler.tasks.log_url_validator_task.delay(url, "depth")
                 else:
                     db.insert_url(database, page_url, False, config.max_value)
-        except:
+        except Exception as e:
+            crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
             raise
 
             # if not db.exists_url(database, page_url):
