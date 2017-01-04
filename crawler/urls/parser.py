@@ -101,7 +101,7 @@ def check_rel_attribute(link):
 def check_meta_robots(soup):
     """Check meta tag robots"""
     meta = soup.find("meta", {"name": "robots"})
-    
+
     if meta is not None:
         content = meta.get('content')
         if "nofollow" in content:
@@ -127,6 +127,7 @@ def validated_page_urls(soup, url):
     for link in links_on_page:
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
+            crawler.tasks.log_url_validator_task.delay(url, "rel")
             continue
 
         link_url = link['href']
