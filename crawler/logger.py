@@ -74,7 +74,7 @@ def log_url_validator(url, validator, arg=None):
                       "url": url,
                       "anchor": True}
 
-    elif validator = "regex":
+    elif validator == "regex":
         log_object = {"_id": url_tools.hash(url),
                       "url": url,
                       "regex": True}
