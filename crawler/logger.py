@@ -44,7 +44,7 @@ def log_url(url, response):
 
     client.close()
 
-def log_url_validator(url, validator):
+def log_url_validator(url, validator, arg=None):
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
 
@@ -61,7 +61,8 @@ def log_url_validator(url, validator):
     elif validator == "exception":
         log_object = {"_id": url_tools.hash(url),
                       "url": url,
-                      "exception": True}
+                      "exception": True,
+                      "value": str(arg)}
 
     elif validator == "not_valid_redirect":
         log_object = {"_id": url_tools.hash(url),

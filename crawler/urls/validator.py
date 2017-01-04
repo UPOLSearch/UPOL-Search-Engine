@@ -104,12 +104,12 @@ def validate(url):
         return False
 
     if blacklist.is_url_blocked(url):
-        # crawler.tasks.log_url_validator_task.delay(url, "blacklist")
+        crawler.tasks.log_url_validator_task.delay(url, "blacklist")
         return False
 
     try:
         if not robots.is_crawler_allowed(url):
-            # crawler.tasks.log_url_validator_task.delay(url, "robots_block")
+            crawler.tasks.log_url_validator_task.delay(url, "robots_block")
             return False
     except:
         pass

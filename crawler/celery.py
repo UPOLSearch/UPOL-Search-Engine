@@ -13,12 +13,12 @@ class Config(object):
             routing_key="crawler",
             queue_arguments={'x-max-length': 3000}
         ),
-        # Queue(
-        #     'logger',
-        #     exchange=Exchange('logger'),
-        #     routing_key="logger",
-        #     queue_arguments={'x-max-length': 3000}
-        # ),
+        Queue(
+            'logger',
+            exchange=Exchange('logger'),
+            routing_key="logger",
+            queue_arguments={'x-max-length': 3000}
+        ),
     )
 
     enable_utc = False
