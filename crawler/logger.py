@@ -69,6 +69,16 @@ def log_url_validator(url, validator, arg=None):
                       "url": url,
                       "not_valid_redirect": True}
 
+    elif validator == "anchor":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "anchor": True}
+
+    elif validator = "regex":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "regex": True}
+
     try:
         database.urls_logs_not_valid.insert_one(log_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
