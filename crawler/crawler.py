@@ -55,6 +55,7 @@ def crawl_url(url, value):
     crawler.tasks.log_url_validator_task.delay(url, "visiting")
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
+
     try:
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
@@ -69,6 +70,7 @@ def crawl_url(url, value):
         #
         #     client.close()
         #     return response, "Response is", redirected
+        db.set_visited_url(database, url)
 
         if redirected:
             crawler.tasks.log_url_validator_task.delay(url, "redirected")
