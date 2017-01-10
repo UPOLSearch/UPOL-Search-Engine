@@ -71,6 +71,7 @@ def crawl_url(url, value):
         #     return response, "Response is", redirected
 
         if redirected:
+            crawler.tasks.log_url_validator_task.delay(url, "redirected")
             # Check if redirected url is valid
             if not validator.validate(url):
                 client.close()

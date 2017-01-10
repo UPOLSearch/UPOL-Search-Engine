@@ -49,51 +49,57 @@ def log_url_validator(url, validator, arg=None):
     database = client.upol_crawler
 
     if validator == "blacklist":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "blacklisted": True}
 
     elif validator == "robots_block":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "robots_block": True}
 
     elif validator == "exception":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "exception": True,
                       "value": str(arg)}
 
     elif validator == "not_valid_redirect":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "not_valid_redirect": True}
 
     elif validator == "anchor":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "anchor": True}
 
     elif validator == "regex":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "regex": True}
 
     elif validator == "rel":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "rel": True}
 
     elif validator == "visiting":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "visiting": True}
 
     elif validator == "parsing":
-        log_object = {"_id": url_tools.hash(url),
+        log_object = {
                       "url": url,
                       "parsing": True,
                       "valid_urls": str(arg)}
+
+    elif validator == "redirected":
+        log_object = {
+                      "url": url,
+                      "redirected": True,}
+
 
     try:
         database.urls_logs_not_valid.insert_one(log_object).inserted_id
