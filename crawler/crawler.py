@@ -62,6 +62,7 @@ def crawl_url(url, value):
         crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
         # raise
     else:
+        crawler.tasks.log_url_validator_task.delay(url, "visited")
         # Content type is invalid
         # if response is None:
         #     # Set original_url to visited, because original url is invalid.
@@ -70,7 +71,6 @@ def crawl_url(url, value):
         #
         #     client.close()
         #     return response, "Response is", redirected
-        db.set_visited_url(database, url)
 
         if redirected:
             crawler.tasks.log_url_validator_task.delay(url, "redirected")

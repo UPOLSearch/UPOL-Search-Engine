@@ -63,7 +63,7 @@ while True:
 
         if url is not None:
             print("FEEDING QUEUE")
-            # db.set_visited_url(database, url)
+            db.set_visited_url(database, url)
             tasks.crawl_url_task.delay(url, value)
 
         else:

@@ -89,6 +89,11 @@ def log_url_validator(url, validator, arg=None):
                       "url": url,
                       "visiting": True}
 
+    elif validator == "visited":
+        log_object = {
+                      "url": url,
+                      "visited": True}
+
     elif validator == "parsing":
         log_object = {
                       "url": url,
