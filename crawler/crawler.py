@@ -59,7 +59,7 @@ def crawl_url(url, value):
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
         crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
-        raise
+        # raise
     else:
         # Content type is invalid
         # if response is None:
@@ -121,7 +121,7 @@ def crawl_url(url, value):
                     db.insert_url(database, page_url, False, config.max_value)
         except Exception as e:
             crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
-            raise
+            # raise
 
             # if not db.exists_url(database, page_url):
             # db.insert_url(database, page_url)

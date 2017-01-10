@@ -141,7 +141,7 @@ def validated_page_urls(soup, url):
             if "www" in link_url:
                 e = ValueError(url + " absolute url is invalid " + link_url)
                 crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
-                raise e
+                # raise e
             link_url = urllib.parse.urljoin(page_base_url, link_url)
 
         link_url = url_tools.clean(link_url)
