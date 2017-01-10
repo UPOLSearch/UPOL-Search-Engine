@@ -52,6 +52,7 @@ def get_url(url):
 
 
 def crawl_url(url, value):
+    crawler.tasks.log_url_validator_task.delay(url, "visiting")
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
     try:
@@ -105,6 +106,7 @@ def crawl_url(url, value):
             soup = BeautifulSoup(html, "lxml")
 
             validated_urls_on_page = parser.validated_page_urls(soup, url)
+            crawler.tasks.log_url_validator_task.delay(url, "parsing", len(validated_urls_on_page))
 
             for page_url in validated_urls_on_page:
                 page_url = url_tools.clean(page_url)

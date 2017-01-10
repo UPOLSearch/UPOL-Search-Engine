@@ -84,6 +84,17 @@ def log_url_validator(url, validator, arg=None):
                       "url": url,
                       "rel": True}
 
+    elif validator == "visiting":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "visiting": True}
+
+    elif validator == "parsing":
+        log_object = {"_id": url_tools.hash(url),
+                      "url": url,
+                      "parsing": True,
+                      "valid_urls": str(arg)}
+
     try:
         database.urls_logs_not_valid.insert_one(log_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
