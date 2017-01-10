@@ -4,6 +4,7 @@ from crawler import config
 import pymongo
 from time import sleep
 import datetime
+from crawler import crawler
 
 from celery.app.control import Control
 from crawler.celery import app
@@ -76,7 +77,7 @@ while True:
 
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
-            tasks.crawl_url_task(url, value)
+            crawler.crawl_url(url, value)
 
         else:
             print("WORKER IS RUNNING - SLEEPING")
