@@ -56,28 +56,28 @@ start_time = datetime.datetime.now()
 sleeping = False
 number_of_tasks = 0
 
-# while True:
-#
-#     if sleeping is False:
-#         url, value = db.get_unvisited_url(database)
-#
-#         if url is not None:
-#             print("FEEDING QUEUE")
-#             db.set_visited_url(database, url)
-#             tasks.crawl_url_task.delay(url, value)
-#
-#         else:
-#             print("WORKER IS RUNNING - SLEEPING")
-
 while True:
+
     if sleeping is False:
         url, value = db.get_unvisited_url(database)
 
         if url is not None:
-
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
-            crawler.crawl_url(url, value)
+            tasks.crawl_url_task.delay(url, value)
 
         else:
             print("WORKER IS RUNNING - SLEEPING")
+
+# while True:
+#     if sleeping is False:
+#         url, value = db.get_unvisited_url(database)
+#
+#         if url is not None:
+#
+#             print("FEEDING QUEUE")
+#             db.set_visited_url(database, url)
+#             crawler.crawl_url(url, value)
+#
+#         else:
+#             print("WORKER IS RUNNING - SLEEPING")
