@@ -55,31 +55,28 @@ start_time = datetime.datetime.now()
 sleeping = False
 number_of_tasks = 0
 
+# while True:
+#
+#     if sleeping is False:
+#         url, value = db.get_unvisited_url(database)
+#
+#         if url is not None:
+#             print("FEEDING QUEUE")
+#             db.set_visited_url(database, url)
+#             tasks.crawl_url_task.delay(url, value)
+#
+#         else:
+#             print("WORKER IS RUNNING - SLEEPING")
+
 while True:
-#     end_time = datetime.datetime.now()
-#     elapsed = end_time - start_time
-
-    # if elapsed.seconds >= 10 and sleeping is True:
-    #     sleeping = False
-
     if sleeping is False:
         url, value = db.get_unvisited_url(database)
 
         if url is not None:
-            # sleeping = False
+
             print("FEEDING QUEUE")
             db.set_visited_url(database, url)
-            # number_of_tasks = number_of_tasks + 1
-            # db.inser_url_visited(database, url)
-            tasks.crawl_url_task.delay(url, value)
-            # try:
-            #     with open("main_logs.log", "a") as result_file:
-            #         result_file.write("Number of pages:" + str(number_of_tasks) + "\n")
-            #         result_file.write(str(url) + "\n")
-            #         result_file.write("Value:" + str(value) + "\n")
-            # except:
-            #     pass
+            tasks.crawl_url_task(url, value)
+
         else:
             print("WORKER IS RUNNING - SLEEPING")
-            # sleeping = True
-            # start_time = datetime.datetime.now()
