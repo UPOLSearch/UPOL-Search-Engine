@@ -49,7 +49,7 @@ def validate_file_extension(url):
 
     return valid
 
-    
+
 def validate_regex(url):
     """Check if url is validate with regex"""
     return config.regex.match(url)
@@ -108,7 +108,7 @@ def validate(url):
 
     try:
         if not robots.is_crawler_allowed(url):
-            crawler.tasks.log_url_reason_task.delay(url, "robots_block"})
+            crawler.tasks.log_url_reason_task.delay(url, "robots_block")
             return False
     except:
         pass
