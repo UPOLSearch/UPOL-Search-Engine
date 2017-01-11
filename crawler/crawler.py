@@ -65,7 +65,7 @@ def crawl_url(url, value):
             # Check if redirected url is valid
             if not validator.validate(url):
                 client.close()
-                # crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
+                crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
