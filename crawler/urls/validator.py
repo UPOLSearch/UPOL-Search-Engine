@@ -45,14 +45,11 @@ def validate_file_extension(url):
         valid = True
 
     if not valid:
-        client = pymongo.MongoClient('localhost', 27017)
-        database = client.upol_crawler
-        db.insert_url_visited_file_extension(database, url)
-        client.close()
+        crawler.tasks.log_url_reason_task.delay(url, "file")
 
     return valid
 
-
+    
 def validate_regex(url):
     """Check if url is validate with regex"""
     return config.regex.match(url)
@@ -111,7 +108,7 @@ def validate(url):
 
     try:
         if not robots.is_crawler_allowed(url):
-            crawler.tasks.log_url_validator_task.delay(url, "robots_block")
+            crawler.tasks.log_url_reason_task.delay(url, "robots_block"})
             return False
     except:
         pass

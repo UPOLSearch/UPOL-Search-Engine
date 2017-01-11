@@ -28,3 +28,8 @@ def log_url_task(url, response):
 @app.task(queue='logger', ignore_result=True, task_compression='zlib')
 def log_url_validator_task(url, validator, arg=None):
     log_url_validator(url, validator, arg)
+
+
+@app.task(queue='logger', ignore_result=True, task_compression='zlib')
+def log_url_reason_task(url, reason, arg={}):
+    log_url_reason(url, validator, arg)

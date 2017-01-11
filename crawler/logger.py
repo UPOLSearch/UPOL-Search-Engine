@@ -44,6 +44,25 @@ def log_url(url, response):
 
     client.close()
 
+def log_url_reason(url, reason, arg={}):
+    client = pymongo.MongoClient('localhost', 27017)
+    database = client[reason]
+
+    log_object = {"_id": url_tools.hash(url),
+                  "url": url}
+
+    for key, value in arg.items():
+        log_object[key] = str(value)
+
+    try:
+        database.urls_logs_not_valid.insert_one(log_object).inserted_id
+    except pymongo.errors.DuplicateKeyError as e:
+        return False
+
+    client.close()
+
+
+# Deprecated
 def log_url_validator(url, validator, arg=None):
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
