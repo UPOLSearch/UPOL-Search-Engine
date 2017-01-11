@@ -10,14 +10,12 @@ class Config(object):
         Queue(
             'crawler',
             exchange=Exchange('crawler'),
-            routing_key="crawler",
-            queue_arguments={'x-max-length': 3000}
+            routing_key="crawler"
         ),
         Queue(
             'logger',
             exchange=Exchange('logger'),
-            routing_key="logger",
-            queue_arguments={'x-max-length': 3000}
+            routing_key="logger"
         ),
     )
 
