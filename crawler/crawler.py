@@ -14,14 +14,14 @@ from crawler import logger
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': config.user_agent}
-    # response = requests.head(url, headers=headers, verify=config.verify_ssl)
+    response = requests.head(url, headers=headers, verify=config.verify_ssl)
 
-    # if validator.validate_content_type(response.headers['Content-Type']):
-    #     return requests.get(url, headers=headers, verify=config.verify_ssl)
-    # else:
-    #     return None
+    if validator.validate_content_type(response.headers['Content-Type']):
+        return requests.get(url, headers=headers, verify=config.verify_ssl)
+    else:
+        return None
 
-    return requests.get(url, headers=headers, verify=config.verify_ssl)
+    # return requests.get(url, headers=headers, verify=config.verify_ssl)
 
 
 def get_url(url):
@@ -30,20 +30,6 @@ def get_url(url):
     redirected = False
     original_url = url
 
-    # if response is not None:
-        # if len(response.history) > 0:
-        #     redirected = True
-        #     original_url = url
-        #     url = url_tools.clean(response.history[0].url)
-        #
-        #     if url == original_url:
-        #         redirected = False
-        # else:
-        #     url = url_tools.clean(response.url)
-        #     original_url = url
-        #
-        # url = url_tools.decode(url)
-        # original_url = url_tools.decode(original_url)
     url = url_tools.clean(response.url)
     if original_url != url:
         redirected = True
@@ -52,7 +38,7 @@ def get_url(url):
 
 
 def crawl_url(url, value):
-    crawler.tasks.log_url_validator_task.delay(url, "visiting")
+    # crawler.tasks.log_url_validator_task.delay(url, "visiting")
     client = pymongo.MongoClient('localhost', 27017)
     database = client.upol_crawler
 
@@ -60,24 +46,26 @@ def crawl_url(url, value):
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
         crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
-        # raise
+        raise
     else:
-        crawler.tasks.log_url_validator_task.delay(url, "visited")
+        # crawler.tasks.log_url_validator_task.delay(url, "visited")
+
         # Content type is invalid
-        # if response is None:
-        #     # Set original_url to visited, because original url is invalid.
-        #     if redirected:
-        #         db.set_visited_url(database, url)
-        #
-        #     client.close()
-        #     return response, "Response is", redirected
+        if response is None:
+            # Set original_url to visited, because original url is invalid.
+            if redirected:
+                db.set_visited_url(database, url)
+
+            client.close()
+            return response, "Response is", redirected
 
         if redirected:
-            crawler.tasks.log_url_validator_task.delay(url, "redirected")
+            # crawler.tasks.log_url_validator_task.delay(url, "redirected")
+
             # Check if redirected url is valid
             if not validator.validate(url):
                 client.close()
-                crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
+                # crawler.tasks.log_url_validator_task.delay(url, "not_valid_redirect")
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
@@ -95,21 +83,13 @@ def crawl_url(url, value):
                 else:
                     db.set_visited_url(database, url)
 
-        # db.set_visited_url(url)
-
-        # # Max depth was reached
-        # if value == 0:
-        #     client.close()
-        #     return response, "URL done - max depth was reached", redirected
-
         # Begin parse part, should avoid 404
-
         try:
             html = response.text
             soup = BeautifulSoup(html, "lxml")
 
             validated_urls_on_page = parser.validated_page_urls(soup, url)
-            crawler.tasks.log_url_validator_task.delay(url, "parsing", len(validated_urls_on_page))
+            # crawler.tasks.log_url_validator_task.delay(url, "parsing", len(validated_urls_on_page))
 
             for page_url in validated_urls_on_page:
                 page_url = url_tools.clean(page_url)
@@ -117,20 +97,15 @@ def crawl_url(url, value):
                 if url_tools.is_same_domain(url, page_url):
                     if value - 1 != 0:
                         db.insert_url(database, page_url, False, value - 1)
-                    else:
-                        crawler.tasks.log_url_validator_task.delay(url, "depth")
+                    # else:
+                    #     crawler.tasks.log_url_validator_task.delay(url, "depth")
                 else:
                     db.insert_url(database, page_url, False, config.max_value)
         except Exception as e:
             crawler.tasks.log_url_validator_task.delay(url, "exception", str(e))
-            # raise
-
-            # if not db.exists_url(database, page_url):
-            # db.insert_url(database, page_url)
-
-        client.close()
-
+            raise
 
 
         crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
+        client.close()
         return response, "URL done", redirected

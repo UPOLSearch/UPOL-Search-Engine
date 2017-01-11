@@ -57,7 +57,6 @@ sleeping = False
 number_of_tasks = 0
 
 while True:
-
     if sleeping is False:
         url, value = db.get_unvisited_url(database)
 
@@ -68,16 +67,3 @@ while True:
 
         else:
             print("WORKER IS RUNNING - SLEEPING")
-
-# while True:
-#     if sleeping is False:
-#         url, value = db.get_unvisited_url(database)
-#
-#         if url is not None:
-#
-#             print("FEEDING QUEUE")
-#             db.set_visited_url(database, url)
-#             crawler.crawl_url(url, value)
-#
-#         else:
-#             print("WORKER IS RUNNING - SLEEPING")

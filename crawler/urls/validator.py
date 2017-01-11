@@ -98,15 +98,15 @@ def validate_wiki(url):
 def validate(url):
     """Complete validator"""
     if not validate_anchor(url):
-        crawler.tasks.log_url_validator_task.delay(url, "anchor")
+        # crawler.tasks.log_url_validator_task.delay(url, "anchor")
         return False
 
     if not validate_regex(url):
-        crawler.tasks.log_url_validator_task.delay(url, "regex")
+        # crawler.tasks.log_url_validator_task.delay(url, "regex")
         return False
 
     if blacklist.is_url_blocked(url):
-        crawler.tasks.log_url_validator_task.delay(url, "blacklist")
+        # crawler.tasks.log_url_validator_task.delay(url, "blacklist")
         return False
 
     try:
