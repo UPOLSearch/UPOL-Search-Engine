@@ -71,14 +71,14 @@ def phpBB_page(soup):
 def link_extractor(soup, url):
     """Extract all links from page"""
 
-    # if is_page_wiki(soup):
-    #     return wiki_page(soup)
-    #
-    # elif is_page_phpbb(soup):
-    #     return phpBB_page(soup)
-    #
-    # else:
-    return set(soup.find_all('a', href=True))
+    if is_page_wiki(soup):
+        return wiki_page(soup)
+
+    elif is_page_phpbb(soup):
+        return phpBB_page(soup)
+
+    else:
+        return set(soup.find_all('a', href=True))
 
 
 def check_rel_attribute(link):
