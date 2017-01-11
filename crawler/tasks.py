@@ -4,6 +4,7 @@ from celery.utils.log import get_task_logger
 from crawler import crawler
 from .logger import log_url
 from .logger import log_url_validator
+from .logger import log_url_reason
 
 logger = get_task_logger(__name__)
 
