@@ -42,7 +42,7 @@ database = client.upol_crawler
 
 # Temporal solution
 db.init(database)
-db.insert_url(database, "http://inf.upol.cz", False, config.max_value)
+db.insert_url(database, "https://forum.inf.upol.cz", False, config.max_value)
 # db.insert_url(database, "http://www.cmtf.upol.cz", False, config.max_value)
 # db.insert_url(database, "http://www.lf.upol.cz", False, config.max_value)
 # db.insert_url(database, "http://www.ff.upol.cz", False, config.max_value)
