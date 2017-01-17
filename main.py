@@ -42,15 +42,15 @@ database = client.upol_crawler
 
 # Temporal solution
 db.init(database)
-db.insert_url(database, "http://inf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.cmtf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.lf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.ff.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.prf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.pdf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://ftk.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.pf.upol.cz", False, config.max_value)
-# db.insert_url(database, "http://www.fzv.upol.cz", False, config.max_value)
+db.insert_url(database, "http://upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.cmtf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.lf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.ff.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.prf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.pdf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://ftk.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.pf.upol.cz", False, config.max_value)
+db.insert_url(database, "http://www.fzv.upol.cz", False, config.max_value)
 
 start_time = datetime.datetime.now()
 sleeping = False

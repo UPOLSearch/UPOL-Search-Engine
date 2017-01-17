@@ -6,7 +6,7 @@ project_url = "https://github.com/UPOLSearch/UPOL-Crawler"
 user_agent = "Mozilla/5.0 (compatible; UPOL-Crawler/" + version + "; +" + project_url + ")"
 
 # Settings
-limit_domain = "http://inf.upol.cz"
+limit_domain = "http://upol.cz"
 regex = url_tools.generate_regex(limit_domain)
 max_value = 10
 # for requests
