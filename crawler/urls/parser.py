@@ -1,4 +1,5 @@
 import urllib.parse
+import crawler
 from crawler.urls import validator
 from crawler.urls import url_tools
 
