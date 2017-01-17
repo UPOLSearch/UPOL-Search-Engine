@@ -63,9 +63,11 @@ def crawl_url(url, value):
             # crawler.tasks.log_url_validator_task.delay(url, "redirected")
 
             # Check if redirected url is valid
-            if not validator.validate(url):
+            valid, reason = validator.validate(url)
+
+            if not valid:
                 client.close()
-                crawler.tasks.log_url_reason_task.delay(url, "not_valid_redirect", {"original_url": original_url})
+                crawler.tasks.log_url_reason_task.delay(url, "not_valid_redirect", {"reason": reason, "original_url": original_url})
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
@@ -97,8 +99,8 @@ def crawl_url(url, value):
                 if url_tools.is_same_domain(url, page_url):
                     if value - 1 != 0:
                         db.insert_url(database, page_url, False, value - 1)
-                    # else:
-                    #     crawler.tasks.log_url_validator_task.delay(url, "depth")
+                    else:
+                        crawler.tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
                 else:
                     db.insert_url(database, page_url, False, config.max_value)
         except Exception as e:

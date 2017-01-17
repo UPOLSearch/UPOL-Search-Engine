@@ -30,8 +30,8 @@ def validate_file_extension(url):
 
     # In case of www.upol.cz
     # TODO - Maybe implement in higher layer
-    # if not scheme:
-    #     return validate_file_extension(url_tools.add_scheme(url))
+    if not scheme:
+        return validate_file_extension(url_tools.add_scheme(url))
 
     path_split = path.split('/')
 
@@ -43,9 +43,6 @@ def validate_file_extension(url):
                 break
     else:
         valid = True
-
-    if not valid:
-        crawler.tasks.log_url_reason_task.delay(url, "file")
 
     return valid
 
@@ -91,30 +88,23 @@ def validate_wiki(url):
 
     return True
 
-
+    
 def validate(url):
     """Complete validator"""
     if not validate_anchor(url):
-        # crawler.tasks.log_url_validator_task.delay(url, "anchor")
-        return False
+        return False, "UrlHasAnchor"
 
     if not validate_regex(url):
-        # crawler.tasks.log_url_validator_task.delay(url, "regex")
-        return False
+        return False, "UrlInvalidRegex"
 
     if blacklist.is_url_blocked(url):
-        # crawler.tasks.log_url_validator_task.delay(url, "blacklist")
-        return False
+        return False, "UrlIsBlacklisted"
 
-    try:
-        if not robots.is_crawler_allowed(url):
-            crawler.tasks.log_url_reason_task.delay(url, "robots_block")
-            return False
-    except:
-        pass
+    if not robots.is_crawler_allowed(url):
+        return False, "UrlRobotsBlocked"
 
     # Need to be last
     if not validate_file_extension(url):
-        return False
+        return False, "UrlIsFile"
 
-    return True
+    return True, None

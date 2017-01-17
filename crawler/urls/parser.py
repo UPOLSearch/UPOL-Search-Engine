@@ -140,11 +140,14 @@ def validated_page_urls(soup, url):
         if not scheme:
             link_url = url_tools.add_scheme(url)
 
-
-
         link_url = url_tools.clean(link_url)
 
-        if validator.validate(link_url):
+        valid, reason = validator.validate(link_url)
+
+        if valid:
             valid_urls.add(link_url)
+        else:
+            if reason == "UrlIsFile" or reason == "UrlRobotsBlocked":
+                crawler.tasks.log_url_reason_task.delay(url, reason)
 
     return valid_urls
