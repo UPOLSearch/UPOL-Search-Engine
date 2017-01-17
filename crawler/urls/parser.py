@@ -112,6 +112,21 @@ def check_meta_robots(soup):
         return True
 
 
+def get_canonical_url(soup):
+    """Return canonical url if exists"""
+    # <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
+    link = soup.find("link", {"rel": "canonical"})
+
+    if link is not None:
+        url = link.get('href')
+        url.replace("http://", "")
+        url.replace("https://", "")
+        url.replace("www", "")
+        return url
+    else:
+        return None
+
+
 def validated_page_urls(soup, url):
     """Parse page and return set of valid urls"""
 
@@ -123,6 +138,7 @@ def validated_page_urls(soup, url):
 
     links_on_page = link_extractor(soup, url)
     page_base_url = base_url(soup, url)
+    canonical_url = get_canonical_url(soup)
 
     for link in links_on_page:
         # if has some rel attributes - ignore
@@ -141,6 +157,11 @@ def validated_page_urls(soup, url):
             link_url = url_tools.add_scheme(url)
 
         link_url = url_tools.clean(link_url)
+
+        if canonical_url is not None:
+            # If canonical url is part of url, skip this url
+            if canonical_url in link_url:
+                continue
 
         valid, reason = validator.validate(link_url)
 
