@@ -13,6 +13,11 @@ def clean(url):
     return url.rstrip('/')
 
 
+def remove_sid(url):
+    """Remove session id from url"""
+    return re.sub('\&sid=[0-9a-zA-Z]*', '', url)
+
+
 def is_url_absolute(url):
     """Test if url is absolute"""
     return bool(urllib.parse.urlparse(url).netloc)

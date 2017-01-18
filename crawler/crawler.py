@@ -34,8 +34,8 @@ def get_url(url):
     url = url_tools.clean(response.url)
 
     # Experimental fix for session id in url
-    re.sub('\&sid=[0-9a-zA-Z]*', '', url)
-    re.sub('\&sid=[0-9a-zA-Z]*', '', original_url)
+    url = url_tools.remove_sid(url)
+    original_url = url_tools.remove_sid(original_url)
 
     if original_url != url:
         redirected = True
