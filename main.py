@@ -58,7 +58,7 @@ number_of_tasks = 0
 
 while True:
     if sleeping is False:
-        url, value = db.get_unvisited_url(database)
+        url, value = db.random_unvisited_url(database)
 
         if url is not None:
             print("FEEDING QUEUE")
