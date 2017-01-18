@@ -1,6 +1,7 @@
 import requests
 import pymongo
 import crawler
+import re
 from bs4 import BeautifulSoup
 from crawler import config
 from crawler.urls import validator
@@ -31,6 +32,11 @@ def get_url(url):
     original_url = url
 
     url = url_tools.clean(response.url)
+
+    # Experimental fix for session id in url
+    re.sub('\&sid=[0-9a-zA-Z]*', '', url)
+    re.sub('\&sid=[0-9a-zA-Z]*', '', original_url)
+
     if original_url != url:
         redirected = True
 
