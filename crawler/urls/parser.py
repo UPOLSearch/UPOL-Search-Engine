@@ -99,7 +99,7 @@ def check_rel_attribute(link):
             return False
         elif "search" in rel:
             return False
-            
+
     return True
 
 
@@ -147,10 +147,9 @@ def validated_page_urls(soup, url):
     canonical_url = get_canonical_url(soup)
 
     for link in links_on_page:
-        crawler.tasks.log_url_reason_task.delay(str(link), "Links")
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
-            crawler.tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
+            # crawler.tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
             continue
 
         link_url = link['href']
