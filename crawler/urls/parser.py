@@ -145,6 +145,7 @@ def validated_page_urls(soup, url):
     canonical_url = get_canonical_url(soup)
 
     for link in links_on_page:
+        crawler.tasks.log_url_reason_task.delay(str(link), "Links", {"type": link['rel']})
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
             crawler.tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
