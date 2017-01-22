@@ -88,15 +88,15 @@ def check_rel_attribute(link):
 
     rel = link.get('rel')
 
-    if rel == "nofollow":
+    if "nofollow" in rel:
         return False
-    elif rel == "bookmark":
+    elif "bookmark" in rel:
         return False
-    elif rel == "alternate":
+    elif "alternate" in rel:
         return False
-    elif rel == "license":
+    elif "license" in rel:
         return False
-    elif rel == "search":
+    elif "search" in rel:
         return False
     else:
         return True
