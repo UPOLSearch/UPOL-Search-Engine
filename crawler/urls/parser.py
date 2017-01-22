@@ -88,18 +88,20 @@ def check_rel_attribute(link):
 
     rel = link.get('rel')
 
-    if "nofollow" in rel:
-        return False
-    elif "bookmark" in rel:
-        return False
-    elif "alternate" in rel:
-        return False
-    elif "license" in rel:
-        return False
-    elif "search" in rel:
-        return False
-    else:
-        return True
+    if rel is not None:
+        if "nofollow" in rel:
+            return False
+        elif "bookmark" in rel:
+            return False
+        elif "alternate" in rel:
+            return False
+        elif "license" in rel:
+            return False
+        elif "search" in rel:
+            return False
+            
+    return True
+
 
 
 def check_meta_robots(soup):
