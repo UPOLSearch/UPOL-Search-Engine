@@ -34,6 +34,7 @@ def validate_file_extension(url):
         return validate_file_extension(url_tools.add_scheme(url))
 
     path_split = path.split('/')
+    valid = True
 
     if "." in path_split[-1]:
         if len(path_split[-1].split('.')[-1]) < 5:
@@ -42,8 +43,6 @@ def validate_file_extension(url):
                 if file_extension in path_split[-1]:
                     valid = True
                     break
-    else:
-        valid = True
 
     return valid
 
