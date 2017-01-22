@@ -8,6 +8,6 @@ user_agent = "Mozilla/5.0 (compatible; UPOL-Crawler/" + version + "; +" + projec
 # Settings
 limit_domain = "http://upol.cz"
 regex = url_tools.generate_regex(limit_domain)
-max_value = 10
+max_value = 5
 # for requests
 verify_ssl = False
