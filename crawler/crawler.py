@@ -51,7 +51,7 @@ def crawl_url(url, value):
     try:
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
-        crawler.tasks.log_url_reason_task.delay(url, "exception", {"place": "get_url", "info": str(e)})
+        crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
         raise
     else:
         # crawler.tasks.log_url_validator_task.delay(url, "visited")
@@ -73,7 +73,7 @@ def crawl_url(url, value):
 
             if not valid:
                 client.close()
-                crawler.tasks.log_url_reason_task.delay(url, "not_valid_redirect", {"reason": reason, "original_url": original_url})
+                crawler.tasks.log_url_reason_task.delay(url, "UrlNotValidRedirect", {"reason": reason, "original_url": original_url})
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
@@ -110,7 +110,7 @@ def crawl_url(url, value):
                 else:
                     db.insert_url(database, page_url, False, config.max_value)
         except Exception as e:
-            crawler.tasks.log_url_reason_task.delay(url, "exception", {"place": "parser", "info": str(e)})
+            crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise
 
 
