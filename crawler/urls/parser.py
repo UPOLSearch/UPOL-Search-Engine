@@ -90,6 +90,8 @@ def check_rel_attribute(link):
 
     if rel == "nofollow":
         return False
+    elif rel == "bookmark":
+        return False
     elif rel == "alternate":
         return False
     elif rel == "license":
@@ -145,7 +147,7 @@ def validated_page_urls(soup, url):
     for link in links_on_page:
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
-            crawler.tasks.log_url_validator_task.delay(url, "rel")
+            crawler.tasks.log_url_reason_task.delay(url, "UrlRelBlocked")
             continue
 
         link_url = link['href']
