@@ -36,11 +36,12 @@ def validate_file_extension(url):
     path_split = path.split('/')
 
     if "." in path_split[-1]:
-        valid = False
-        for file_extension in file_extension_whitelist:
-            if file_extension in path_split[-1]:
-                valid = True
-                break
+        if len(path_split[-1].split('.')[-1]) < 5:
+            valid = False
+            for file_extension in file_extension_whitelist:
+                if file_extension in path_split[-1]:
+                    valid = True
+                    break
     else:
         valid = True
 
@@ -88,7 +89,7 @@ def validate_wiki(url):
 
     return True
 
-    
+
 def validate(url):
     """Complete validator"""
     if not validate_anchor(url):
