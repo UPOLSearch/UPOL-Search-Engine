@@ -12,6 +12,28 @@ from crawler.db import db_mongodb as db
 # from crawler import tasks
 from crawler import logger
 
+
+def load_seed(seed_path):
+    """Load urls seed from file"""
+    database = db.database
+
+    urls = set()
+
+    # Load url from file
+    with open(seed_path) as seed_file:
+        for line in seed_file:
+            # Ignore all white characters
+            url = line.rstrip()
+            # Take url only if is not commented
+            if not line.startswith("#"):
+                url = url_tools.clean(url)
+                urls.add(url)
+
+    # Insert loaded urls into database
+    for url in urls:
+        db.insert_url(database, url, False, config.max_value)
+
+
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': config.user_agent}

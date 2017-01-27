@@ -35,23 +35,13 @@ def is_worker_running():
     else:
         return False
 
-# start_time = datetime.datetime.now()
-
-# client = pymongo.MongoClient('localhost', 27017)
-# database = client.upol_crawler
+# Start procedure
 database = db.database
 
-# Temporal solution
+# Init database
 db.init(database)
-db.insert_url(database, "http://upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.cmtf.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.lf.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.ff.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.prf.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.pdf.upol.cz", False, config.max_value)
-db.insert_url(database, "http://ftk.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.pf.upol.cz", False, config.max_value)
-db.insert_url(database, "http://www.fzv.upol.cz", False, config.max_value)
+
+crawler.load_seed(config.seed_path)
 
 start_time = datetime.datetime.now()
 sleeping = False
