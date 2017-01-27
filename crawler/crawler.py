@@ -33,10 +33,7 @@ def get_url(url):
 
     if response is not None:
         url = url_tools.clean(response.url)
-
-        # Experimental fix for session id in url
-        url = url_tools.remove_sid(url)
-        original_url = url_tools.remove_sid(original_url)
+        original_url = url_tools.clean(original_url)
 
         if original_url != url:
             redirected = True

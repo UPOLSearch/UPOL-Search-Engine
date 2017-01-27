@@ -172,7 +172,6 @@ def validated_page_urls(soup, url):
         valid, reason = validator.validate(link_url)
 
         if valid:
-            link_url = url_tools.remove_sid(link_url)
             valid_urls.add(link_url)
         else:
             if reason == "UrlIsFile" or reason == "UrlRobotsBlocked":

@@ -8,9 +8,17 @@ def hash(url):
     return hashlib.sha1(url.encode('utf-8')).hexdigest()
 
 
+def remove_www(url):
+    """Remove www from url"""
+    return url.replace("www.", "")
+
+
 def clean(url):
     """Remove last backslash from url"""
-    return url.rstrip('/')
+    url = url.rstrip('/')
+    url = remove_www(url)
+    url = remove_sid(url)
+    return url
 
 
 def remove_sid(url):
