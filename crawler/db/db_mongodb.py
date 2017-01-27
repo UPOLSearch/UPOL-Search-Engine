@@ -3,6 +3,10 @@ import urllib.parse
 import random
 from crawler.urls import url_tools
 
+# Global database connection
+client = pymongo.MongoClient('localhost', 27017)
+database = client.upol_crawler
+
 
 def init(db):
     # None

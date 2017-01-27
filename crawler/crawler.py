@@ -30,7 +30,7 @@ def get_url(url):
     response = request_url(url)
     redirected = False
     original_url = url
-    
+
     if response is not None:
         url = url_tools.clean(response.url)
 
@@ -46,8 +46,9 @@ def get_url(url):
 
 def crawl_url(url, value):
     # crawler.tasks.log_url_validator_task.delay(url, "visiting")
-    client = pymongo.MongoClient('localhost', 27017)
-    database = client.upol_crawler
+    # client = pymongo.MongoClient('localhost', 27017)
+    # database = client.upol_crawler
+    database = db.database
 
     try:
         url, original_url, redirected, response = get_url(url)
@@ -63,7 +64,7 @@ def crawl_url(url, value):
             if redirected:
                 db.set_visited_url(database, url)
 
-            client.close()
+            # client.close()
             return response, "Response is", redirected
 
         if redirected:
@@ -73,7 +74,7 @@ def crawl_url(url, value):
             valid, reason = validator.validate(url)
 
             if not valid:
-                client.close()
+                # client.close()
                 crawler.tasks.log_url_reason_task.delay(url, "UrlNotValidRedirect", {"reason": reason, "original_url": original_url})
                 return response, "URL is not valid", redirected
 
@@ -84,7 +85,7 @@ def crawl_url(url, value):
                     db.insert_url(database, url, True, config.max_value)
             else:
                 if db.is_visited(database, url):
-                    client.close()
+                    # client.close()
 
                     crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
 
@@ -116,5 +117,5 @@ def crawl_url(url, value):
 
 
         crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
-        client.close()
+        # client.close()
         return response, "URL done", redirected

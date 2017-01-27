@@ -37,8 +37,9 @@ def is_worker_running():
 
 # start_time = datetime.datetime.now()
 
-client = pymongo.MongoClient('localhost', 27017)
-database = client.upol_crawler
+# client = pymongo.MongoClient('localhost', 27017)
+# database = client.upol_crawler
+database = db.database
 
 # Temporal solution
 db.init(database)
