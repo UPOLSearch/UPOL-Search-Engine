@@ -25,9 +25,9 @@ def get_log_format(response):
 
 
 def log_url(url, response):
-    # client = pymongo.MongoClient('localhost', 27017)
-    # database = client.upol_crawler
-    database = db.database
+    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    database = client.upol_crawler
+    # database = db.database
 
     log_object = {"_id": url_tools.hash(url),
                   "url": url,
@@ -45,12 +45,11 @@ def log_url(url, response):
         return False
 
 
-    # client.close()
+    client.close()
 
 def log_url_reason(url, reason, arg={}):
-    # client = pymongo.MongoClient('localhost', 27017)
-    # database = client.upol_crawler
-    database = db.database
+    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    database = client.upol_crawler
     collection = database[reason]
 
     log_object = {"_id": url_tools.hash(url),
@@ -64,14 +63,13 @@ def log_url_reason(url, reason, arg={}):
     except pymongo.errors.DuplicateKeyError as e:
         return False
 
-    # client.close()
+    client.close()
 
 
 # Deprecated
 def log_url_validator(url, validator, arg=None):
-    # client = pymongo.MongoClient('localhost', 27017)
-    # database = client.upol_crawler
-    database = db.database
+    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    database = client.upol_crawler
 
     if validator == "blacklist":
         log_object = {
@@ -136,4 +134,4 @@ def log_url_validator(url, validator, arg=None):
     except pymongo.errors.DuplicateKeyError as e:
         return False
 
-    # client.close()
+    client.close()

@@ -36,12 +36,13 @@ def is_worker_running():
         return False
 
 # Start procedure
-database = db.database
+client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+database = client.upol_crawler
 
 # Init database
 db.init(database)
 
-crawler.load_seed(config.seed_path)
+crawler.load_seed(config.seed_path, database)
 
 start_time = datetime.datetime.now()
 sleeping = False
