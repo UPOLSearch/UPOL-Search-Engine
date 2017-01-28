@@ -1,6 +1,6 @@
 from crawler import tasks
 from crawler.db import db_mongodb as db
-from crawler import config
+from crawler.settings import *
 import pymongo
 from time import sleep
 import datetime
@@ -35,6 +35,7 @@ def is_worker_running():
     else:
         return False
 
+
 # Start procedure
 client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
 database = client.upol_crawler
@@ -42,7 +43,7 @@ database = client.upol_crawler
 # Init database
 db.init(database)
 
-crawler.load_seed(config.seed_path, database)
+crawler.load_seed(SEED_FILE, database)
 
 start_time = datetime.datetime.now()
 sleeping = False

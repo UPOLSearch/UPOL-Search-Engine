@@ -21,4 +21,5 @@ venv
 node_modules
 .sass-cache
 
-config/
+seed.txt
+config.ini

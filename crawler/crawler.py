@@ -3,7 +3,7 @@ import pymongo
 import crawler
 import re
 from bs4 import BeautifulSoup
-from crawler import config
+from crawler.settings import *
 from crawler.urls import validator
 from crawler.urls import parser
 from crawler.urls import url_tools
@@ -29,16 +29,16 @@ def load_seed(seed_path, database):
 
     # Insert loaded urls into database
     for url in urls:
-        db.insert_url(database, url, False, config.max_value)
+        db.insert_url(database, url, False, int(CONFIG.get('Settings', 'max_depth')))
 
 
 def request_url(url):
     """Request url and check if content-type is valid"""
-    headers = {'user-agent': config.user_agent}
-    response = requests.head(url, headers=headers, verify=config.verify_ssl)
+    headers = {'user-agent': CONFIG.get('Info', 'user_agent')}
+    response = requests.head(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'))
 
     if validator.validate_content_type(response.headers['Content-Type']):
-        return requests.get(url, headers=headers, verify=config.verify_ssl)
+        return requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'))
     else:
         return None
 
@@ -98,7 +98,7 @@ def crawl_url(url, value):
                 if url_tools.is_same_domain(url, original_url):
                     db.insert_url(database, url, True, value - 1)
                 else:
-                    db.insert_url(database, url, True, config.max_value)
+                    db.insert_url(database, url, True, int(CONFIG.get('Settings', 'max_depth')))
             else:
                 if db.is_visited(database, url):
                     client.close()
@@ -126,7 +126,7 @@ def crawl_url(url, value):
                     else:
                         crawler.tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
                 else:
-                    db.insert_url(database, page_url, False, config.max_value)
+                    db.insert_url(database, page_url, False, int(CONFIG.get('Settings', 'max_depth')))
         except Exception as e:
             crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise

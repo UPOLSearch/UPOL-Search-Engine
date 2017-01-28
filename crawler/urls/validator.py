@@ -3,7 +3,7 @@ from crawler.urls import url_tools
 from crawler.urls import robots
 from crawler.db import db_mongodb as db
 import urllib.parse
-from crawler import config
+from crawler.settings import DOMAIN_REGEX
 import pymongo
 import crawler
 
@@ -49,7 +49,7 @@ def validate_file_extension(url):
 
 def validate_regex(url):
     """Check if url is validate with regex"""
-    return config.regex.match(url)
+    return DOMAIN_REGEX.match(url)
 
 
 def validate_anchor(url):
