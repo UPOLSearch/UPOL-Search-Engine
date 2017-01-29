@@ -5,6 +5,7 @@ import pymongo
 from time import sleep
 import datetime
 from crawler import crawler
+from crawler.settings import *
 
 from celery.app.control import Control
 from crawler.celery import app
@@ -51,7 +52,10 @@ number_of_tasks = 0
 
 while True:
     if sleeping is False:
-        url, value = db.get_unvisited_url(database)
+        if CONFIG.getboolean('Settings', 'random_unvisited_url'):
+            url, value = db.get_random_unvisited_url(database)
+        else:
+            url, value = db.get_unvisited_url(database)
 
         if url is not None:
             print("FEEDING QUEUE")
