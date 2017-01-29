@@ -15,7 +15,7 @@ def remove_www(url):
 
 def clean(url):
     """Remove last backslash from url"""
-    url = url.rstrip('/')
+    # url = url.rstrip('/')
     url = remove_www(url)
     url = remove_sid(url)
     return url
