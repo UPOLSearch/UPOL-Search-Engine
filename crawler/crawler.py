@@ -61,7 +61,6 @@ def get_url(url):
 
 
 def crawl_url(url, value):
-    # crawler.tasks.log_url_validator_task.delay(url, "visiting")
     client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
     database = client.upol_crawler
 
@@ -71,8 +70,6 @@ def crawl_url(url, value):
         crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
         raise
     else:
-        # crawler.tasks.log_url_validator_task.delay(url, "visited")
-
         # Content type is invalid
         if response is None:
             # Set original_url to visited, because original url is invalid.
@@ -83,8 +80,6 @@ def crawl_url(url, value):
             return response, "Response is", redirected
 
         if redirected:
-            # crawler.tasks.log_url_validator_task.delay(url, "redirected")
-
             # Check if redirected url is valid
             valid, reason = validator.validate(url)
 
@@ -114,7 +109,6 @@ def crawl_url(url, value):
             soup = BeautifulSoup(html, "lxml")
 
             validated_urls_on_page = parser.validated_page_urls(soup, url)
-            # crawler.tasks.log_url_validator_task.delay(url, "parsing", len(validated_urls_on_page))
 
             for page_url in validated_urls_on_page:
                 page_url = url_tools.clean(page_url)
