@@ -52,7 +52,7 @@ def get_url(url):
 
     if response is not None:
         url = url_tools.clean(response.url)
-        original_url = url_tools.clean(original_url)
+        # original_url = url_tools.clean(original_url)
 
         if original_url != url:
             redirected = True
@@ -67,6 +67,7 @@ def crawl_url(url, value):
     try:
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
+        db.delete_url(database, url)
         crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
         raise
     else:
@@ -100,8 +101,8 @@ def crawl_url(url, value):
                     db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
             else:
                 if db.is_visited_or_queued(database, url):
+                    db.set_visited_url(database, url)
                     client.close()
-
                     crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
 
                     return response, "URL is already visited", redirected
