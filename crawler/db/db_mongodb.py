@@ -12,9 +12,7 @@ from crawler.urls import url_tools
 
 
 def init(db):
-    # None
     db.urls.create_index('visited')
-    # db.urls_visited.create_index('url_hash', unique=True)
 
 
 def _universal_insert_url(url, collection, visited, value):
@@ -40,11 +38,6 @@ def insert_url_visited_file_extension(db, url):
     return _universal_insert_url(url, db.urls_file, True, -1)
 
 
-# def inser_url_visited(db, url):
-#     """Insert url into db as visited"""
-#     return _universal_insert_url(url, db.urls, True)
-
-
 def delete_url(db, url):
     """Try to delete url from db, returns True if case of success"""
     result = db.urls.delete_one({'_id': url_tools.hash(url)})
@@ -58,16 +51,6 @@ def is_visited(db, url):
     return result is not None
 
 
-# def exists_url(db, url):
-#     """Return if url is exists in db"""
-#     url_hash = url_tools.hash(url)
-#
-#     result = db.urls.find_one({"_id": url_hash})
-#     result_visited = db.urls_visited.find_one({"_id": url_hash})
-#
-#     return (result is not None) or (result_visited is not None)
-
-
 def exists_url(db, url):
     """Return if url is exists in db"""
     url_hash = url_tools.hash(url)
@@ -75,11 +58,6 @@ def exists_url(db, url):
     result = db.urls.find_one({"_id": url_hash})
 
     return result is not None
-
-
-# def number_of_unvisited_url(db):
-#     """Return number of unvisited url"""
-#     return db.urls.count()
 
 
 def get_unvisited_url(db):
@@ -112,4 +90,4 @@ def set_visited_url(db, url):
 
 def flush_db():
     """Delete everything from database"""
-    return db.urls.drop(), db.urls_visited.drop()
+    return db.urls.drop()
