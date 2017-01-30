@@ -72,9 +72,11 @@ def crawl_url(url, value):
     else:
         # Content type is invalid
         if response is None:
-            # Set original_url to visited, because original url is invalid.
+            # If original url was redirected delete original url from database
             if redirected:
-                db.set_visited_url(database, url)
+                db.delete_url(database, original_url)
+
+            db.delete_url(database, url)
 
             client.close()
             return response, "Response is", redirected
@@ -82,6 +84,9 @@ def crawl_url(url, value):
         if redirected:
             # Check if redirected url is valid
             valid, reason = validator.validate(url)
+
+            # Delete original url from db, we want to keep only working urls
+            db.delete_url(database, original_url)
 
             if not valid:
                 client.close()
@@ -123,7 +128,6 @@ def crawl_url(url, value):
         except Exception as e:
             crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise
-
 
         crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
         client.close()
