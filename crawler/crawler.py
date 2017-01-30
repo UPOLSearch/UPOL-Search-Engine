@@ -28,7 +28,7 @@ def load_seed(seed_path, database):
 
     # Insert loaded urls into database
     for url in urls:
-        db.insert_url(database, url, False, int(CONFIG.get('Settings', 'max_depth')))
+        db.insert_url(database, url, False, False, int(CONFIG.get('Settings', 'max_depth')))
 
 
 def request_url(url):
@@ -95,11 +95,11 @@ def crawl_url(url, value):
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
-                    db.insert_url(database, url, True, value - 1)
+                    db.insert_url(database, url, True, False, value - 1)
                 else:
-                    db.insert_url(database, url, True, int(CONFIG.get('Settings', 'max_depth')))
+                    db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
             else:
-                if db.is_visited(database, url):
+                if db.is_visited_or_queued(database, url):
                     client.close()
 
                     crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
@@ -108,6 +108,7 @@ def crawl_url(url, value):
                 else:
                     db.set_visited_url(database, url)
 
+        db.set_visited_url(database, url)
         # Begin parse part, should avoid 404
         try:
             html = response.text
@@ -120,11 +121,11 @@ def crawl_url(url, value):
 
                 if url_tools.is_same_domain(url, page_url):
                     if value - 1 != 0:
-                        db.insert_url(database, page_url, False, value - 1)
+                        db.insert_url(database, page_url, False, False, value - 1)
                     else:
                         crawler.tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
                 else:
-                    db.insert_url(database, page_url, False, int(CONFIG.get('Settings', 'max_depth')))
+                    db.insert_url(database, page_url, False, False, int(CONFIG.get('Settings', 'max_depth')))
         except Exception as e:
             crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise
