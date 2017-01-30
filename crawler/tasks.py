@@ -6,8 +6,6 @@ from crawler import crawler
 from .celery import app
 from .logger import log_url, log_url_reason, log_url_validator
 
-logger = get_task_logger(__name__)
-
 
 @app.task(rate_limit="6/s", queue='crawler', ignore_result=True, task_compression='zlib')
 def crawl_url_task(url, value):
@@ -17,11 +15,6 @@ def crawl_url_task(url, value):
 @app.task(queue='logger', ignore_result=True, task_compression='zlib')
 def log_url_task(url, response):
     log_url(url, response)
-
-
-@app.task(queue='logger', ignore_result=True, task_compression='zlib')
-def log_url_validator_task(url, validator, arg=None):
-    log_url_validator(url, validator, arg)
 
 
 @app.task(queue='logger', ignore_result=True, task_compression='zlib')
