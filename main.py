@@ -52,13 +52,13 @@ number_of_tasks = 0
 while True:
     if sleeping is False:
         if CONFIG.getboolean('Settings', 'random_unvisited_url'):
-            url, value = db.get_random_unvisited_url(database)
+            url, value = db.get_random_url_for_crawl(database)
         else:
-            url, value = db.get_unvisited_url(database)
+            url, value = db.get_url_for_crawl(database)
 
         if url is not None:
             print("FEEDING QUEUE")
-            db.set_visited_url(database, url)
+            db.set_queued_url(database, url)
             tasks.crawl_url_task.delay(url, value)
 
         else:
