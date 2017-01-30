@@ -1,16 +1,15 @@
-import requests
-import pymongo
-import crawler
 import re
+
+import pymongo
+import requests
 from bs4 import BeautifulSoup
-from crawler.settings import *
-from crawler.urls import validator
-from crawler.urls import parser
-from crawler.urls import url_tools
-from crawler.urls import robots
-from crawler.db import db_mongodb as db
+
+import crawler
 # from crawler import tasks
 from crawler import logger
+from crawler.db import db_mongodb as db
+from crawler.settings import *
+from crawler.urls import parser, robots, url_tools, validator
 
 
 def load_seed(seed_path, database):

@@ -1,14 +1,13 @@
-from crawler import tasks
+import datetime
+from time import sleep
+
+import pymongo
+from celery.app.control import Control
+
+from crawler import crawler, tasks
+from crawler.celery import app
 from crawler.db import db_mongodb as db
 from crawler.settings import *
-import pymongo
-from time import sleep
-import datetime
-from crawler import crawler
-from crawler.settings import *
-
-from celery.app.control import Control
-from crawler.celery import app
 
 
 def is_worker_running():

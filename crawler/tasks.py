@@ -1,10 +1,10 @@
 # from __future__ import absolute_import, unicode_literals
-from .celery import app
 from celery.utils.log import get_task_logger
+
 from crawler import crawler
-from .logger import log_url
-from .logger import log_url_validator
-from .logger import log_url_reason
+
+from .celery import app
+from .logger import log_url, log_url_reason, log_url_validator
 
 logger = get_task_logger(__name__)
 

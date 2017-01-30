@@ -1,20 +1,17 @@
 import unittest
-import redis
-import pymongo
-from unittest.mock import patch
-import responses
-import requests
 import urllib.parse
+from unittest.mock import patch
+
+import pymongo
+import redis
+import requests
+import responses
 from bs4 import BeautifulSoup
 
-from crawler.urls import url_tools
-from crawler.urls import validator
-from crawler.urls import blacklist
-from crawler.urls import parser
 from crawler import crawler
-from crawler.db import db_redis as db
 from crawler.db import db_mongodb as db
-from crawler.urls import robots
+from crawler.db import db_redis as db
+from crawler.urls import blacklist, parser, robots, url_tools, validator
 
 
 class TestRobotsMethods(unittest.TestCase):

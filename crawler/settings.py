@@ -1,5 +1,6 @@
 import configparser
 import os
+
 from crawler.urls import url_tools
 
 CRAWLER_DIR = os.path.dirname(os.path.abspath(__file__))
