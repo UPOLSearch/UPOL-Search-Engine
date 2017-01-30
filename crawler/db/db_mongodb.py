@@ -126,6 +126,16 @@ def is_visited_or_queued(db, url):
         return True
 
 
+def is_some_url_queued(db):
+    """Check if some url is in queue"""
+    result = db.urls.find_one({"$and": [
+                                {'visited': False},
+                                {'queued': True}
+                              ]})
+
+    return not ((result is None) or (len(result) == 0))
+
+
 def flush_db():
     """Delete everything from database"""
     return db.urls.drop()
