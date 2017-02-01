@@ -1,9 +1,9 @@
 import datetime
+import shutil
 from time import sleep
 
 import pymongo
 from celery.app.control import Control
-
 from crawler import crawler, tasks
 from crawler.celery import app
 from crawler.db import db_mongodb as db
@@ -26,6 +26,10 @@ db.init(database)
 crawler.load_seed(SEED_FILE, database)
 
 end_load_time = datetime.datetime.now()
+
+print("Deleting cprofile folder...")
+# Cleaning cprofile folder
+shutil.rmtree(CPROFILE_DIR)
 
 print("DONE! " + str(end_load_time - start_load_time))
 print("------------------------------")

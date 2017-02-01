@@ -6,6 +6,7 @@ from crawler.urls import url_tools
 CRAWLER_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(CRAWLER_DIR)
 CONFIG_DIR = ROOT_DIR
+CPROFILE_DIR = os.path.join(ROOT_DIR, "cprofile/")
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(CONFIG_DIR, "config.ini"))
