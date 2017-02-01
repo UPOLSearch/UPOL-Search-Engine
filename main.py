@@ -9,32 +9,12 @@ from crawler.celery import app
 from crawler.db import db_mongodb as db
 from crawler.settings import *
 
+print("******************************")
+print("UPOL-Crawler v" + CONFIG.get('Info', 'version'))
+print("******************************")
+print("LOADING..")
 
-def is_worker_running():
-    inspect = app.control.inspect()
-
-    active = inspect.active()
-    scheduled = inspect.scheduled()
-    reserved = inspect.reserved()
-
-    if active is not None:
-        active_number = len(list(active.values())[0])
-    else:
-        active_number = 0
-    if scheduled is not None:
-        scheduled_number = len(list(scheduled.values())[0])
-    else:
-        scheduled_number = 0
-    if reserved is not None:
-        reserved_number = len(list(reserved.values())[0])
-    else:
-        reserved_number = 0
-
-    if active_number + scheduled_number + reserved_number > 0:
-        return True
-    else:
-        return False
-
+start_load_time = datetime.datetime.now()
 
 # Start procedure
 client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
@@ -45,10 +25,18 @@ db.init(database)
 
 crawler.load_seed(SEED_FILE, database)
 
+end_load_time = datetime.datetime.now()
+
+print("DONE! " + str(end_load_time - start_load_time))
+print("------------------------------")
+print("Start crawling...")
+print("******************************")
+
 start_time = datetime.datetime.now()
 last_sleep_1 = datetime.datetime.now()
 sleeping = False
 number_of_waiting = 0
+number_of_added_links = 0
 
 while True:
     if sleeping is False:
@@ -67,11 +55,15 @@ while True:
             url, value = db.get_url_for_crawl(database)
 
         if url is not None:
-            print("FEEDING queue")
+            number_of_added_links = number_of_added_links + 1
             db.set_queued_url(database, url)
             tasks.crawl_url_task.delay(url, value)
     else:
+        print("------------------------------")
+        print("Added links:" + str(number_of_added_links))
+        number_of_added_links = 0
         print("Workers are running - SLEEPING")
+        print("------------------------------")
         sleep(20)
 
         if not db.is_some_url_queued(database):
