@@ -145,7 +145,7 @@ def validated_page_urls(soup, url):
 
     links_on_page = link_extractor(soup, url)
     # page_base_url = base_url(soup, url)
-    page_base_url = w3lib.html.get_base_url(soup.html, url)
+    page_base_url = w3lib.html.get_base_url(soup.text, url)
     canonical_url = get_canonical_url(soup)
 
     for link in links_on_page:
