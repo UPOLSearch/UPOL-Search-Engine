@@ -1,6 +1,7 @@
 import hashlib
-import urllib.parse
 import re
+import urllib.parse
+
 import w3lib.url
 
 
@@ -18,7 +19,7 @@ def clean(url):
     """Remove last backslash from url"""
     # url = url.rstrip('/')
     url = remove_www(url)
-    url = remove_sid(url)
+    # url = remove_sid(url)
     url = w3lib.url.url_query_cleaner(url, ('sid', 'SID'), remove=True)
     url = w3lib.url.canonicalize_url(url, keep_blank_values=False)
     return url
