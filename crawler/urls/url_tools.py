@@ -1,6 +1,7 @@
 import hashlib
 import urllib.parse
 import re
+import w3lib.url
 
 
 def hash(url):
@@ -18,12 +19,15 @@ def clean(url):
     # url = url.rstrip('/')
     url = remove_www(url)
     url = remove_sid(url)
+    url = w3lib.url.url_query_cleaner(url, ('sid', 'SID'), remove=True)
+    url = w3lib.url.canonicalize_url(url, keep_blank_values=False)
     return url
 
 
 def remove_sid(url):
-    """Remove session id from url"""
+    """Remove session id from url - DEPRECATED"""
     return re.sub('\&(sid|SID)=[0-9a-zA-Z]*', '', url)
+
 
 
 def is_url_absolute(url):

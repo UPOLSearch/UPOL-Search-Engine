@@ -52,7 +52,6 @@ def get_url(url):
 
     if response is not None:
         url = url_tools.clean(response.url)
-        # original_url = url_tools.clean(original_url)
 
         if original_url != url:
             redirected = True
@@ -118,8 +117,6 @@ def crawl_url(url, value):
             validated_urls_on_page = parser.validated_page_urls(soup, url)
 
             for page_url in validated_urls_on_page:
-                page_url = url_tools.clean(page_url)
-
                 if url_tools.is_same_domain(url, page_url):
                     if value - 1 != 0:
                         db.insert_url(database, page_url, False, False, value - 1)
