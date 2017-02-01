@@ -183,6 +183,6 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
-                tasks.log_url_reason_task.delay(url, reason)
+                tasks.log_url_reason_task.delay(link_url, reason)
 
     return valid_urls
