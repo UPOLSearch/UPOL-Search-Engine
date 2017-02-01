@@ -25,9 +25,15 @@ def load_seed(seed_path, database):
                 url = url_tools.clean(url)
                 urls.add(url)
 
+    number_of_url = 0
+
     # Insert loaded urls into database
     for url in urls:
-        db.insert_url(database, url, False, False, int(CONFIG.get('Settings', 'max_depth')))
+        if validator.validate(url):
+            number_of_url = number_of_url + 1
+            db.insert_url(database, url, False, False, int(CONFIG.get('Settings', 'max_depth')))
+
+    return number_of_url
 
 
 def request_url(url):

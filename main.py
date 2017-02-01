@@ -1,5 +1,6 @@
 import datetime
 import shutil
+import sys
 from time import sleep
 
 import pymongo
@@ -23,7 +24,9 @@ database = client.upol_crawler
 # Init database
 db.init(database)
 
-crawler.load_seed(SEED_FILE, database)
+if crawler.load_seed(SEED_FILE, database) == 0:
+    print("ERROR: Seed.txt is empty or URLs are invalid!")
+    sys.exit()
 
 end_load_time = datetime.datetime.now()
 
