@@ -27,9 +27,11 @@ crawler.load_seed(SEED_FILE, database)
 
 end_load_time = datetime.datetime.now()
 
-print("Deleting cprofile folder...")
-# Cleaning cprofile folder
-shutil.rmtree(CPROFILE_DIR)
+if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
+    os.makedirs(CPROFILE_DIR, exist_ok=True)
+    print("Deleting cprofile folder...")
+    # Cleaning cprofile folder
+    shutil.rmtree(CPROFILE_DIR)
 
 print("DONE! " + str(end_load_time - start_load_time))
 print("------------------------------")
