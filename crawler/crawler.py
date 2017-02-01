@@ -1,10 +1,9 @@
 import re
 
+import crawler
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-
-import crawler
 # from crawler import tasks
 from crawler import logger
 from crawler.db import db_mongodb as db
@@ -100,10 +99,8 @@ def crawl_url(url, value):
                     db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
             else:
                 if db.is_visited_or_queued(database, url):
-                    db.set_visited_url(database, url)
                     client.close()
                     crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
-
                     return response, "URL is already visited", redirected
                 else:
                     db.set_visited_url(database, url)
