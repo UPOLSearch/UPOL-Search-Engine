@@ -1,6 +1,7 @@
 import urllib.parse
 import re
 import crawler
+import w3lib.html
 from crawler.urls import validator
 from crawler.urls import url_tools
 
