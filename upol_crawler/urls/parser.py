@@ -19,7 +19,7 @@ def is_page_wiki(soup):
 
     for meta_generator in meta_generators:
         content = meta_generator['content']
-        if "MediaWiki" in content:
+        if 'MediaWiki' in content:
             return True
 
     return False
@@ -96,15 +96,15 @@ def check_rel_attribute(link):
     rel = link.get('rel')
 
     if rel is not None:
-        if "nofollow" in rel:
+        if 'nofollow' in rel:
             return False
-        elif "bookmark" in rel:
+        elif 'bookmark' in rel:
             return False
-        elif "alternate" in rel:
+        elif 'alternate' in rel:
             return False
-        elif "license" in rel:
+        elif 'license' in rel:
             return False
-        elif "search" in rel:
+        elif 'search' in rel:
             return False
 
     return True
@@ -113,11 +113,11 @@ def check_rel_attribute(link):
 
 def check_meta_robots(soup):
     """Check meta tag robots"""
-    meta = soup.find("meta", {"name": "robots"})
+    meta = soup.find('meta', {'name': 'robots'})
 
     if meta is not None:
         content = meta.get('content')
-        if "nofollow" in content:
+        if 'nofollow' in content:
             return False
         else:
             return True
@@ -128,13 +128,13 @@ def check_meta_robots(soup):
 def get_canonical_url(soup):
     """Return canonical url if exists"""
     # <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
-    link = soup.find("link", {"rel": "canonical"})
+    link = soup.find('link', {'rel': 'canonical'})
 
     if link is not None:
         url = link.get('href')
-        url.replace("http://", "")
-        url.replace("https://", "")
-        url.replace("www", "")
+        url.replace('http://', '')
+        url.replace('https://', '')
+        url.replace('www', '')
         return url
     else:
         return None
@@ -182,7 +182,7 @@ def validated_page_urls(soup, url):
         if valid:
             valid_urls.add(link_url)
         else:
-            if reason == "UrlIsFile" or reason == "UrlRobotsBlocked":
+            if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
                 tasks.log_url_reason_task.delay(url, reason)
 
     return valid_urls

@@ -12,7 +12,7 @@ def hash(url):
 
 def remove_www(url):
     """Remove www from url"""
-    return url.replace("www.", "")
+    return url.replace('www.', '')
 
 
 def clean(url):
@@ -39,9 +39,9 @@ def is_url_absolute(url):
 def add_scheme(url):
     """Add missing scheme to url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-    scheme = "http"
+    scheme = 'http'
     netloc = path
-    path = ""
+    path = ''
     return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
 
 
@@ -54,7 +54,7 @@ def domain(url):
     #     url = add_scheme(url)
     #     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
-    if ":" in netloc:
+    if ':' in netloc:
         netloc = netloc[:-3]
 
     return netloc
@@ -62,8 +62,8 @@ def domain(url):
 
 def is_same_domain(url1, url2):
     """Check if two urls have some domain (ignore www)"""
-    url1 = url1.replace("www.", "")
-    url2 = url2.replace("www.", "")
+    url1 = url1.replace('www.', '')
+    url2 = url2.replace('www.', '')
     return domain(url1) == domain(url2)
 
 
@@ -78,6 +78,6 @@ def decode(url):
 def generate_regex(url):
     """Generate regex for url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-    netloc = netloc.replace(".", "\.")
+    netloc = netloc.replace('.', '\.')
 
-    return re.compile("^(https?:\/\/)?([a-z0-9]+[.])*"+netloc+".*$")
+    return re.compile('^(https?:\/\/)?([a-z0-9]+[.])*'+netloc+'.*$')

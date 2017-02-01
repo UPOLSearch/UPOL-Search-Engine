@@ -6,11 +6,11 @@ from upol_crawler.settings import DOMAIN_REGEX
 from upol_crawler.urls import blacklist, robots, url_tools
 
 # TODO - load values from file
-content_type_whitelist = ["text/html"]
-file_extension_whitelist = [".php",
-                            ".html",
-                            ".xhtml",
-                            ".htm"]
+content_type_whitelist = ['text/html']
+file_extension_whitelist = ['.php',
+                            '.html',
+                            '.xhtml',
+                            '.htm']
 
 
 def validate_content_type(content_type_header):
@@ -34,7 +34,7 @@ def validate_file_extension(url):
     path_split = path.split('/')
     valid = True
 
-    if "." in path_split[-1]:
+    if '.' in path_split[-1]:
         if len(path_split[-1].split('.')[-1]) < 5:
             valid = False
             for file_extension in file_extension_whitelist:
@@ -64,7 +64,7 @@ def validate_phpbb(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
     path = path+qs+anchor
 
-    url_keywords = ["posting.php", "ucp.php", "view=print", "memberlist.php", "mark"]
+    url_keywords = ['posting.php', 'ucp.php', 'view=print', 'memberlist.php', 'mark']
 
     for url_keyword in url_keywords:
         if url_keyword in path:
@@ -78,7 +78,7 @@ def validate_wiki(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
     path = path+qs+anchor
 
-    url_keywords = ["&"]
+    url_keywords = ['&']
 
     for url_keyword in url_keywords:
         if url_keyword in path:
@@ -90,19 +90,19 @@ def validate_wiki(url):
 def validate(url):
     """Complete validator"""
     if not validate_anchor(url):
-        return False, "UrlHasAnchor"
+        return False, 'UrlHasAnchor'
 
     if not validate_regex(url):
-        return False, "UrlInvalidRegex"
+        return False, 'UrlInvalidRegex'
 
     if blacklist.is_url_blocked(url):
-        return False, "UrlIsBlacklisted"
+        return False, 'UrlIsBlacklisted'
 
     if not robots.is_crawler_allowed(url):
-        return False, "UrlRobotsBlocked"
+        return False, 'UrlRobotsBlocked'
 
     # Need to be last
     if not validate_file_extension(url):
-        return False, "UrlIsFile"
+        return False, 'UrlIsFile'
 
     return True, None

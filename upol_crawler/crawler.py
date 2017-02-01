@@ -70,7 +70,7 @@ def crawl_url(url, depth):
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
         db.delete_url(database, url)
-        tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
+        tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'get_url', 'info': str(e)})
         raise
     else:
         # Content type is invalid
@@ -82,7 +82,7 @@ def crawl_url(url, depth):
             db.delete_url(database, url)
 
             client.close()
-            return response, "Response is", redirected
+            return response, 'Response is', redirected
 
         if redirected:
             # Check if redirected url is valid
@@ -93,8 +93,8 @@ def crawl_url(url, depth):
 
             if not valid:
                 client.close()
-                tasks.log_url_reason_task.delay(url, "UrlNotValidRedirect", {"reason": reason, "original_url": original_url})
-                return response, "URL is not valid", redirected
+                tasks.log_url_reason_task.delay(url, 'UrlNotValidRedirect', {'reason': reason, 'original_url': original_url})
+                return response, 'URL is not valid', redirected
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
@@ -105,12 +105,12 @@ def crawl_url(url, depth):
                 if db.is_visited_or_queued(database, url):
                     client.close()
                     # tasks.log_url_task.delay(url, logger.get_log_format(response))
-                    return response, "URL is already visited", redirected
+                    return response, 'URL is already visited', redirected
 
         # Begin parse part, should avoid 404
         try:
             html = response.text
-            soup = BeautifulSoup(html, "lxml")
+            soup = BeautifulSoup(html, 'lxml')
 
             validated_urls_on_page = parser.validated_page_urls(soup, url)
 
@@ -119,13 +119,13 @@ def crawl_url(url, depth):
                     if depth - 1 != 0:
                         db.insert_url(database, page_url, False, False, depth - 1)
                     else:
-                        tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
+                        tasks.log_url_reason_task.delay(url, 'UrlDepthLimit')
                 else:
                     db.insert_url(database, page_url, False, False, int(CONFIG.get('Settings', 'max_depth')))
         except Exception as e:
-            tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
+            tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'parser', 'info': str(e)})
             raise
 
         db.set_visited_url(database, url, response, html)
         client.close()
-        return response, "URL done", redirected
+        return response, 'URL done', redirected

@@ -13,7 +13,7 @@ from upol_crawler.celery import app
 from upol_crawler.settings import *
 
 
-@app.task(rate_limit="6/s", queue='crawler', ignore_result=True, task_compression='zlib')
+@app.task(rate_limit='6/s', queue='crawler', ignore_result=True, task_compression='zlib')
 def crawl_url_task(url, depth):
     if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
         os.makedirs(CPROFILE_DIR, exist_ok=True)

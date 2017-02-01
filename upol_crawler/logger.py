@@ -31,15 +31,15 @@ def log_url(url, response):
     database = client[DATABASE_NAME]
     # database = db.database
 
-    log_object = {"_id": url_tools.hash(url),
-                  "url": url,
-                  "encoding": response.get('encoding'),
-                  "elapsed": response.get('elapsed'),
-                  "headers": response.get('headers'),
-                  "is_permanent_redirect": response.get('is_permanent_redirect'),
-                  "is_redirect": response.get('is_redirect'),
-                  "status_code": response.get('status_code'),
-                  "reason": response.get('reason')}
+    log_object = {'_id': url_tools.hash(url),
+                  'url': url,
+                  'encoding': response.get('encoding'),
+                  'elapsed': response.get('elapsed'),
+                  'headers': response.get('headers'),
+                  'is_permanent_redirect': response.get('is_permanent_redirect'),
+                  'is_redirect': response.get('is_redirect'),
+                  'status_code': response.get('status_code'),
+                  'reason': response.get('reason')}
 
     try:
         database.urls_logs.insert_one(log_object).inserted_id
@@ -54,8 +54,8 @@ def log_url_reason(url, reason, arg={}):
     database = client[DATABASE_NAME]
     collection = database[reason]
 
-    log_object = {"_id": url_tools.hash(url),
-                  "url": url}
+    log_object = {'_id': url_tools.hash(url),
+                  'url': url}
 
     for key, depth in arg.items():
         log_object[key] = str(depth)
