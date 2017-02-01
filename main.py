@@ -48,6 +48,7 @@ crawler.load_seed(SEED_FILE, database)
 start_time = datetime.datetime.now()
 last_sleep_1 = datetime.datetime.now()
 sleeping = False
+number_of_waiting = 0
 
 while True:
     if sleeping is False:
@@ -74,6 +75,11 @@ while True:
         sleep(20)
 
         if not db.is_some_url_queued(database):
+            number_of_waiting = number_of_waiting + 1
+        else:
+            number_of_waiting = 0
+
+        if number_of_waiting > 5:
             break
 
         last_sleep_1 = datetime.datetime.now()
