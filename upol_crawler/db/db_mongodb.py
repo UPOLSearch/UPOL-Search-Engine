@@ -1,9 +1,10 @@
 import random
 import urllib.parse
+from datetime import datetime
 
 import pymongo
 from upol_crawler.settings import *
-from upol_crawler.urls import url_tools
+from upol_crawler.urls import parser, url_tools
 
 
 # Global database connection
@@ -16,12 +17,17 @@ def init(db):
     db["Urls"].create_index('queued')
 
 
-def _universal_insert_url(url, collection, visited, queued, value):
+def _universal_insert_url(url, collection, visited, queued, depth):
     url_object = {"_id": url_tools.hash(url),
                   "url": url,
+                  "domain": url_tools.domain(url),
+                  "depth": depth,
                   "visited": visited,
-                  "queued": queued,
-                  "value": value}
+                  "queued": queued}
+
+    url_object['progress'] = {}
+    url_object['progress']['discovered'] = str(datetime.now())
+
     try:
         result = collection.insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
@@ -30,9 +36,9 @@ def _universal_insert_url(url, collection, visited, queued, value):
     return result
 
 
-def insert_url(db, url, visited, queued, value):
+def insert_url(db, url, visited, queued, depth):
     """Insert url into db"""
-    return _universal_insert_url(url, db["Urls"], visited, queued, value)
+    return _universal_insert_url(url, db["Urls"], visited, queued, depth)
 
 
 def delete_url(db, url):
@@ -56,7 +62,7 @@ def exists_url(db, url):
 #     result = db["Urls"].find_one({'visited': False})
 #
 #     if result is not None:
-#         return result['url'], result['value']
+#         return result['url'], result['depth']
 #     else:
 #         return None, None
 #
@@ -65,7 +71,7 @@ def exists_url(db, url):
 #     """Return random unvisited url"""
 #     result = list(db["Urls"].aggregate([{"$match": {'visited': False}}, {"$sample": {'size': 1}}]))
 #     if len(result) != 0:
-#         return result[0]['url'], result[0]['value']
+#         return result[0]['url'], result[0]['depth']
 #     else:
 #         return None, None
 
@@ -78,7 +84,7 @@ def get_url_for_crawl(db):
                               ]})
 
     if result is not None:
-        return result['url'], result['value']
+        return result['url'], result['depth']
     else:
         return None, None
 
@@ -92,16 +98,47 @@ def get_random_url_for_crawl(db):
                                       ]}}, {"$sample": {'size': 1}}]))
 
     if len(result) != 0:
-        return result[0]['url'], result[0]['value']
+        return result[0]['url'], result[0]['depth']
     else:
         return None, None
 
 
-def set_visited_url(db, url):
-    """Try to set url to visited"""
+def set_visited_url(db, url, response, html):
+    """Try to set url to visited and update other important informations"""
     url_hash = url_tools.hash(url)
 
-    result = db["Urls"].find_one_and_update({"_id": url_hash}, {'$set': {'visited': True, 'queued': False}})
+    url_addition = {}
+
+    url_addition['visited'] = True
+    url_addition['queued'] = False
+
+    url_addition['progress.last_visited'] = str(datetime.now())
+
+    url_addition['content.html'] = html
+    url_addition['content.hashes.document'] = parser.hash_document(html)
+    url_addition['content.encoding'] = response.encoding
+    # Later detect language
+
+    url_addition['response.elapsed'] = str(response.elapsed)
+    url_addition['response.redirect'] = response.is_redirect
+    url_addition['response.status_code'] = response.status_code
+    url_addition['response.reason'] = response.reason
+
+    for key, value in response.headers.items():
+        url_addition['response.' + str(key)] = str(value)
+
+    # url_addition = {'$set': {'visited': True,
+    #                          'queued': False,
+    #                          'progress.last_visited': str(datetime.now()),
+    #                          'content.html': html,
+    #                          'content.encoding': response.encoding,
+    #                          'content.hashes.document': parser.hash_document(html),
+    #                          'response.elapsed': str(response.elapsed),
+    #                          'response.redirect': response.is_redirect,
+    #                          'response.status_code': response.status_code,
+    #                          'response.reason': response.reason}}
+
+    result = db["Urls"].find_one_and_update({"_id": url_hash}, {'$set': url_addition})
 
     return result is not None
 

@@ -62,7 +62,7 @@ def get_url(url):
     return url, original_url, redirected, response
 
 
-def crawl_url(url, value):
+def crawl_url(url, depth):
     client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
     database = client[DATABASE_NAME]
 
@@ -98,18 +98,15 @@ def crawl_url(url, value):
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
-                    db.insert_url(database, url, True, False, value - 1)
+                    db.insert_url(database, url, True, False, depth - 1)
                 else:
                     db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
             else:
                 if db.is_visited_or_queued(database, url):
                     client.close()
-                    tasks.log_url_task.delay(url, logger.get_log_format(response))
+                    # tasks.log_url_task.delay(url, logger.get_log_format(response))
                     return response, "URL is already visited", redirected
-                else:
-                    db.set_visited_url(database, url)
 
-        db.set_visited_url(database, url)
         # Begin parse part, should avoid 404
         try:
             html = response.text
@@ -119,8 +116,8 @@ def crawl_url(url, value):
 
             for page_url in validated_urls_on_page:
                 if url_tools.is_same_domain(url, page_url):
-                    if value - 1 != 0:
-                        db.insert_url(database, page_url, False, False, value - 1)
+                    if depth - 1 != 0:
+                        db.insert_url(database, page_url, False, False, depth - 1)
                     else:
                         tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
                 else:
@@ -129,6 +126,6 @@ def crawl_url(url, value):
             tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise
 
-        tasks.log_url_task.delay(url, logger.get_log_format(response))
+        db.set_visited_url(database, url, response, html)
         client.close()
         return response, "URL done", redirected

@@ -59,14 +59,14 @@ while True:
             sleeping = False
 
         if CONFIG.getboolean('Settings', 'random_unvisited_url'):
-            url, value = db.get_random_url_for_crawl(database)
+            url, depth = db.get_random_url_for_crawl(database)
         else:
-            url, value = db.get_url_for_crawl(database)
+            url, depth = db.get_url_for_crawl(database)
 
         if url is not None:
             number_of_added_links = number_of_added_links + 1
             db.set_queued_url(database, url)
-            tasks.crawl_url_task.delay(url, value)
+            tasks.crawl_url_task.delay(url, depth)
     else:
         print("------------------------------")
         print("Uptime: " + str(datetime.datetime.now() - start_time))

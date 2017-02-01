@@ -1,9 +1,15 @@
+import hashlib
 import re
 import urllib.parse
 
 import w3lib.html
 from upol_crawler import tasks
 from upol_crawler.urls import url_tools, validator
+
+
+def hash_document(document):
+    """Returns hash of document"""
+    return hashlib.sha1(document.encode('utf-8')).hexdigest()
 
 
 def is_page_wiki(soup):

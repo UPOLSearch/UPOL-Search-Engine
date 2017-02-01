@@ -12,8 +12,8 @@ def get_log_format(response):
 
     formated_headers = {}
 
-    for key, value in response.headers.items():
-        formated_headers[str(key)] = str(value)
+    for key, depth in response.headers.items():
+        formated_headers[str(key)] = str(depth)
 
     log['encoding'] = response.encoding
     log['elapsed'] = str(response.elapsed)
@@ -57,8 +57,8 @@ def log_url_reason(url, reason, arg={}):
     log_object = {"_id": url_tools.hash(url),
                   "url": url}
 
-    for key, value in arg.items():
-        log_object[key] = str(value)
+    for key, depth in arg.items():
+        log_object[key] = str(depth)
 
     try:
         collection.insert_one(log_object).inserted_id
