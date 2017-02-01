@@ -2,7 +2,6 @@ import random
 import urllib.parse
 
 import pymongo
-
 from crawler.urls import url_tools
 
 

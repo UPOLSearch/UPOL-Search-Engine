@@ -7,7 +7,6 @@ import redis
 import requests
 import responses
 from bs4 import BeautifulSoup
-
 from crawler import crawler
 from crawler.db import db_mongodb as db
 from crawler.db import db_redis as db

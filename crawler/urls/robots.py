@@ -1,7 +1,8 @@
-from reppy.robots import Robots
-from reppy.cache import RobotsCache
 import threading
+
 from crawler.settings import *
+from reppy.cache import RobotsCache
+from reppy.robots import Robots
 
 lock = threading.RLock()
 

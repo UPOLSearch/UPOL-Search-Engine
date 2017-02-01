@@ -2,7 +2,6 @@ import json
 
 import pymongo
 from bson import json_util
-
 from crawler.db import db_mongodb as db
 from crawler.urls import url_tools
 
