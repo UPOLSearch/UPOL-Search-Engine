@@ -1,6 +1,6 @@
 import urllib.parse
 
-from crawler.urls import url_tools
+from upol_crawler.urls import url_tools
 
 # TODO - load values from file
 blacklist = ["portal.upol.cz",

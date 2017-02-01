@@ -2,8 +2,8 @@ import json
 
 import pymongo
 from bson import json_util
-from crawler.db import db_mongodb as db
-from crawler.urls import url_tools
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.urls import url_tools
 
 
 def get_log_format(response):

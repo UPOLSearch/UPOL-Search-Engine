@@ -2,7 +2,7 @@ import random
 import urllib.parse
 
 import pymongo
-from crawler.urls import url_tools
+from upol_crawler.urls import url_tools
 
 
 # Global database connection

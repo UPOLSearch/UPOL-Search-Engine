@@ -1,14 +1,12 @@
 import re
 
-import crawler
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-# from crawler import tasks
-from crawler import logger
-from crawler.db import db_mongodb as db
-from crawler.settings import *
-from crawler.urls import parser, robots, url_tools, validator
+from upol_crawler import logger, tasks
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.settings import *
+from upol_crawler.urls import parser, robots, url_tools, validator
 
 
 def load_seed(seed_path, database):
@@ -72,7 +70,7 @@ def crawl_url(url, value):
         url, original_url, redirected, response = get_url(url)
     except Exception as e:
         db.delete_url(database, url)
-        crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
+        tasks.log_url_reason_task.delay(url, "UrlException", {"place": "get_url", "info": str(e)})
         raise
     else:
         # Content type is invalid
@@ -95,7 +93,7 @@ def crawl_url(url, value):
 
             if not valid:
                 client.close()
-                crawler.tasks.log_url_reason_task.delay(url, "UrlNotValidRedirect", {"reason": reason, "original_url": original_url})
+                tasks.log_url_reason_task.delay(url, "UrlNotValidRedirect", {"reason": reason, "original_url": original_url})
                 return response, "URL is not valid", redirected
 
             if not db.exists_url(database, url):
@@ -106,7 +104,7 @@ def crawl_url(url, value):
             else:
                 if db.is_visited_or_queued(database, url):
                     client.close()
-                    crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
+                    tasks.log_url_task.delay(url, logger.get_log_format(response))
                     return response, "URL is already visited", redirected
                 else:
                     db.set_visited_url(database, url)
@@ -124,13 +122,13 @@ def crawl_url(url, value):
                     if value - 1 != 0:
                         db.insert_url(database, page_url, False, False, value - 1)
                     else:
-                        crawler.tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
+                        tasks.log_url_reason_task.delay(url, "UrlDepthLimit")
                 else:
                     db.insert_url(database, page_url, False, False, int(CONFIG.get('Settings', 'max_depth')))
         except Exception as e:
-            crawler.tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
+            tasks.log_url_reason_task.delay(url, "UrlException", {"place": "parser", "info": str(e)})
             raise
 
-        crawler.tasks.log_url_task.delay(url, logger.get_log_format(response))
+        tasks.log_url_task.delay(url, logger.get_log_format(response))
         client.close()
         return response, "URL done", redirected

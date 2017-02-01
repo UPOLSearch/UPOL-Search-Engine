@@ -1,10 +1,9 @@
 import urllib.parse
 
-import crawler
 import pymongo
-from crawler.db import db_mongodb as db
-from crawler.settings import DOMAIN_REGEX
-from crawler.urls import blacklist, robots, url_tools
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.settings import DOMAIN_REGEX
+from upol_crawler.urls import blacklist, robots, url_tools
 
 # TODO - load values from file
 content_type_whitelist = ["text/html"]

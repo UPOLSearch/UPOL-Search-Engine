@@ -1,6 +1,6 @@
 import threading
 
-from crawler.settings import *
+from upol_crawler.settings import *
 from reppy.cache import RobotsCache
 from reppy.robots import Robots
 

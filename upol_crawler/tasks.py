@@ -1,4 +1,5 @@
-# from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, unicode_literals
+
 import cProfile
 import datetime
 import hashlib
@@ -6,8 +7,8 @@ import os
 import time
 
 from celery.utils.log import get_task_logger
-from crawler import crawler
-from crawler.settings import *
+from upol_crawler import crawler
+from upol_crawler.settings import *
 
 from .celery import app
 from .logger import log_url, log_url_reason

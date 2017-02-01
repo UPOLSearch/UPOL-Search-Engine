@@ -1,9 +1,9 @@
 import re
 import urllib.parse
 
-import crawler
 import w3lib.html
-from crawler.urls import url_tools, validator
+from upol_crawler import tasks
+from upol_crawler.urls import url_tools, validator
 
 
 def is_page_wiki(soup):
@@ -151,7 +151,7 @@ def validated_page_urls(soup, url):
     for link in links_on_page:
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
-            # crawler.tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
+            # tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
             continue
 
         link_url = link['href']
@@ -177,6 +177,6 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == "UrlIsFile" or reason == "UrlRobotsBlocked":
-                crawler.tasks.log_url_reason_task.delay(url, reason)
+                tasks.log_url_reason_task.delay(url, reason)
 
     return valid_urls

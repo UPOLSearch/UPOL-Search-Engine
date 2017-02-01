@@ -5,10 +5,10 @@ from time import sleep
 
 import pymongo
 from celery.app.control import Control
-from crawler import crawler, tasks
-from crawler.celery import app
-from crawler.db import db_mongodb as db
-from crawler.settings import *
+from upol_crawler import crawler, tasks
+from upol_crawler.celery import app
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.settings import *
 
 print("******************************")
 print("UPOL-Crawler v" + CONFIG.get('Info', 'version'))
