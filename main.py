@@ -69,6 +69,7 @@ while True:
             tasks.crawl_url_task.delay(url, value)
     else:
         print("------------------------------")
+        print("Uptime: " + str(datetime.datetime.now() - start_time))
         print("Added links:" + str(number_of_added_links))
         number_of_added_links = 0
         print("Workers are running - SLEEPING")
