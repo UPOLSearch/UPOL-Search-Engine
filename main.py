@@ -19,7 +19,7 @@ start_load_time = datetime.datetime.now()
 
 # Start procedure
 client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
-database = client.upol_crawler
+database = client[DATABASE_NAME]
 
 # Init database
 db.init(database)

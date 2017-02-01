@@ -64,7 +64,7 @@ def get_url(url):
 
 def crawl_url(url, value):
     client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
-    database = client.upol_crawler
+    database = client[DATABASE_NAME]
 
     try:
         url, original_url, redirected, response = get_url(url)
