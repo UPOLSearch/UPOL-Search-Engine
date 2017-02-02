@@ -26,7 +26,6 @@ db.init(database)
 
 if crawler.load_seed(SEED_FILE, database) == 0:
     print("ERROR: Seed.txt is empty or URLs are invalid!")
-    sys.exit()
 
 end_load_time = datetime.datetime.now()
 
@@ -53,7 +52,7 @@ while True:
 
         last_sleep_delta = last_sleep_2 - last_sleep_1
 
-        if last_sleep_delta.seconds > 5:
+        if last_sleep_delta.seconds > 60:
             sleeping = True
         else:
             sleeping = False
