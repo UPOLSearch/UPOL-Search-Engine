@@ -77,12 +77,12 @@ while True:
 
         sleep(int(CONFIG.get('Settings', 'delay_between_feeding')))
 
-        if not db.is_some_url_queued(database):
+        if not db.should_crawler_wait(database):
             number_of_waiting = number_of_waiting + 1
         else:
             number_of_waiting = 0
 
-        if number_of_waiting > 2:
+        if number_of_waiting >= 2:
             break
 
         last_sleep_1 = datetime.datetime.now()

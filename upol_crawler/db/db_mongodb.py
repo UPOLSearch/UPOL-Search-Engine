@@ -92,10 +92,9 @@ def get_url_for_crawl(db):
 def get_random_url_for_crawl(db):
     """Return random url from db which is ready for crawling - unvisited and unqueued"""
     result = list(db['Urls'].aggregate([{'$match':
-                                      {'$and': [
+                                        {'$and': [
                                           {'visited': False},
-                                          {'queued': False}
-                                      ]}}, {'$sample': {'size': 1}}]))
+                                          {'queued': False}]}}, {'$sample': {'size': 1}}]))
 
     if len(result) != 0:
         return result[0]['url'], result[0]['depth']
@@ -163,12 +162,10 @@ def is_visited_or_queued(db, url):
         return True
 
 
-def is_some_url_queued(db):
+def should_crawler_wait(db):
     """Check if some url is in queue"""
-    result = db['Urls'].find_one({'$and': [
-                                {'visited': False},
-                                {'queued': True}
-                              ]})
+    result = db['Urls'].find_one({'$or': [{'$and': [{'visited': False}, {'queued': True}]},
+                                          {'$and': [{'visited': False}, {'queued': False}]}]})
 
     return not ((result is None) or (len(result) == 0))
 
