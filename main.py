@@ -86,6 +86,7 @@ while True:
 
         last_sleep_1 = datetime.datetime.now()
         sleeping = False
+        print("FEEDING...")
 
 end_time = datetime.datetime.now()
 duration = end_time - start_time
