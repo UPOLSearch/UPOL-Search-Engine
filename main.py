@@ -74,14 +74,15 @@ while True:
         number_of_added_links = 0
         print("Workers are running - SLEEPING")
         print("------------------------------")
-        sleep(20)
+
+        sleep(int(CONFIG.get('Settings', 'delay_between_feeding')))
 
         if not db.is_some_url_queued(database):
             number_of_waiting = number_of_waiting + 1
         else:
             number_of_waiting = 0
 
-        if number_of_waiting > 5:
+        if number_of_waiting > 2:
             break
 
         last_sleep_1 = datetime.datetime.now()
