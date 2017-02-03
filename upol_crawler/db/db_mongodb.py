@@ -151,6 +151,14 @@ def set_queued_url(db, url):
     return result is not None
 
 
+def set_timeout_url(db, url):
+    """Try to set url as timouted"""
+    url_hash = url_tools.hash(url)
+
+    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'lol': True, 'timeout.timeout': True, 'timeout.last_timeout': str(datetime.now())}})
+
+    return result is not None
+
 def is_visited_or_queued(db, url):
     """Check if url is visited"""
     result = db['Urls'].find_one({'$or': [
