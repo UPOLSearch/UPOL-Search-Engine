@@ -38,14 +38,12 @@ def load_seed(seed_path, database):
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': CONFIG.get('Info', 'user_agent')}
-    response = requests.head(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'))
+    response = requests.head(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
 
     if validator.validate_content_type(response.headers['Content-Type']):
-        return requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'))
+        return requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
     else:
         return None
-
-    # return requests.get(url, headers=headers, verify=config.verify_ssl)
 
 
 def get_url(url):
@@ -69,6 +67,10 @@ def crawl_url(url, depth):
 
     try:
         url, original_url, redirected, response = get_url(url)
+    except requests.exceptions.ReadTimeout:
+        # TIMEOUT
+        db.set_timeout_url(database, url)
+        return None, 'Timeout', None
     except Exception as e:
         db.delete_url(database, url)
         tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'get_url', 'info': str(e)})
