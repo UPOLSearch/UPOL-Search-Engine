@@ -178,6 +178,20 @@ def should_crawler_wait(db):
     return not ((result is None) or (len(result) == 0))
 
 
+def insert_crawler_start(db):
+    """Save when crawler start into database"""
+    result = db['CrawlerInfo'].update({'_id': 1}, {'$set': {'time.start': str(datetime.now())}}, upsert=True)
+
+    return result is not None
+
+
+def insert_crawler_end(db):
+    """Save when crawler start into database"""
+    result = db['CrawlerInfo'].update({'_id': 1}, {'$set': {'time.end': str(datetime.now())}}, upsert=True)
+
+    return result is not None
+
+
 def flush_db():
     """Delete everything from database"""
     return db['Urls'].drop()

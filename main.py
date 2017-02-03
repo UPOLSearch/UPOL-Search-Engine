@@ -25,7 +25,9 @@ database = client[DATABASE_NAME]
 db.init(database)
 
 if crawler.load_seed(SEED_FILE, database) == 0:
-    print("ERROR: Seed.txt is empty or URLs are invalid!")
+    print("WARNING: Nothing was added from seed.txt")
+else:
+    db.insert_crawler_start(database)
 
 end_load_time = datetime.datetime.now()
 
@@ -90,6 +92,7 @@ while True:
 
 end_time = datetime.datetime.now()
 duration = end_time - start_time
+db.insert_crawler_end(database)
 
 print("------------------------------")
 print("Crawl FINISHED")
