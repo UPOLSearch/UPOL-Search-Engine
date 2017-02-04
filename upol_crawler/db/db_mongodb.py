@@ -15,6 +15,7 @@ from upol_crawler.urls import parser, url_tools
 def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
+    db['Urls'].create_index('timeout')
 
 
 def _universal_insert_url(url, collection, visited, queued, depth):
@@ -80,7 +81,8 @@ def get_url_for_crawl(db):
     """Return url from db which is ready for crawling - unvisited and unqueued"""
     result = db['Urls'].find_one({'$and': [
                                 {'visited': False},
-                                {'queued': False}
+                                {'queued': False},
+                                {'timeout': {'$exists': False}}
                               ]})
 
     if result is not None:
@@ -94,7 +96,8 @@ def get_random_url_for_crawl(db):
     result = list(db['Urls'].aggregate([{'$match':
                                         {'$and': [
                                           {'visited': False},
-                                          {'queued': False}]}}, {'$sample': {'size': 1}}]))
+                                          {'queued': False},
+                                          {'timeout': {'$exists': False}}]}}, {'$sample': {'size': 1}}]))
 
     if len(result) != 0:
         return result[0]['url'], result[0]['depth']
@@ -155,7 +158,9 @@ def set_timeout_url(db, url):
     """Try to set url as timouted"""
     url_hash = url_tools.hash(url)
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'timeout.timeout': True, 'timeout.last_timeout': str(datetime.now())}})
+    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'queued': False,
+                                                                         'timeout.timeout': True,
+                                                                         'timeout.last_timeout': str(datetime.now())}})
 
     return result is not None
 
@@ -173,7 +178,7 @@ def is_visited_or_queued(db, url):
 def should_crawler_wait(db):
     """Check if some url is in queue"""
     result = db['Urls'].find_one({'$or': [{'$and': [{'visited': False}, {'queued': True}]},
-                                          {'$and': [{'visited': False}, {'queued': False}]}]})
+                                          {'$and': [{'visited': False}, {'queued': False}, {'timeout': {'$exists': False}}]}]})
 
     return not ((result is None) or (len(result) == 0))
 
