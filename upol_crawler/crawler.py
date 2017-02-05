@@ -141,7 +141,9 @@ def crawl_url(url, depth):
 
                 urls_for_insert.append(insert_url)
 
-            db.batch_insert_url(database, urls_for_insert, False, False)
+            if len(urls_for_insert) > 0:
+                # Maybe use for-else
+                db.batch_insert_url(database, urls_for_insert, False, False)
 
         except Exception as e:
             tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'parser', 'info': str(e)})
