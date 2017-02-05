@@ -117,14 +117,32 @@ def crawl_url(url, depth):
 
             validated_urls_on_page = parser.validated_page_urls(soup, url)
 
+            # for page_url in validated_urls_on_page:
+            #     if url_tools.is_same_domain(url, page_url):
+            #         if depth - 1 != 0:
+            #             db.insert_url(database, page_url, False, False, depth - 1)
+            #         else:
+            #             tasks.log_url_reason_task.delay(url, 'UrlDepthLimit')
+            #     else:
+            #         db.insert_url(database, page_url, False, False, int(CONFIG.get('Settings', 'max_depth')))
+
+            urls_for_insert = []
+
             for page_url in validated_urls_on_page:
+                insert_url = {}
+                insert_url['url'] = page_url
                 if url_tools.is_same_domain(url, page_url):
                     if depth - 1 != 0:
-                        db.insert_url(database, page_url, False, False, depth - 1)
+                        insert_url['depth'] = depth - 1
                     else:
-                        tasks.log_url_reason_task.delay(url, 'UrlDepthLimit')
+                        continue
                 else:
-                    db.insert_url(database, page_url, False, False, int(CONFIG.get('Settings', 'max_depth')))
+                    insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
+
+                urls_for_insert.append(insert_url)
+
+            db.batch_insert_url(database, urls_for_insert, False, False)
+
         except Exception as e:
             tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'parser', 'info': str(e)})
             raise

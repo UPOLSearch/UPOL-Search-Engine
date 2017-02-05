@@ -1,6 +1,7 @@
 import random
 import urllib.parse
 from datetime import datetime
+from random import shuffle
 
 import pymongo
 from upol_crawler.settings import *
@@ -17,8 +18,7 @@ def init(db):
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
 
-
-def _universal_insert_url(url, collection, visited, queued, depth):
+def _prepare_url_object(url, visited, queued, depth):
     url_object = {'_id': url_tools.hash(url),
                   'url': url,
                   'domain': url_tools.domain(url),
@@ -28,6 +28,11 @@ def _universal_insert_url(url, collection, visited, queued, depth):
 
     url_object['progress'] = {}
     url_object['progress']['discovered'] = str(datetime.now())
+
+    return url_object
+
+def _universal_insert_url(url, collection, visited, queued, depth):
+    url_object = _prepare_url_object(url, visited, queued, depth)
 
     try:
         result = collection.insert_one(url_object).inserted_id
@@ -40,6 +45,20 @@ def _universal_insert_url(url, collection, visited, queued, depth):
 def insert_url(db, url, visited, queued, depth):
     """Insert url into db"""
     return _universal_insert_url(url, db['Urls'], visited, queued, depth)
+
+
+def batch_insert_url(db, urls_with_depths, visited, queued):
+    """Inser batch of urls into db"""
+
+    url_documents = []
+
+    for url in urls_with_depths:
+        url_object = _prepare_url_object(url.get('url'), visited, queued, url.get('depth'))
+        url_documents.append(url_object)
+
+    result = db['Urls'].insert_many(url_documents, ordered=False)
+
+    return result
 
 
 def delete_url(db, url):
@@ -77,32 +96,58 @@ def exists_url(db, url):
 #         return None, None
 
 
-def get_url_for_crawl(db):
-    """Return url from db which is ready for crawling - unvisited and unqueued"""
-    result = db['Urls'].find_one({'$and': [
-                                {'visited': False},
-                                {'queued': False},
-                                {'timeout': {'$exists': False}}
-                              ]})
+# def get_url_for_crawl(db):
+#     """Return url from db which is ready for crawling - unvisited and unqueued"""
+#     result = db['Urls'].find_one({'$and': [
+#                                 {'visited': False},
+#                                 {'queued': False},
+#                                 {'timeout': {'$exists': False}}
+#                               ]})
+#
+#     if result is not None:
+#         return result['url'], result['depth']
+#     else:
+#         return None, None
+#
+#
+# def get_random_url_for_crawl(db):
+#     """Return random url from db which is ready for crawling - unvisited and unqueued"""
+#     result = list(db['Urls'].aggregate([{'$match':
+#                                         {'$and': [
+#                                           {'visited': False},
+#                                           {'queued': False},
+#                                           {'timeout': {'$exists': False}}]}}, {'$sample': {'size': 1}}]))
+#
+#     if len(result) != 0:
+#         return result[0]['url'], result[0]['depth']
+#     else:
+#         return None, None
 
-    if result is not None:
-        return result['url'], result['depth']
+
+def get_batch_url_for_crawl(db, size):
+    """Return batch of url from db for crawl"""
+    db_batch = list(db['Urls'].aggregate([{'$match':
+                                       {'$and': [
+                                         {'visited': False},
+                                         {'queued': False},
+                                         {'timeout': {'$exists': False}}]}},
+                                       {'$sample': {'size': size}}]))
+
+    if len(db_batch) != 0:
+        batch = []
+
+        for field in db_batch:
+            url = {}
+            url['_id'] = field.get('_id')
+            url['url'] = field.get('url')
+            url['depth'] = field.get('depth')
+
+            batch.append(url)
+            shuffle(batch)
+
+        return batch
     else:
-        return None, None
-
-
-def get_random_url_for_crawl(db):
-    """Return random url from db which is ready for crawling - unvisited and unqueued"""
-    result = list(db['Urls'].aggregate([{'$match':
-                                        {'$and': [
-                                          {'visited': False},
-                                          {'queued': False},
-                                          {'timeout': {'$exists': False}}]}}, {'$sample': {'size': 1}}]))
-
-    if len(result) != 0:
-        return result[0]['url'], result[0]['depth']
-    else:
-        return None, None
+        return None
 
 
 def set_visited_url(db, url, response, html):
@@ -129,17 +174,6 @@ def set_visited_url(db, url, response, html):
     for key, value in response.headers.items():
         url_addition['response.' + str(key)] = str(value)
 
-    # url_addition = {'$set': {'visited': True,
-    #                          'queued': False,
-    #                          'progress.last_visited': str(datetime.now()),
-    #                          'content.html': html,
-    #                          'content.encoding': response.encoding,
-    #                          'content.hashes.document': parser.hash_document(html),
-    #                          'response.elapsed': str(response.elapsed),
-    #                          'response.redirect': response.is_redirect,
-    #                          'response.status_code': response.status_code,
-    #                          'response.reason': response.reason}}
-
     result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': url_addition})
 
     return result is not None
@@ -150,6 +184,15 @@ def set_queued_url(db, url):
     url_hash = url_tools.hash(url)
 
     result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'queued': True}})
+
+    return result is not None
+
+
+def set_queued_batch(db, list_url_hash):
+    """Try to set batch of urls to queued"""
+
+    result = db['Urls'].update_many({'_id': {'$in': list_url_hash}},
+                                    {'$set': {'queued': True}})
 
     return result is not None
 
