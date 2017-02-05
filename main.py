@@ -71,7 +71,6 @@ while True:
         else:
             number_of_added_links = 0
 
-
         if batch is not None:
             hashes = []
 
@@ -83,7 +82,7 @@ while True:
             for url in batch:
                 tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
 
-            sleeping = True
+        sleeping = True
     else:
         print("------------------------------")
         print("Uptime: " + str(datetime.datetime.now() - start_time))
