@@ -56,7 +56,10 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
         url_object = _prepare_url_object(url.get('url'), visited, queued, url.get('depth'))
         url_documents.append(url_object)
 
-    result = db['Urls'].insert_many(url_documents, ordered=False)
+    try:
+        result = db['Urls'].insert_many(url_documents, ordered=False)
+    except pymongo.errors.BulkWriteError:
+        result = None
 
     return result
 
