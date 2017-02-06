@@ -38,10 +38,10 @@ def load_seed(seed_path, database):
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': CONFIG.get('Info', 'user_agent')}
-    response = requests.head(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
+    response = requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
 
     if validator.validate_content_type(response.headers['Content-Type']):
-        return requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
+        return response
     else:
         return None
 
@@ -84,7 +84,10 @@ def crawl_url(url, depth):
 
             db.delete_url(database, url)
 
+            tasks.log_url_reason_task.delay(url, 'UrlIsFile')
+            
             client.close()
+
             return response, 'Response is', redirected
 
         if redirected:
