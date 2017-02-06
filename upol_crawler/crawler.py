@@ -108,10 +108,13 @@ def crawl_url(url, depth):
                 else:
                     db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
             else:
-                if db.is_visited_or_queued(database, url):
+                if db.is_visited(database, url):
                     client.close()
-                    # tasks.log_url_task.delay(url, logger.get_log_format(response))
                     return response, 'URL is already visited', redirected
+                elif db.is_queued(database, url):
+                    tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
+                    client.close()
+                    return response, 'URL is already queued', redirected
 
         # Begin parse part, should avoid 404
         try:

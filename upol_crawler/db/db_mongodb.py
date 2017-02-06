@@ -210,8 +210,25 @@ def set_timeout_url(db, url):
 
     return result is not None
 
-def is_visited_or_queued(db, url):
+
+def is_visited(db, url):
     """Check if url is visited"""
+    result = db['Urls'].find_one({'visited': True})
+
+    if result is not None:
+        return True
+
+
+def is_queued(db, url):
+    """Check if url is queued"""
+    result = db['Urls'].find_one({'queued': True})
+
+    if result is not None:
+        return True
+
+
+def is_visited_or_queued(db, url):
+    """Check if url is visited or queued"""
     result = db['Urls'].find_one({'$or': [
                                 {'visited': True},
                                 {'queued': True}
