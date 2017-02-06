@@ -139,10 +139,13 @@ def crawl_url(url, depth):
                 # Maybe use for-else
                 db.batch_insert_url(database, urls_for_insert, False, False)
 
+
         except Exception as e:
+            db.delete_url(database, url)
             tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'parser', 'info': str(e)})
             raise
 
         db.set_visited_url(database, url, response, html)
+
         client.close()
         return response, 'URL done', redirected
