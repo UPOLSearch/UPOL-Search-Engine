@@ -9,7 +9,13 @@ CONFIG_DIR = ROOT_DIR
 CPROFILE_DIR = os.path.join(ROOT_DIR, 'cprofile/')
 
 CONFIG = configparser.ConfigParser()
-CONFIG.read(os.path.join(CONFIG_DIR, 'config.ini'))
+config_path = os.path.join(CONFIG_DIR, 'config.ini')
+default_config_path = os.path.join(CONFIG_DIR, 'config-default.ini')
+
+if os.path.isfile(config_path):
+    CONFIG.read(config_path)
+else:
+    CONFIG.read(default_config_path)
 
 DOMAIN_REGEX = url_tools.generate_regex(CONFIG.get('Settings', 'limit_domain'))
 SEED_FILE = os.path.join(CONFIG_DIR, 'seed.txt')
