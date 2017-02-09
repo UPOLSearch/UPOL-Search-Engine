@@ -64,7 +64,11 @@ def validate_phpbb(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
     path = path+qs+anchor
 
-    url_keywords = ['posting.php', 'ucp.php', 'view=print', 'memberlist.php', 'mark']
+    url_keywords = ['posting.php',
+                    'ucp.php',
+                    'view=print',
+                    'memberlist.php',
+                    'mark']
 
     for url_keyword in url_keywords:
         if url_keyword in path:

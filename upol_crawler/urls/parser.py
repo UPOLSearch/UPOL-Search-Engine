@@ -85,7 +85,7 @@ def link_extractor(soup, url):
 
     elif is_page_phpbb(soup):
         return phpBB_page(soup)
-        
+
     else:
         return set(soup.find_all('a', href=True))
 
@@ -110,7 +110,6 @@ def check_rel_attribute(link):
     return True
 
 
-
 def check_meta_robots(soup):
     """Check meta tag robots"""
     meta = soup.find('meta', {'name': 'robots'})
@@ -126,8 +125,11 @@ def check_meta_robots(soup):
 
 
 def get_canonical_url(soup):
-    """Return canonical url if exists"""
-    # <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
+    """
+    Return canonical url if exists
+
+    for example: <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
+    """
     link = soup.find('link', {'rel': 'canonical'})
 
     if link is not None:
@@ -150,14 +152,12 @@ def validated_page_urls(soup, url):
         return valid_urls
 
     links_on_page = link_extractor(soup, url)
-    # page_base_url = base_url(soup, url)
     page_base_url = w3lib.html.get_base_url(str(soup), url)
     canonical_url = get_canonical_url(soup)
 
     for link in links_on_page:
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
-            # tasks.log_url_reason_task.delay(link['href'], "UrlRelBlocked", {"type": link['rel']})
             continue
 
         link_url = link['href']

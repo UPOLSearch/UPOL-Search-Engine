@@ -8,15 +8,11 @@ from upol_crawler.settings import *
 from upol_crawler.urls import parser, url_tools
 
 
-# Global database connection
-# client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
-# database = client[DATABASE_NAME]
-
-
 def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
+
 
 def _prepare_url_object(url, visited, queued, depth):
     url_object = {'_id': url_tools.hash(url),
@@ -30,6 +26,7 @@ def _prepare_url_object(url, visited, queued, depth):
     url_object['progress']['discovered'] = str(datetime.now())
 
     return url_object
+
 
 def _universal_insert_url(url, collection, visited, queued, depth):
     url_object = _prepare_url_object(url, visited, queued, depth)
@@ -53,7 +50,10 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     url_documents = []
 
     for url in urls_with_depths:
-        url_object = _prepare_url_object(url.get('url'), visited, queued, url.get('depth'))
+        url_object = _prepare_url_object(url.get('url'),
+                                         visited,
+                                         queued,
+                                         url.get('depth'))
         url_documents.append(url_object)
 
     try:
@@ -80,70 +80,23 @@ def exists_url(db, url):
     return result is not None
 
 
-# def get_unvisited_url(db):
-#     """Return unvisited url from db"""
-#     result = db["Urls"].find_one({'visited': False})
-#
-#     if result is not None:
-#         return result['url'], result['depth']
-#     else:
-#         return None, None
-#
-#
-# def get_random_unvisited_url(db):
-#     """Return random unvisited url"""
-#     result = list(db["Urls"].aggregate([{"$match": {'visited': False}}, {"$sample": {'size': 1}}]))
-#     if len(result) != 0:
-#         return result[0]['url'], result[0]['depth']
-#     else:
-#         return None, None
-
-
-# def get_url_for_crawl(db):
-#     """Return url from db which is ready for crawling - unvisited and unqueued"""
-#     result = db['Urls'].find_one({'$and': [
-#                                 {'visited': False},
-#                                 {'queued': False},
-#                                 {'timeout': {'$exists': False}}
-#                               ]})
-#
-#     if result is not None:
-#         return result['url'], result['depth']
-#     else:
-#         return None, None
-#
-#
-# def get_random_url_for_crawl(db):
-#     """Return random url from db which is ready for crawling - unvisited and unqueued"""
-#     result = list(db['Urls'].aggregate([{'$match':
-#                                         {'$and': [
-#                                           {'visited': False},
-#                                           {'queued': False},
-#                                           {'timeout': {'$exists': False}}]}}, {'$sample': {'size': 1}}]))
-#
-#     if len(result) != 0:
-#         return result[0]['url'], result[0]['depth']
-#     else:
-#         return None, None
-
-
 def get_batch_url_for_crawl(db, size):
     """Return batch of url from db for crawl"""
     db_batch = list(db['Urls'].aggregate([{'$match':
-                                       {'$and': [
-                                         {'visited': False},
-                                         {'queued': False},
-                                         {'timeout': {'$exists': False}}]}},
-                                       {'$sample': {'size': size}}]))
+                                           {'$and': [
+                                               {'visited': False},
+                                               {'queued': False},
+                                               {'timeout': {
+                                                   '$exists': False}}]}},
+                                          {'$sample': {'size': size}}]))
 
     if len(db_batch) != 0:
         batch = []
 
         for field in db_batch:
-            url = {}
-            url['_id'] = field.get('_id')
-            url['url'] = field.get('url')
-            url['depth'] = field.get('depth')
+            url = {'_id': field.get('_id'),
+                   'url': field.get('url'),
+                   'depth': field.get('depth')}
 
             batch.append(url)
             shuffle(batch)
@@ -177,7 +130,8 @@ def set_visited_url(db, url, response, html):
     for key, value in response.headers.items():
         url_addition['response.' + str(key)] = str(value)
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': url_addition})
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': url_addition})
 
     return result is not None
 
@@ -186,7 +140,8 @@ def set_queued_url(db, url):
     """Try to set url to queued"""
     url_hash = url_tools.hash(url)
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'queued': True}})
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': {'queued': True}})
 
     return result is not None
 
@@ -204,9 +159,12 @@ def set_timeout_url(db, url):
     """Try to set url as timouted"""
     url_hash = url_tools.hash(url)
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash}, {'$set': {'queued': False,
-                                                                         'timeout.timeout': True,
-                                                                         'timeout.last_timeout': str(datetime.now())}})
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': {
+                                                'queued': False,
+                                                'timeout.timeout': True,
+                                                'timeout.last_timeout': str(datetime.now())
+                                                }})
 
     return result is not None
 
@@ -239,27 +197,34 @@ def is_visited_or_queued(db, url):
 
 
 def should_crawler_wait(db):
-    """Check if some url is in queue"""
-    result = db['Urls'].find_one({'$or': [{'$and': [{'visited': False}, {'queued': True}]},
-                                          {'$and': [{'visited': False}, {'queued': False}, {'timeout': {'$exists': False}}]}]})
+    """Check if crawler can terminate or not"""
+    result = db['Urls'].find_one({'$or': [
+        {'$and': [
+            {'visited': False},
+            {'queued': True}]},
+        {'$and': [
+            {'visited': False},
+            {'queued': False},
+            {'timeout': {'$exists': False}}]}]})
 
     return not ((result is None) or (len(result) == 0))
 
 
 def insert_crawler_start(db):
     """Save when crawler start into database"""
-    result = db['CrawlerInfo'].update({'_id': 1}, {'$set': {'time.start': str(datetime.now())}}, upsert=True)
+    result = db['CrawlerInfo'].update({'_id': 1},
+                                      {'$set':
+                                       {'time.start': str(datetime.now())}},
+                                      upsert=True)
 
     return result is not None
 
 
 def insert_crawler_end(db):
     """Save when crawler start into database"""
-    result = db['CrawlerInfo'].update({'_id': 1}, {'$set': {'time.end': str(datetime.now())}}, upsert=True)
+    result = db['CrawlerInfo'].update({'_id': 1},
+                                      {'$set':
+                                       {'time.end': str(datetime.now())}},
+                                      upsert=True)
 
     return result is not None
-
-
-def flush_db():
-    """Delete everything from database"""
-    return db['Urls'].drop()

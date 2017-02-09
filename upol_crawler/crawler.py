@@ -29,7 +29,13 @@ def load_seed(seed_path, database):
     for url in urls:
         url = url_tools.clean(url)
         if validator.validate(url):
-            if db.insert_url(database, url, False, False, int(CONFIG.get('Settings', 'max_depth'))):
+            insert_result = db.insert_url(database,
+                                          url,
+                                          False,
+                                          False,
+                                          int(CONFIG.get('Settings', 'max_depth')))
+
+            if insert_result:
                 number_of_url = number_of_url + 1
 
     return number_of_url
@@ -38,7 +44,10 @@ def load_seed(seed_path, database):
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': CONFIG.get('Info', 'user_agent')}
-    response = requests.get(url, headers=headers, verify=CONFIG.getboolean('Settings', 'verify_ssl'), timeout=int(CONFIG.get('Settings', 'max_timeout')))
+    response = requests.get(url,
+                            headers=headers,
+                            verify=CONFIG.getboolean('Settings', 'verify_ssl'),
+                            timeout=int(CONFIG.get('Settings', 'max_timeout')))
 
     if validator.validate_content_type(response.headers['Content-Type']):
         return response
@@ -68,12 +77,14 @@ def crawl_url(url, depth):
     try:
         url, original_url, redirected, response = get_url(url)
     except requests.exceptions.ReadTimeout:
-        # TIMEOUT
+        # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         return None, 'Timeout', None
     except Exception as e:
         db.delete_url(database, url)
-        tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'get_url', 'info': str(e)})
+        tasks.log_url_reason_task.delay(url,
+                                        'UrlException',
+                                        {'place': 'get_url', 'info': str(e)})
         raise
     else:
         # Content type is invalid
@@ -99,14 +110,22 @@ def crawl_url(url, depth):
 
             if not valid:
                 client.close()
-                tasks.log_url_reason_task.delay(url, 'UrlNotValidRedirect', {'reason': reason, 'original_url': original_url})
+                tasks.log_url_reason_task.delay(url,
+                                                'UrlNotValidRedirect',
+                                                {'reason': reason,
+                                                 'original_url': original_url})
+
                 return response, 'URL is not valid', redirected
 
             if not db.exists_url(database, url):
                 if url_tools.is_same_domain(url, original_url):
                     db.insert_url(database, url, True, False, depth - 1)
                 else:
-                    db.insert_url(database, url, True, False, int(CONFIG.get('Settings', 'max_depth')))
+                    db.insert_url(database,
+                                  url,
+                                  True,
+                                  False,
+                                  int(CONFIG.get('Settings', 'max_depth')))
             else:
                 if db.is_visited(database, url):
                     client.close()
@@ -120,13 +139,12 @@ def crawl_url(url, depth):
         try:
             html = response.text
             soup = BeautifulSoup(html, 'lxml')
-
             validated_urls_on_page = parser.validated_page_urls(soup, url)
 
             urls_for_insert = []
 
             for page_url in validated_urls_on_page:
-                insert_url = {}
+                insert_url = {'url': page_url}
                 insert_url['url'] = page_url
                 if url_tools.is_same_domain(url, page_url):
                     if depth - 1 != 0:
@@ -141,11 +159,11 @@ def crawl_url(url, depth):
             if len(urls_for_insert) > 0:
                 # Maybe use for-else
                 db.batch_insert_url(database, urls_for_insert, False, False)
-
-
         except Exception as e:
             db.delete_url(database, url)
-            tasks.log_url_reason_task.delay(url, 'UrlException', {'place': 'parser', 'info': str(e)})
+            tasks.log_url_reason_task.delay(url,
+                                            'UrlException',
+                                            {'place': 'parser', 'info': str(e)})
             raise
 
         db.set_visited_url(database, url, response, html)

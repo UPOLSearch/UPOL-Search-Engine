@@ -17,10 +17,16 @@ from upol_crawler.settings import *
 def crawl_url_task(url, depth):
     if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
         os.makedirs(CPROFILE_DIR, exist_ok=True)
-        cprofile_filename = hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest()
+
+        actual_time = str(datetime.datetime.now()).encode('utf-8')
+
+        cprofile_filename = hashlib.sha1(actual_time).hexdigest()
         cprofile_path = os.path.join(CPROFILE_DIR, cprofile_filename)
 
-        cProfile.runctx('crawler.crawl_url(url, depth)', globals=globals(), locals=locals(), filename=cprofile_path)
+        cProfile.runctx('crawler.crawl_url(url, depth)',
+                        globals=globals(),
+                        locals=locals(),
+                        filename=cprofile_path)
     else:
         crawler.crawl_url(url, depth)
 

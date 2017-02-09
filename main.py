@@ -49,7 +49,9 @@ number_of_added_links = 0
 
 while True:
     if sleeping is False:
-        batch = db.get_batch_url_for_crawl(database, int(CONFIG.get('Settings', 'db_batch_size')))
+        batch = db.get_batch_url_for_crawl(database,
+                                           int(CONFIG.get('Settings',
+                                                          'db_batch_size')))
 
         if batch is not None:
             number_of_added_links = len(batch)
@@ -72,9 +74,10 @@ while True:
         print("------------------------------")
         print("Uptime: " + str(datetime.datetime.now() - start_time))
         print("Added links:" + str(number_of_added_links))
-        number_of_added_links = 0
         print("Workers are running - SLEEPING")
         print("------------------------------")
+
+        number_of_added_links = 0
 
         sleep(int(CONFIG.get('Settings', 'delay_between_feeding')))
 
@@ -87,6 +90,7 @@ while True:
             break
 
         sleeping = False
+
         print("FEEDING...")
 
 end_time = datetime.datetime.now()
