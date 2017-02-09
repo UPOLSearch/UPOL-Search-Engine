@@ -1,4 +1,7 @@
 # UPOL-Crawler
+
+[![Build Status](https://travis-ci.org/UPOLSearch/UPOL-Crawler.svg?branch=master)](https://travis-ci.org/UPOLSearch/UPOL-Crawler)
+
 Web crawler for UPOL Search, part of Master thesis on Department of Computer Science UPOL (https://github.com/UPOLSearch)
 
 ##Are you about to block my crawler?
