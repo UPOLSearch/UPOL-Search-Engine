@@ -26,10 +26,8 @@ def validate_file_extension(url):
     """Check if url include blacklisted file extension"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
-    # In case of www.upol.cz
-    # TODO - Maybe implement in higher layer
-    # if not scheme:
-    #     return validate_file_extension(url_tools.add_scheme(url))
+    if scheme is '':
+        raise ValueError("Domain has no scheme - invalid URL")
 
     path_split = path.split('/')
     valid = True
