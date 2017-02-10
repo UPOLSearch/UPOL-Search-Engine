@@ -44,12 +44,8 @@ def add_scheme(url):
 
 def domain(url):
     """Return domain of the url"""
+    url = url.replace('www.', '')
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-
-    # TODO - Maybe implement in higher layer
-    # if not scheme:
-    #     url = add_scheme(url)
-    #     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     if ':' in netloc:
         netloc = netloc[:-3]
