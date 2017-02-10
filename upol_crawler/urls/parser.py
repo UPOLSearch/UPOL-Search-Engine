@@ -164,7 +164,7 @@ def validated_page_urls(soup, url):
 
         if not url_tools.is_url_absolute(link_url):
             link_url = urllib.parse.urljoin(page_base_url, link_url)
-            
+
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
 
         # if not scheme:
@@ -177,12 +177,19 @@ def validated_page_urls(soup, url):
             if canonical_url in link_url:
                 continue
 
-        valid, reason = validator.validate(link_url)
+        try:
+            valid, reason = validator.validate(link_url)
+        except ValueError as e:
+            valid = False
+            reason = e
 
         if valid:
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
                 tasks.log_url_reason_task.delay(link_url, reason)
+
+            if type(reason) is ValueError:
+                tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
 
     return valid_urls
