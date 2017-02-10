@@ -2,8 +2,9 @@ import re
 
 import pymongo
 import requests
+import upol_crawler.tasks
 from bs4 import BeautifulSoup
-from upol_crawler import logger, tasks
+from upol_crawler import logger
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
 from upol_crawler.urls import parser, robots, url_tools, validator
@@ -82,7 +83,7 @@ def crawl_url(url, depth):
         return None, 'Timeout', None
     except Exception as e:
         db.delete_url(database, url)
-        tasks.log_url_reason_task.delay(url,
+        upol_crawler.tasks.log_url_reason_task.delay(url,
                                         'UrlException',
                                         {'place': 'get_url', 'info': str(e)})
         raise
@@ -95,7 +96,7 @@ def crawl_url(url, depth):
 
             db.delete_url(database, url)
 
-            tasks.log_url_reason_task.delay(url, 'UrlIsFile')
+            upol_crawler.tasks.log_url_reason_task.delay(url, 'UrlIsFile')
 
             client.close()
 
@@ -110,10 +111,10 @@ def crawl_url(url, depth):
 
             if not valid:
                 client.close()
-                tasks.log_url_reason_task.delay(url,
-                                                'UrlNotValidRedirect',
-                                                {'reason': reason,
-                                                 'original_url': original_url})
+                upol_crawler.tasks.log_url_reason_task.delay(url,
+                                                             'UrlNotValidRedirect',
+                                                             {'reason': reason,
+                                                              'original_url': original_url})
 
                 return response, 'URL is not valid', redirected
 
@@ -131,7 +132,7 @@ def crawl_url(url, depth):
                     client.close()
                     return response, 'URL is already visited', redirected
                 elif db.is_queued(database, url):
-                    tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
+                    upol_crawler.tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
                     client.close()
                     return response, 'URL is already queued', redirected
 
@@ -161,7 +162,7 @@ def crawl_url(url, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
         except Exception as e:
             db.delete_url(database, url)
-            tasks.log_url_reason_task.delay(url,
+            upol_crawler.tasks.log_url_reason_task.delay(url,
                                             'UrlException',
                                             {'place': 'parser', 'info': str(e)})
             raise

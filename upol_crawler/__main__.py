@@ -4,8 +4,9 @@ import sys
 from time import sleep
 
 import pymongo
+import upol_crawler.tasks
 from celery.app.control import Control
-from upol_crawler import crawler, tasks
+from upol_crawler import crawler
 from upol_crawler.celery import app
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
@@ -69,7 +70,7 @@ def main(args=None):
                 db.set_queued_batch(database, hashes)
 
                 for url in batch:
-                    tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
+                    upol_crawler.tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
 
             sleeping = True
         else:
