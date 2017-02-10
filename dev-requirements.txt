@@ -11,6 +11,7 @@ py==1.4.32
 pymongo==3.4.0
 pyparsing==2.1.10
 pytest==3.0.6
+pytest-raises==0.6
 python-dateutil==2.6.0
 pytz==2016.10
 reppy==0.4.5
