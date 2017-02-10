@@ -1,5 +1,5 @@
 import pytest
-from upol_crawler.urls import url_tools
+from upol_crawler import url_tools
 
 
 @pytest.mark.parametrize('url, domain', [

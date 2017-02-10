@@ -1,8 +1,8 @@
 import urllib.parse
 
 import pymongo
-from upol_crawler.db import db_mongodb as db
-from upol_crawler.settings import DOMAIN_REGEX
+from .db import db_mongodb as db
+from .settings import DOMAIN_REGEX
 from . import blacklist, robots, url_tools
 
 # TODO - load values from file

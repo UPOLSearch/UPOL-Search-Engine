@@ -4,10 +4,10 @@ import pymongo
 import requests
 import upol_crawler.tasks
 from bs4 import BeautifulSoup
-from upol_crawler import logger
-from upol_crawler.db import db_mongodb as db
-from upol_crawler.settings import *
-from upol_crawler.urls import parser, robots, url_tools, validator
+from . import logger
+from .db import db_mongodb as db
+from .settings import *
+from . import parser, robots, url_tools, validator
 
 
 def load_seed(seed_path, database):

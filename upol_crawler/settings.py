@@ -1,7 +1,7 @@
 import configparser
 import os
 
-from upol_crawler.urls import url_tools
+from . import url_tools
 
 CRAWLER_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(CRAWLER_DIR)

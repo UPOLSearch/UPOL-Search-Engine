@@ -8,9 +8,9 @@ import time
 
 import upol_crawler
 from celery.utils.log import get_task_logger
-from upol_crawler import crawler
-from upol_crawler.celery import app
-from upol_crawler.settings import *
+from . import crawler
+from .celery import app
+from .settings import *
 
 
 @app.task(rate_limit='6/s', queue='crawler', ignore_result=True, task_compression='zlib')

@@ -1,7 +1,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from upol_crawler.urls import parser
+from upol_crawler import parser
 
 
 @pytest.mark.parametrize('html, result', [

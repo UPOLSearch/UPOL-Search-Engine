@@ -3,8 +3,7 @@ import re
 import urllib.parse
 
 import w3lib.html
-import upol_crawler.tasks
-from . import url_tools, validator
+from . import url_tools, validator, tasks
 
 
 def hash_document(document):
@@ -187,9 +186,9 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
-                upol_crawler.tasks.log_url_reason_task.delay(link_url, reason)
+                tasks.log_url_reason_task.delay(link_url, reason)
 
             if type(reason) is ValueError:
-                upol_crawler.tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
+                tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
 
     return valid_urls

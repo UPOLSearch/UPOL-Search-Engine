@@ -5,7 +5,7 @@ from random import shuffle
 
 import pymongo
 from upol_crawler.settings import *
-from upol_crawler.urls import parser, url_tools
+from upol_crawler import parser, url_tools
 
 
 def init(db):

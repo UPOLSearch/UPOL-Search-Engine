@@ -2,9 +2,9 @@ import json
 
 import pymongo
 from bson import json_util
-from upol_crawler.db import db_mongodb as db
-from upol_crawler.settings import *
-from upol_crawler.urls import url_tools
+from .db import db_mongodb as db
+from .settings import *
+from . import url_tools
 
 
 def get_log_format(response):
