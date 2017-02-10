@@ -12,7 +12,17 @@ def hash(url):
 
 def remove_www(url):
     """Remove www from url"""
-    return url.replace('www.', '')
+    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+
+    if scheme is '':
+        raise ValueError('Domain has no scheme')
+
+    if netloc[:4] == 'www.':
+        netloc = netloc[4:]
+
+    url_without_www = urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+
+    return url_without_www
 
 
 def clean(url):
@@ -44,7 +54,7 @@ def is_url_absolute(url):
 
 def domain(url):
     """Return domain of the url"""
-    url = url.replace('www.', '')
+    url = remove_www(url)
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     if scheme is '':

@@ -12,7 +12,7 @@ blacklist = ['portal.upol.cz',
 
 def is_url_blocked(url):
     """Check if url domain is blocked"""
-    if url_tools.domain(url).replace('www.', '') in blacklist:
+    if url_tools.domain(url) in blacklist:
         return True
 
     return False
