@@ -3,7 +3,7 @@ import re
 import urllib.parse
 
 import w3lib.html
-from upol_crawler import tasks
+import upol_craler.tasks
 from upol_crawler.urls import url_tools, validator
 
 
@@ -187,9 +187,9 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
-                tasks.log_url_reason_task.delay(link_url, reason)
+                upol_craler.tasks.log_url_reason_task.delay(link_url, reason)
 
             if type(reason) is ValueError:
-                tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
+                upol_craler.tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
 
     return valid_urls
