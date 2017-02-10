@@ -33,23 +33,9 @@ def clean(url):
     return url
 
 
-def remove_sid(url):
-    """Remove session id from url - DEPRECATED"""
-    return re.sub('\&(sid|SID)=[0-9a-zA-Z]*', '', url)
-
-
 def is_url_absolute(url):
     """Test if url is absolute"""
     return bool(urllib.parse.urlparse(url).netloc)
-
-
-# def add_scheme(url):
-#     """Add missing scheme to url"""
-#     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-#     scheme = 'http'
-#     netloc = path
-#     path = ''
-#     return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
 
 
 def domain(url):
