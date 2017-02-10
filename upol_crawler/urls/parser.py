@@ -4,7 +4,7 @@ import urllib.parse
 
 import w3lib.html
 import upol_crawler.tasks
-from upol_crawler.urls import url_tools, validator
+from . import url_tools, validator
 
 
 def hash_document(document):
