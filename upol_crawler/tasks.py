@@ -8,7 +8,6 @@ import time
 
 import upol_crawler
 from celery.utils.log import get_task_logger
-from . import crawler
 from .celery import app
 from .settings import *
 
@@ -23,12 +22,12 @@ def crawl_url_task(url, depth):
         cprofile_filename = hashlib.sha1(actual_time).hexdigest()
         cprofile_path = os.path.join(CPROFILE_DIR, cprofile_filename)
 
-        cProfile.runctx('crawler.crawl_url(url, depth)',
+        cProfile.runctx('upol_crawler.crawler.crawl_url(url, depth)',
                         globals=globals(),
                         locals=locals(),
                         filename=cprofile_path)
     else:
-        crawler.crawl_url(url, depth)
+        upol_crawler.crawler.crawl_url(url, depth)
 
 
 @app.task(queue='logger', ignore_result=True, task_compression='zlib')
