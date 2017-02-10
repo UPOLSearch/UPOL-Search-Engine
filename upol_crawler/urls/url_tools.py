@@ -54,9 +54,7 @@ def domain(url):
 
 
 def is_same_domain(url1, url2):
-    """Check if two urls have some domain (ignore www)"""
-    url1 = url1.replace('www.', '')
-    url2 = url2.replace('www.', '')
+    """Check if two urls have some domain"""
     return domain(url1) == domain(url2)
 
 
