@@ -47,6 +47,9 @@ def domain(url):
     url = url.replace('www.', '')
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
+    if scheme is '':
+        raise ValueError('Domain has no scheme')
+
     if ':' in netloc:
         netloc = netloc[:-3]
 
