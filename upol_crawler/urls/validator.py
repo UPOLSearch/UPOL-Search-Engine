@@ -28,8 +28,8 @@ def validate_file_extension(url):
 
     # In case of www.upol.cz
     # TODO - Maybe implement in higher layer
-    if not scheme:
-        return validate_file_extension(url_tools.add_scheme(url))
+    # if not scheme:
+    #     return validate_file_extension(url_tools.add_scheme(url))
 
     path_split = path.split('/')
     valid = True

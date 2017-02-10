@@ -33,13 +33,13 @@ def is_url_absolute(url):
     return bool(urllib.parse.urlparse(url).netloc)
 
 
-def add_scheme(url):
-    """Add missing scheme to url"""
-    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-    scheme = 'http'
-    netloc = path
-    path = ''
-    return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+# def add_scheme(url):
+#     """Add missing scheme to url"""
+#     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+#     scheme = 'http'
+#     netloc = path
+#     path = ''
+#     return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
 
 
 def domain(url):
