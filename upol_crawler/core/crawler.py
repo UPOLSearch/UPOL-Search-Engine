@@ -81,7 +81,7 @@ def crawl_url(url, depth):
 
     try:
         url, original_url, redirected, response = get_url(url)
-    except requests.exceptions.ReadTimeout:
+    except requests.exceptions.ReadTimeout, requests.packages.urllib3.exceptions.ReadTimeoutError:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         return None, 'Timeout', None
