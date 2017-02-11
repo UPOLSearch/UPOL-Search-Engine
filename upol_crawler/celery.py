@@ -14,9 +14,9 @@ class Config(object):
             routing_key='crawler'
         ),
         Queue(
-            'logger',
-            exchange=Exchange('logger'),
-            routing_key='logger'
+            'collector',
+            exchange=Exchange('collector'),
+            routing_key='collector'
         ),
     )
 

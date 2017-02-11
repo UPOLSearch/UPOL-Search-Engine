@@ -183,9 +183,9 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
-                tasks.log_url_reason_task.delay(link_url, reason)
+                tasks.collect_url_info_task.delay(link_url, reason)
 
             if type(reason) is ValueError:
-                tasks.log_url_reason_task.delay(link_url, 'UrlNoScheme')
+                tasks.collect_url_info_task.delay(link_url, 'UrlNoScheme')
 
     return valid_urls

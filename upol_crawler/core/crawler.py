@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from upol_crawler import tasks
 from upol_crawler.utils import urls
-from upol_crawler.tools import logger, robots
+from upol_crawler.tools import robots
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
 from upol_crawler.core import link_extractor, validator
@@ -87,7 +87,7 @@ def crawl_url(url, depth):
         return None, 'Timeout', None
     except Exception as e:
         db.delete_url(database, url)
-        tasks.log_url_reason_task.delay(url,
+        tasks.collect_url_info_task.delay(url,
                                         'UrlException',
                                         {'place': 'get_url', 'info': str(e)})
         raise
@@ -100,7 +100,7 @@ def crawl_url(url, depth):
 
             db.delete_url(database, url)
 
-            tasks.log_url_reason_task.delay(url, 'UrlIsFile')
+            tasks.collect_url_info_task.delay(url, 'UrlIsFile')
 
             client.close()
 
@@ -115,7 +115,7 @@ def crawl_url(url, depth):
 
             if not valid:
                 client.close()
-                tasks.log_url_reason_task.delay(url,
+                tasks.collect_url_info_task.delay(url,
                                                              'UrlNotValidRedirect',
                                                              {'reason': reason,
                                                               'original_url': original_url})
@@ -136,7 +136,7 @@ def crawl_url(url, depth):
                     client.close()
                     return response, 'URL is already visited', redirected
                 elif db.is_queued(database, url):
-                    tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
+                    tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
                     client.close()
                     return response, 'URL is already queued', redirected
 
@@ -166,7 +166,7 @@ def crawl_url(url, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
         except Exception as e:
             db.delete_url(database, url)
-            tasks.log_url_reason_task.delay(url,
+            tasks.collect_url_info_task.delay(url,
                                             'UrlException',
                                             {'place': 'parser', 'info': str(e)})
             raise

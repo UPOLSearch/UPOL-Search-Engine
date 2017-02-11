@@ -6,9 +6,10 @@ import hashlib
 import os
 import time
 
-
+import pymongo
 from celery.utils.log import get_task_logger
 from upol_crawler.celery import app
+from upol_crawler.db import db_mongodb as db
 
 from upol_crawler.settings import *
 
@@ -33,7 +34,11 @@ def crawl_url_task(url, depth):
         crawler.crawl_url(url, depth)
 
 
-@app.task(queue='logger', ignore_result=True, task_compression='zlib')
-def log_url_reason_task(url, reason, arg={}):
-    from upol_crawler.tools import logger
-    logger.log_url_reason(url, reason, arg)
+@app.task(queue='collector', ignore_result=True, task_compression='zlib')
+def collect_url_info_task(url, info_type, args={}):
+    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    database = client[DATABASE_NAME]
+
+    db.insert_url_info(database, url, info_type, args)
+
+    client.close()

@@ -44,6 +44,21 @@ def insert_url(db, url, visited, queued, depth):
     return _universal_insert_url(url, db['Urls'], visited, queued, depth)
 
 
+def insert_url_info(db, url, info_type, arg={}):
+    collection = db[info_type]
+
+    log_object = {'_id': urls.hash(url),
+                  'url': url}
+
+    for key, depth in arg.items():
+        log_object[key] = str(depth)
+
+    try:
+        collection.insert_one(log_object).inserted_id
+    except pymongo.errors.DuplicateKeyError as e:
+        return False
+
+
 def batch_insert_url(db, urls_with_depths, visited, queued):
     """Inser batch of urls into db"""
 
