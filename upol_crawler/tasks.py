@@ -8,14 +8,15 @@ import time
 
 
 from celery.utils.log import get_task_logger
-import upol_crawler
+import upol_crawler.core.crawler
+import upol_crawler.tools.logger
 from upol_crawler.celery import app
 # from upol_crawler.tools import logger
 # from upol_crawler.core import crawler
 from upol_crawler.settings import *
 
 
-@app.task(rate_limit='6/s', queue='crawler', ignore_result=True, task_compression='zlib')
+@app.task(rate_limit=CONFIG.get('Settings', 'crawl_frequency'), queue='crawler', ignore_result=True, task_compression='zlib')
 def crawl_url_task(url, depth):
     if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
         os.makedirs(CPROFILE_DIR, exist_ok=True)
