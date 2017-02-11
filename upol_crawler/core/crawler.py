@@ -51,10 +51,13 @@ def request_url(url):
                             verify=CONFIG.getboolean('Settings', 'verify_ssl'),
                             timeout=int(CONFIG.get('Settings', 'max_timeout')))
 
-    if validator.validate_content_type(response.headers['Content-Type']):
-        return response
-    else:
-        return None
+    content_type = response.headers.get('Content-Type')
+
+    if content_type is not None:
+        if not validator.validate_content_type(response.headers['Content-Type']):
+            return None
+
+    return response
 
 
 def get_url(url):
