@@ -1,7 +1,7 @@
 import configparser
 import os
 
-from . import url_tools
+from upol_crawler.utils import urls
 
 CRAWLER_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(CRAWLER_DIR)
@@ -17,7 +17,7 @@ if os.path.isfile(config_path):
 else:
     CONFIG.read(default_config_path)
 
-DOMAIN_REGEX = url_tools.generate_regex(CONFIG.get('Settings', 'limit_domain'))
+DOMAIN_REGEX = urls.generate_regex(CONFIG.get('Settings', 'limit_domain'))
 SEED_FILE = os.path.join(CONFIG_DIR, 'seed.txt')
 
-DATABASE_NAME = url_tools.domain(CONFIG.get('Settings','limit_domain')).replace('.', '-')
+DATABASE_NAME = urls.domain(CONFIG.get('Settings', 'limit_domain')).replace('.', '-')

@@ -2,9 +2,9 @@ import json
 
 import pymongo
 from bson import json_util
-from .db import db_mongodb as db
-from .settings import *
-from . import url_tools
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.settings import *
+from upol_crawler.utils import urls
 
 
 def get_log_format(response):
@@ -31,7 +31,7 @@ def log_url(url, response):
     database = client[DATABASE_NAME]
     # database = db.database
 
-    log_object = {'_id': url_tools.hash(url),
+    log_object = {'_id': urls.hash(url),
                   'url': url,
                   'encoding': response.get('encoding'),
                   'elapsed': response.get('elapsed'),
@@ -54,7 +54,7 @@ def log_url_reason(url, reason, arg={}):
     database = client[DATABASE_NAME]
     collection = database[reason]
 
-    log_object = {'_id': url_tools.hash(url),
+    log_object = {'_id': urls.hash(url),
                   'url': url}
 
     for key, depth in arg.items():

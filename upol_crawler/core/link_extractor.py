@@ -3,12 +3,9 @@ import re
 import urllib.parse
 
 import w3lib.html
-from . import url_tools, validator, tasks
-
-
-def hash_document(document):
-    """Returns hash of document"""
-    return hashlib.sha1(document.encode('utf-8')).hexdigest()
+from upol_crawler import tasks
+from upol_crawler.utils import urls
+from upol_crawler.core import validator
 
 
 def is_page_wiki(soup):
@@ -133,7 +130,7 @@ def get_canonical_url(soup):
 
     if link is not None:
         url = link.get('href')
-        url = url_tools.remove_www(url)
+        url = urls.remove_www(url)
         url.replace('http://', '')
         url.replace('https://', '')
         return url
@@ -161,15 +158,15 @@ def validated_page_urls(soup, url):
 
         link_url = link['href']
 
-        if not url_tools.is_url_absolute(link_url):
+        if not urls.is_url_absolute(link_url):
             link_url = urllib.parse.urljoin(page_base_url, link_url)
 
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
 
         # if not scheme:
-        #     link_url = url_tools.add_scheme(url)
+        #     link_url = urls.add_scheme(url)
 
-        link_url = url_tools.clean(link_url)
+        link_url = urls.clean(link_url)
 
         if canonical_url is not None:
             # If canonical url is part of url, skip this url

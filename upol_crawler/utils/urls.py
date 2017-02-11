@@ -10,6 +10,11 @@ def hash(url):
     return hashlib.sha1(url.encode('utf-8')).hexdigest()
 
 
+def hash_document(document):
+    """Returns hash of document"""
+    return hashlib.sha1(document.encode('utf-8')).hexdigest()
+
+
 def remove_www(url):
     """Remove www from url"""
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
