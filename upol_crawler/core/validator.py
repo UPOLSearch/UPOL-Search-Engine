@@ -3,7 +3,7 @@ import urllib.parse
 import pymongo
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import DOMAIN_REGEX
-from upol_crawler.tools import blacklist, robots
+from upol_crawler.tools import blacklist, robots, logger
 
 # TODO - load values from file
 content_type_whitelist = ['text/html']

@@ -5,10 +5,12 @@ import requests
 from bs4 import BeautifulSoup
 from upol_crawler import tasks
 from upol_crawler.utils import urls
-from upol_crawler.tools import robots
+from upol_crawler.tools import robots, logger
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
 from upol_crawler.core import link_extractor, validator
+
+log = logger.universal_logger('crawler')
 
 
 def load_seed(seed_path, database):
@@ -84,12 +86,11 @@ def crawl_url(url, depth):
     except (requests.exceptions.ReadTimeout, requests.packages.urllib3.exceptions.ReadTimeoutError) as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
-        return None, 'Timeout', None
+        log.warning('Timeout: {0}'.format(url))
+        return
     except Exception as e:
         db.delete_url(database, url)
-        tasks.collect_url_info_task.delay(url,
-                                        'UrlException',
-                                        {'place': 'get_url', 'info': str(e)})
+        log.exception('Exception: {0}'.format(url))
         raise
     else:
         # Content type is invalid
@@ -104,7 +105,7 @@ def crawl_url(url, depth):
 
             client.close()
 
-            return response, 'Response is', redirected
+            log.info('Content-Type: {0}'.format(url))
 
         if redirected:
             # Check if redirected url is valid
@@ -116,11 +117,12 @@ def crawl_url(url, depth):
             if not valid:
                 client.close()
                 tasks.collect_url_info_task.delay(url,
-                                                             'UrlNotValidRedirect',
-                                                             {'reason': reason,
-                                                              'original_url': original_url})
+                                                  'UrlNotValidRedirect',
+                                                  {'reason': reason,
+                                                   'original_url': original_url})
 
-                return response, 'URL is not valid', redirected
+                log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
+                return
 
             if not db.exists_url(database, url):
                 if urls.is_same_domain(url, original_url):
@@ -134,11 +136,11 @@ def crawl_url(url, depth):
             else:
                 if db.is_visited(database, url):
                     client.close()
-                    return response, 'URL is already visited', redirected
+                    return
                 elif db.is_queued(database, url):
                     tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
                     client.close()
-                    return response, 'URL is already queued', redirected
+                    return
 
         # Begin parse part, should avoid 404
         try:
@@ -166,12 +168,10 @@ def crawl_url(url, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
         except Exception as e:
             db.delete_url(database, url)
-            tasks.collect_url_info_task.delay(url,
-                                            'UrlException',
-                                            {'place': 'parser', 'info': str(e)})
+            log.exception('Exception: {0}'.format(url))
             raise
 
         db.set_visited_url(database, url, response, html)
 
         client.close()
-        return response, 'URL done', redirected
+        log.info('Done [{0}]: {1}'.format(response.reason, url))
