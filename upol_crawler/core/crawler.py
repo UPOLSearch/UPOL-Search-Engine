@@ -2,17 +2,18 @@ import re
 
 import pymongo
 import requests
-import upol_crawler.tasks
 from bs4 import BeautifulSoup
-from . import logger
-from .db import db_mongodb as db
-from .settings import *
-from . import parser, robots, url_tools, validator
+from upol_crawler import tasks
+from upol_crawler.utils import urls
+from upol_crawler.tools import logger, robots
+from upol_crawler.db import db_mongodb as db
+from upol_crawler.settings import *
+from upol_crawler.core import link_extractor, validator
 
 
 def load_seed(seed_path, database):
     """Load urls seed from file"""
-    urls = set()
+    seed_urls = set()
 
     # Load url from file
     with open(seed_path) as seed_file:
@@ -21,14 +22,14 @@ def load_seed(seed_path, database):
             url = line.rstrip()
             # Take url only if is not commented
             if not line.startswith("#"):
-                url = url_tools.clean(url)
-                urls.add(url)
+                url = urls.clean(url)
+                seed_urls.add(url)
 
     number_of_url = 0
 
     # Insert loaded urls into database
-    for url in urls:
-        url = url_tools.clean(url)
+    for url in seed_urls:
+        url = urls.clean(url)
         if validator.validate(url):
             insert_result = db.insert_url(database,
                                           url,
@@ -63,7 +64,7 @@ def get_url(url):
     original_url = url
 
     if response is not None:
-        url = url_tools.clean(response.url)
+        url = urls.clean(response.url)
 
         if original_url != url:
             redirected = True
@@ -83,7 +84,7 @@ def crawl_url(url, depth):
         return None, 'Timeout', None
     except Exception as e:
         db.delete_url(database, url)
-        upol_crawler.tasks.log_url_reason_task.delay(url,
+        tasks.log_url_reason_task.delay(url,
                                         'UrlException',
                                         {'place': 'get_url', 'info': str(e)})
         raise
@@ -96,7 +97,7 @@ def crawl_url(url, depth):
 
             db.delete_url(database, url)
 
-            upol_crawler.tasks.log_url_reason_task.delay(url, 'UrlIsFile')
+            tasks.log_url_reason_task.delay(url, 'UrlIsFile')
 
             client.close()
 
@@ -111,7 +112,7 @@ def crawl_url(url, depth):
 
             if not valid:
                 client.close()
-                upol_crawler.tasks.log_url_reason_task.delay(url,
+                tasks.log_url_reason_task.delay(url,
                                                              'UrlNotValidRedirect',
                                                              {'reason': reason,
                                                               'original_url': original_url})
@@ -119,7 +120,7 @@ def crawl_url(url, depth):
                 return response, 'URL is not valid', redirected
 
             if not db.exists_url(database, url):
-                if url_tools.is_same_domain(url, original_url):
+                if urls.is_same_domain(url, original_url):
                     db.insert_url(database, url, True, False, depth - 1)
                 else:
                     db.insert_url(database,
@@ -132,7 +133,7 @@ def crawl_url(url, depth):
                     client.close()
                     return response, 'URL is already visited', redirected
                 elif db.is_queued(database, url):
-                    upol_crawler.tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
+                    tasks.log_url_reason_task.delay(url, 'UrlIsAlreadyInQueue')
                     client.close()
                     return response, 'URL is already queued', redirected
 
@@ -140,14 +141,14 @@ def crawl_url(url, depth):
         try:
             html = response.text
             soup = BeautifulSoup(html, 'lxml')
-            validated_urls_on_page = parser.validated_page_urls(soup, url)
+            validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
 
             urls_for_insert = []
 
             for page_url in validated_urls_on_page:
                 insert_url = {'url': page_url}
                 insert_url['url'] = page_url
-                if url_tools.is_same_domain(url, page_url):
+                if urls.is_same_domain(url, page_url):
                     if depth - 1 != 0:
                         insert_url['depth'] = depth - 1
                     else:
@@ -162,7 +163,7 @@ def crawl_url(url, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
         except Exception as e:
             db.delete_url(database, url)
-            upol_crawler.tasks.log_url_reason_task.delay(url,
+            tasks.log_url_reason_task.delay(url,
                                             'UrlException',
                                             {'place': 'parser', 'info': str(e)})
             raise

@@ -1,5 +1,5 @@
 import pytest
-from upol_crawler import url_tools
+from upol_crawler.utils import urls
 
 
 @pytest.mark.parametrize('url, domain', [
@@ -11,7 +11,7 @@ from upol_crawler import url_tools
     pytest.mark.raises(("www.upol.cz/", "upol.cz"), exception=ValueError),
     ])
 def test_url_domain(url, domain):
-    assert url_tools.domain(url) == domain
+    assert urls.domain(url) == domain
 
 
 @pytest.mark.parametrize('url, expected', [
@@ -21,7 +21,7 @@ def test_url_domain(url, domain):
     ("www.aha.com/ahoj/test.jpg", False),
     ])
 def test_is_url_absolute(url, expected):
-    assert url_tools.is_url_absolute(url) == expected
+    assert urls.is_url_absolute(url) == expected
 
 
 @pytest.mark.parametrize('url1, url2, expected', [
@@ -30,7 +30,7 @@ def test_is_url_absolute(url, expected):
     ("https://upol.cz/lol", "http://upol.cz/lol2", True),
     ])
 def test_is_same_domain(url1, url2, expected):
-    assert url_tools.is_same_domain(url1, url2) == expected
+    assert urls.is_same_domain(url1, url2) == expected
 
 
 @pytest.mark.parametrize('url, expected', [
@@ -42,4 +42,4 @@ def test_is_same_domain(url1, url2, expected):
     pytest.mark.raises(("www.upol.cz/", "upol.cz"), exception=ValueError),
     ])
 def test_remove_www(url, expected):
-    assert url_tools.remove_www(url) == expected
+    assert urls.remove_www(url) == expected

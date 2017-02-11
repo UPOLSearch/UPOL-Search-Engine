@@ -1,7 +1,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from upol_crawler import parser
+from upol_crawler.core import link_extractor
 
 
 @pytest.mark.parametrize('html, result', [
@@ -12,7 +12,7 @@ from upol_crawler import parser
     ])
 def test_is_page_wiki(html, result):
     soup = BeautifulSoup(html, "lxml")
-    assert parser.is_page_wiki(soup) == result
+    assert link_extractor.is_page_wiki(soup) == result
 
 
 @pytest.mark.parametrize('html, result', [
@@ -26,4 +26,4 @@ def test_is_page_wiki(html, result):
 def test_check_rel_attribute(html, result):
     soup = BeautifulSoup(html, "lxml")
     links = soup.find_all('a', href=True)
-    assert parser.check_rel_attribute(links[0]) == result
+    assert link_extractor.check_rel_attribute(links[0]) == result

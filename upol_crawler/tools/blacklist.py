@@ -1,6 +1,6 @@
 import urllib.parse
 
-from . import url_tools
+from upol_crawler.utils import urls
 
 # TODO - load values from file
 blacklist = ['portal.upol.cz',
@@ -12,7 +12,7 @@ blacklist = ['portal.upol.cz',
 
 def is_url_blocked(url):
     """Check if url domain is blocked"""
-    if url_tools.domain(url) in blacklist:
+    if urls.domain(url) in blacklist:
         return True
 
     return False

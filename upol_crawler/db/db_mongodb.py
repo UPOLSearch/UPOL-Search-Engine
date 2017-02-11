@@ -4,8 +4,7 @@ from datetime import datetime
 from random import shuffle
 
 import pymongo
-import upol_crawler.url_tools
-import upol_crawler.parser
+from upol_crawler.utils import urls
 from upol_crawler.settings import *
 
 
@@ -16,9 +15,9 @@ def init(db):
 
 
 def _prepare_url_object(url, visited, queued, depth):
-    url_object = {'_id': upol_crawler.url_tools.hash(url),
+    url_object = {'_id': urls.hash(url),
                   'url': url,
-                  'domain': upol_crawler.url_tools.domain(url),
+                  'domain': urls.domain(url),
                   'depth': depth,
                   'visited': visited,
                   'queued': queued}
@@ -67,14 +66,14 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
 
 def delete_url(db, url):
     """Try to delete url from db, returns True if case of success"""
-    result = db['Urls'].delete_one({'_id': upol_crawler.url_tools.hash(url)})
+    result = db['Urls'].delete_one({'_id': urls.hash(url)})
 
     return result.deleted_count > 0
 
 
 def exists_url(db, url):
     """Return if url is exists in db"""
-    url_hash = upol_crawler.url_tools.hash(url)
+    url_hash = urls.hash(url)
 
     result = db['Urls'].find_one({'_id': url_hash})
 
@@ -109,7 +108,7 @@ def get_batch_url_for_crawl(db, size):
 
 def set_visited_url(db, url, response, html):
     """Try to set url to visited and update other important informations"""
-    url_hash = upol_crawler.url_tools.hash(url)
+    url_hash = urls.hash(url)
 
     url_addition = {}
 
@@ -119,7 +118,7 @@ def set_visited_url(db, url, response, html):
     url_addition['progress.last_visited'] = str(datetime.now())
 
     url_addition['content.html'] = html
-    url_addition['content.hashes.document'] = upol_crawler.parser.hash_document(html)
+    url_addition['content.hashes.document'] = urls.hash_document(html)
     url_addition['content.encoding'] = response.encoding
     # Later detect language
 
@@ -139,7 +138,7 @@ def set_visited_url(db, url, response, html):
 
 def set_queued_url(db, url):
     """Try to set url to queued"""
-    url_hash = upol_crawler.url_tools.hash(url)
+    url_hash = urls.hash(url)
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': {'queued': True}})
@@ -158,7 +157,7 @@ def set_queued_batch(db, list_url_hash):
 
 def set_timeout_url(db, url):
     """Try to set url as timouted"""
-    url_hash = upol_crawler.url_tools.hash(url)
+    url_hash = urls.hash(url)
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': {
