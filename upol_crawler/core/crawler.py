@@ -51,7 +51,9 @@ def request_url(url):
     response = requests.get(url,
                             headers=headers,
                             verify=CONFIG.getboolean('Settings', 'verify_ssl'),
-                            timeout=int(CONFIG.get('Settings', 'max_timeout')))
+                            timeout=(
+                                float(CONFIG.get('Settings', 'connect_max_timeout')),
+                                float(CONFIG.get('Settings', 'read_max_timeout'))))
 
     content_type = response.headers.get('Content-Type')
 
@@ -83,7 +85,7 @@ def crawl_url(url, depth):
 
     try:
         url, original_url, redirected, response = get_url(url)
-    except (requests.exceptions.ReadTimeout, requests.packages.urllib3.exceptions.ReadTimeoutError) as e:
+    except requests.exceptions.ReadTimeout as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         log.warning('Timeout: {0}'.format(url))
