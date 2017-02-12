@@ -107,6 +107,8 @@ def crawl_url(url, depth):
 
             log.info('Content-Type: {0}'.format(url))
 
+            return
+
         if redirected:
             # Check if redirected url is valid
             valid, reason = validator.validate(url)
@@ -122,6 +124,7 @@ def crawl_url(url, depth):
                                                    'original_url': original_url})
 
                 log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
+
                 return
 
             if not db.exists_url(database, url):
@@ -136,11 +139,11 @@ def crawl_url(url, depth):
             else:
                 if db.is_visited(database, url):
                     client.close()
-                    return
                 elif db.is_queued(database, url):
                     tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
                     client.close()
-                    return
+
+                return
 
         # Begin parse part, should avoid 404
         try:
