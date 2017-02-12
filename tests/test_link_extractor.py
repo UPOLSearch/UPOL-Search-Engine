@@ -27,3 +27,12 @@ def test_check_rel_attribute(html, result):
     soup = BeautifulSoup(html, "lxml")
     links = soup.find_all('a', href=True)
     assert link_extractor.check_rel_attribute(links[0]) == result
+
+
+@pytest.mark.parametrize('html, result', [
+    ('<meta name="robots" content="noindex,nofollow">', False),
+    ('<meta name="robots" content="noindex">', True),
+    ])
+def test_check_meta_robots(html, result):
+    soup = BeautifulSoup(html, "lxml")
+    assert link_extractor.check_meta_robots(soup) == result
