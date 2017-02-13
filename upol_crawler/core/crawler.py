@@ -3,12 +3,13 @@ import re
 import pymongo
 import requests
 from bs4 import BeautifulSoup
+
 from upol_crawler import tasks
-from upol_crawler.utils import urls
-from upol_crawler.tools import robots, logger
+from upol_crawler.core import link_extractor, validator
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
-from upol_crawler.core import link_extractor, validator
+from upol_crawler.tools import logger, robots
+from upol_crawler.utils import urls
 
 log = logger.universal_logger('crawler')
 

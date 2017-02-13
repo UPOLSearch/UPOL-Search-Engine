@@ -1,9 +1,10 @@
 import urllib.parse
 
 import pymongo
+
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import DOMAIN_REGEX
-from upol_crawler.tools import blacklist, robots, logger
+from upol_crawler.tools import blacklist, logger, robots
 
 # TODO - load values from file
 content_type_whitelist = ['text/html']
@@ -11,7 +12,7 @@ file_extension_whitelist = ['.php',
                             '.html',
                             '.xhtml',
                             '.htm']
-
+                            
 
 def validate_content_type(content_type_header):
     """Validate if content-type is in content-type whitelist"""

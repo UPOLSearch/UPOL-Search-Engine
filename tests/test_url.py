@@ -1,4 +1,5 @@
 import pytest
+
 from upol_crawler.utils import urls
 
 

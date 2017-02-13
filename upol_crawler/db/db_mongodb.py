@@ -4,8 +4,9 @@ from datetime import datetime
 from random import shuffle
 
 import pymongo
-from upol_crawler.utils import urls
+
 from upol_crawler.settings import *
+from upol_crawler.utils import urls
 
 
 def init(db):

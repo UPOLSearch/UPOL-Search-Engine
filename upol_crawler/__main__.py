@@ -4,10 +4,11 @@ import sys
 from time import sleep
 
 import pymongo
-from upol_crawler import tasks
 from celery.app.control import Control
-from upol_crawler.core import crawler
+
+from upol_crawler import tasks
 from upol_crawler.celery import app
+from upol_crawler.core import crawler
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
 

@@ -3,9 +3,10 @@ import re
 import urllib.parse
 
 import w3lib.html
+
 from upol_crawler import tasks
-from upol_crawler.utils import urls
 from upol_crawler.core import validator
+from upol_crawler.utils import urls
 
 
 def is_page_wiki(soup):
