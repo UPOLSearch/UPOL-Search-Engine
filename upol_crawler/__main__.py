@@ -15,7 +15,7 @@ from upol_crawler.settings import *
 
 def main(args=None):
     print("******************************")
-    print("UPOL-Crawler v" + CONFIG.get('Info', 'version'))
+    print("UPOL-Crawler v{0}".format(CONFIG.get('Info', 'version')))
     print("******************************")
     print("LOADING..")
 
@@ -41,7 +41,7 @@ def main(args=None):
         # Cleaning cprofile folder
         shutil.rmtree(CPROFILE_DIR)
 
-    print("DONE! " + str(end_load_time - start_load_time))
+    print("DONE! {0}".format(end_load_time - start_load_time))
     print("------------------------------")
     print("Start crawling...")
     print("******************************")
@@ -76,8 +76,8 @@ def main(args=None):
             sleeping = True
         else:
             print("------------------------------")
-            print("Uptime: " + str(datetime.datetime.now() - start_time))
-            print("Added links:" + str(number_of_added_links))
+            print("Uptime: {0}".format(datetime.datetime.now() - start_time))
+            print("Added links: {0}".format(number_of_added_links))
             print("Workers are running - SLEEPING")
             print("------------------------------")
 
@@ -103,7 +103,7 @@ def main(args=None):
 
     print("------------------------------")
     print("Crawl FINISHED")
-    print("Duration: " + str(duration))
+    print("Duration: {0}".format(duration))
     print("------------------------------")
 
 if __name__ == "__main__":
