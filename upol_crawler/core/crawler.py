@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from upol_crawler import tasks
-from upol_crawler.core import link_extractor, validator
+from upol_crawler.core import link_extractor, validator, limiter
 from upol_crawler.db import db_mongodb as db
 from upol_crawler.settings import *
 from upol_crawler.tools import logger, robots
@@ -83,6 +83,11 @@ def get_url(url):
 def crawl_url(url, depth):
     client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
     database = client[DATABASE_NAME]
+
+    if not limiter.is_crawl_allowed(url):
+        db.set_url_for_recrawl(database, url)
+        client.close()
+        return
 
     try:
         url, original_url, redirected, response = get_url(url)

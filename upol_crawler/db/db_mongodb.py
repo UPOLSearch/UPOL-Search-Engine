@@ -13,6 +13,7 @@ def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
+    db['Limiter'].create_index('ip', unique=True)
 
 
 def _prepare_url_object(url, visited, queued, depth):
@@ -171,6 +172,17 @@ def set_queued_batch(db, list_url_hash):
     return result is not None
 
 
+def set_url_for_recrawl(db, url):
+    """Set url for recrawl later"""
+    url_hash = urls.hash(url)
+
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': {'queued': False,
+                                                      'visited': False}})
+
+    return result is not None
+
+
 def set_timeout_url(db, url):
     """Try to set url as timouted"""
     url_hash = urls.hash(url)
@@ -242,5 +254,31 @@ def insert_crawler_end(db):
                                       {'$set':
                                        {'time.end': str(datetime.now())}},
                                       upsert=True)
+
+    return result is not None
+
+
+def insert_limits_for_ip(db, domain, ip, last, max_frequency):
+    """Insert limits for specific IP"""
+    result = db['Limiter'].insert_one({'ip': ip,
+                                       'domain': domain,
+                                       'last': str(last),
+                                       'max_frequency': max_frequency})
+
+    return result is not None
+
+
+def get_limits_for_ip(db, ip):
+    """Return limits informations for specific IP"""
+    result = db['Limiter'].find_one({'ip': ip})
+
+    return result
+
+
+def set_last_for_ip_limit(db, ip, last):
+    """Set the last property for specific IP"""
+    result = db['Limiter'].update({'ip': ip},
+                                  {'$set':
+                                   {'last': str(last)}})
 
     return result is not None
