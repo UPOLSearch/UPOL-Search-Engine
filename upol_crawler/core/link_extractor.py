@@ -167,32 +167,24 @@ def validated_page_urls(soup, url):
 
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
 
-        # if not scheme:
-        #     link_url = urls.add_scheme(url)
-
         try:
             link_url = urls.clean(link_url)
         except ValueError:
             log.exception('Exception on url: {0} with link: {1}'.format(url, link_url))
+
+            continue
 
         if canonical_url is not None:
             # If canonical url is part of url, skip this url
             if canonical_url in link_url:
                 continue
 
-        try:
-            valid, reason = validator.validate(link_url)
-        except ValueError as e:
-            valid = False
-            reason = e
+        valid, reason = validator.validate(link_url)
 
         if valid:
             valid_urls.add(link_url)
         else:
             if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
                 tasks.collect_url_info_task.delay(link_url, reason)
-
-            if type(reason) is ValueError:
-                tasks.collect_url_info_task.delay(link_url, 'UrlNoScheme')
 
     return valid_urls
