@@ -7,6 +7,9 @@ import w3lib.html
 from upol_crawler import tasks
 from upol_crawler.core import validator
 from upol_crawler.utils import urls
+from upol_crawler.tools import logger
+
+log = logger.universal_logger('link_extractor')
 
 
 def is_page_wiki(soup):
@@ -167,7 +170,10 @@ def validated_page_urls(soup, url):
         # if not scheme:
         #     link_url = urls.add_scheme(url)
 
-        link_url = urls.clean(link_url)
+        try:
+            link_url = urls.clean(link_url)
+        except ValueError:
+            log.exception('Exception on url: {0} with link: {1}'.format(url, link_url))
 
         if canonical_url is not None:
             # If canonical url is part of url, skip this url
