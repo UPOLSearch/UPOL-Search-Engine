@@ -49,7 +49,7 @@ def domain(url):
     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
 
     if scheme is '':
-        raise ValueError('Domain has no scheme')
+        raise ValueError('Domain has no scheme: {0}'.format(url))
 
     if ':' in netloc:
         netloc = netloc[:-3]
