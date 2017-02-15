@@ -134,7 +134,11 @@ def get_canonical_url(soup):
 
     if link is not None:
         url = link.get('href')
-        url = urls.remove_www(url)
+        try:
+            url = urls.remove_www(url)
+        except ValueError:
+            url = 'http://' + url
+            url = urls.remove_www(url)
         url.replace('http://', '')
         url.replace('https://', '')
         return url

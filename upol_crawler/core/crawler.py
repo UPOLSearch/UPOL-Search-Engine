@@ -32,7 +32,6 @@ def load_seed(seed_path, database):
 
     # Insert loaded urls into database
     for url in seed_urls:
-        url = urls.clean(url)
         if validator.validate(url):
             insert_result = db.insert_url(database,
                                           url,
