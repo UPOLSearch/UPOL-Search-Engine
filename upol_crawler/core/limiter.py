@@ -26,7 +26,10 @@ def get_ip(url):
 
 def is_crawl_allowed(url):
     """Check if crawler is allowed to crawl given URL"""
-    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    client = pymongo.MongoClient(
+      CONFIG.get('Database', 'db_server'),
+      int(CONFIG.get('Database', 'db_port')),
+      maxPoolSize=None)
     database = client[DATABASE_NAME]
 
     ip = get_ip(url)

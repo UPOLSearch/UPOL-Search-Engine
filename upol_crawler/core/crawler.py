@@ -80,7 +80,10 @@ def get_url(url):
 
 
 def crawl_url(url, depth):
-    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    client = pymongo.MongoClient(
+      CONFIG.get('Database', 'db_server'),
+      int(CONFIG.get('Database', 'db_port')),
+      maxPoolSize=None)
     database = client[DATABASE_NAME]
 
     if not limiter.is_crawl_allowed(url):

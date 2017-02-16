@@ -36,7 +36,10 @@ def crawl_url_task(url, depth):
 
 @app.task(queue='collector', ignore_result=True, task_compression='zlib')
 def collect_url_info_task(url, info_type, args={}):
-    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    client = pymongo.MongoClient(
+      CONFIG.get('Database', 'db_server'),
+      int(CONFIG.get('Database', 'db_port')),
+      maxPoolSize=None)
     database = client[DATABASE_NAME]
 
     db.insert_url_info(database, url, info_type, args)

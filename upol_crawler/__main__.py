@@ -22,7 +22,10 @@ def main(args=None):
     start_load_time = datetime.datetime.now()
 
     # Start procedure
-    client = pymongo.MongoClient('localhost', 27017, maxPoolSize=None)
+    client = pymongo.MongoClient(
+      CONFIG.get('Database', 'db_server'),
+      int(CONFIG.get('Database', 'db_port')),
+      maxPoolSize=None)
     database = client[DATABASE_NAME]
 
     # Init database
@@ -54,7 +57,7 @@ def main(args=None):
     while True:
         if sleeping is False:
             batch = db.get_batch_url_for_crawl(database,
-                                               int(CONFIG.get('Settings',
+                                               int(CONFIG.get('Database',
                                                               'db_batch_size')))
 
             if batch is not None:
