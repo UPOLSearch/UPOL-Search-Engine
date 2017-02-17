@@ -93,10 +93,20 @@ def crawl_url(url, depth):
 
     try:
         url, original_url, redirected, response = get_url(url)
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+    except requests.exceptions.ReadTimeout as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
-        log.warning('Timeout: {0}'.format(url))
+        log.warning('(Timeout) - ReadTimeout: {0}'.format(url))
+        return
+    except requests.exceptions.ConnectionError as e:
+        # It also remove url from queue and set it as timeouted
+        db.set_timeout_url(database, url)
+        log.warning('(Timeout) - ConnectionError: {0}'.format(url))
+        return
+    except requests.exceptions.ChunkedEncodingError as e:
+        # It also remove url from queue and set it as timeouted
+        db.set_timeout_url(database, url)
+        log.warning('(Timeout) - ChunkedEncodingError: {0}'.format(url))
         return
     except Exception as e:
         db.delete_url(database, url)
