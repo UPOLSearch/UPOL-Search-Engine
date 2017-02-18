@@ -1,6 +1,7 @@
 import hashlib
 import re
 import urllib.parse
+import os.path
 
 import w3lib.url
 
@@ -81,6 +82,9 @@ def generate_regex(url):
 def load_urls_from_file(filepath):
     """Load urls from file, one per line, ignore lines with #, ignores duplicity"""
     urls = set()
+
+    if not os.path.isfile(filepath):
+        return urls
 
     with open(filepath) as url_file:
         for line in url_file:
