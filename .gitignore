@@ -22,6 +22,7 @@ node_modules
 .sass-cache
 
 seed.txt
+blacklist.txt
 config.ini
 cprofile/
 

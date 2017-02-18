@@ -16,7 +16,7 @@ log = logger.universal_logger('crawler')
 
 def load_seed(seed_path, database):
     """Load urls seed from file"""
-    
+
     # Load url from file
     seed_urls = urls.load_urls_from_file(seed_path)
 

@@ -19,5 +19,6 @@ else:
 
 DOMAIN_REGEX = urls.generate_regex(CONFIG.get('Settings', 'limit_domain'))
 SEED_FILE = os.path.join(CONFIG_DIR, 'seed.txt')
+BLACKLIST_FILE = os.path.join(CONFIG_DIR, 'blacklist.txt')
 
 DATABASE_NAME = urls.domain(CONFIG.get('Settings', 'limit_domain')).replace('.', '-')
