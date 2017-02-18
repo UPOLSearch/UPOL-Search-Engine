@@ -16,22 +16,15 @@ log = logger.universal_logger('crawler')
 
 def load_seed(seed_path, database):
     """Load urls seed from file"""
-    seed_urls = set()
-
+    
     # Load url from file
-    with open(seed_path) as seed_file:
-        for line in seed_file:
-            # Ignore all white characters
-            url = line.rstrip()
-            # Take url only if is not commented
-            if not line.startswith("#"):
-                url = urls.clean(url)
-                seed_urls.add(url)
+    seed_urls = urls.load_urls_from_file(seed_path)
 
     number_of_url = 0
 
     # Insert loaded urls into database
     for url in seed_urls:
+        url = urls.clean(url)
         if validator.validate(url):
             insert_result = db.insert_url(database,
                                           url,

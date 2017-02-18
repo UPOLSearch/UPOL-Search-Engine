@@ -76,3 +76,18 @@ def generate_regex(url):
     netloc = netloc.replace('.', '\.')
 
     return re.compile('^(https?:\/\/)?([a-z0-9]+[.])*'+netloc+'.*$')
+
+
+def load_urls_from_file(filepath):
+    """Load urls from file, one per line, ignore lines with #, ignores duplicity"""
+    urls = set()
+
+    with open(filepath) as url_file:
+        for line in url_file:
+            # Ignore all white characters
+            url = line.rstrip()
+            # Take url only if is not commented
+            if not line.startswith("#"):
+                urls.add(url)
+
+    return urls
