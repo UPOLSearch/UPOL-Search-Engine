@@ -4,7 +4,6 @@ from datetime import datetime
 from random import shuffle
 
 import pymongo
-
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
 
@@ -127,6 +126,20 @@ def set_visited_url(db, url, response, html):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
 
+    is_permanent_redirect = False
+
+    for history in response.history:
+        if history.is_permanent_redirect:
+            is_permanent_redirect = True
+            break
+
+    is_redirect = False
+
+    for history in response.history:
+        if history.is_redirect:
+            is_redirect = True
+            break
+
     url_addition = {}
 
     url_addition['visited'] = True
@@ -140,7 +153,8 @@ def set_visited_url(db, url, response, html):
     # Later detect language
 
     url_addition['response.elapsed'] = str(response.elapsed)
-    url_addition['response.redirect'] = response.is_redirect
+    url_addition['response.is_redirect'] = is_redirect
+    url_addition['response.is_permanent_redirect'] = is_permanent_redirect
     url_addition['response.status_code'] = response.status_code
     url_addition['response.reason'] = response.reason
 
