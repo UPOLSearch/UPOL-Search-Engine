@@ -14,30 +14,6 @@ from upol_crawler.utils import urls
 log = logger.universal_logger('crawler')
 
 
-def load_seed(seed_path, database):
-    """Load urls seed from file"""
-
-    # Load url from file
-    seed_urls = urls.load_urls_from_file(seed_path)
-
-    number_of_url = 0
-
-    # Insert loaded urls into database
-    for url in seed_urls:
-        url = urls.clean(url)
-        if validator.validate(url):
-            insert_result = db.insert_url(database,
-                                          url,
-                                          False,
-                                          False,
-                                          int(CONFIG.get('Settings', 'max_depth')))
-
-            if insert_result:
-                number_of_url = number_of_url + 1
-
-    return number_of_url
-
-
 def request_url(url):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': CONFIG.get('Info', 'user_agent')}

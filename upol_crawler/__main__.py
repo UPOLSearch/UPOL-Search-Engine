@@ -8,7 +8,7 @@ from celery.app.control import Control
 
 from upol_crawler import tasks
 from upol_crawler.celery import app
-from upol_crawler.core import crawler
+from upol_crawler.core import crawler, validator
 from upol_crawler import db
 from upol_crawler.settings import *
 
@@ -47,6 +47,30 @@ def insert_crawler_end(db):
     return result is not None
 
 
+def load_seed(seed_path, database):
+    """Load urls seed from file"""
+
+    # Load url from file
+    seed_urls = urls.load_urls_from_file(seed_path)
+
+    number_of_url = 0
+
+    # Insert loaded urls into database
+    for url in seed_urls:
+        url = urls.clean(url)
+        if validator.validate(url):
+            insert_result = db.insert_url(database,
+                                          url,
+                                          False,
+                                          False,
+                                          int(CONFIG.get('Settings', 'max_depth')))
+
+            if insert_result:
+                number_of_url = number_of_url + 1
+
+    return number_of_url
+
+
 def main(args=None):
     print("******************************")
     print("UPOL-Crawler v{0}".format(CONFIG.get('Info', 'version')))
@@ -65,7 +89,7 @@ def main(args=None):
     # Init database
     db.init(database)
 
-    if crawler.load_seed(SEED_FILE, database) == 0:
+    if load_seed(SEED_FILE, database) == 0:
         print("WARNING: Nothing was added from seed.txt")
     else:
         insert_crawler_start(database)
