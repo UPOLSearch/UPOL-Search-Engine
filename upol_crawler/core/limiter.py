@@ -4,12 +4,37 @@ import pymongo
 from datetime import datetime
 
 from upol_crawler.utils import urls
-from upol_crawler.db import db_mongodb as db
 from upol_crawler.tools import logger
 from upol_crawler.settings import *
 
 
 log = logger.universal_logger('limiter')
+
+
+def insert_limits_for_ip(db, domain, ip, last, max_frequency):
+    """Insert limits for specific IP"""
+    result = db['Limiter'].insert_one({'ip': ip,
+                                       'domain': domain,
+                                       'last': str(last),
+                                       'max_frequency': max_frequency})
+
+    return result is not None
+
+
+def get_limits_for_ip(db, ip):
+    """Return limits informations for specific IP"""
+    result = db['Limiter'].find_one({'ip': ip})
+
+    return result
+
+
+def set_last_for_ip_limit(db, ip, last):
+    """Set the last property for specific IP"""
+    result = db['Limiter'].update({'ip': ip},
+                                  {'$set':
+                                   {'last': str(last)}})
+
+    return result is not None
 
 
 def _time_difference_from_now(time):
@@ -35,7 +60,7 @@ def is_crawl_allowed(url):
     ip = get_ip(url)
 
     result = True
-    record = db.get_limits_for_ip(database, ip)
+    record = get_limits_for_ip(database, ip)
 
     if record is not None:
         last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
@@ -44,14 +69,14 @@ def is_crawl_allowed(url):
         if delta < float(record['max_frequency']):
             result = False
         else:
-            db.set_last_for_ip_limit(database, ip, datetime.now())
+            set_last_for_ip_limit(database, ip, datetime.now())
 
     else:
-        db.insert_limits_for_ip(database,
-                                urls.domain(url),
-                                ip,
-                                datetime.now(),
-                                float(CONFIG.get('Settings', 'crawl_frequency_per_server')))
+        insert_limits_for_ip(database,
+                             urls.domain(url),
+                             ip,
+                             datetime.now(),
+                             float(CONFIG.get('Settings', 'crawl_frequency_per_server')))
 
     if not result:
         log.info('Limited: {0}'.format(url))

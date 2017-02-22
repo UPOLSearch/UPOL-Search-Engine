@@ -9,8 +9,42 @@ from celery.app.control import Control
 from upol_crawler import tasks
 from upol_crawler.celery import app
 from upol_crawler.core import crawler
-from upol_crawler.db import db_mongodb as db
+from upol_crawler import db
 from upol_crawler.settings import *
+
+
+def should_crawler_wait(db):
+    """Check if crawler can terminate or not"""
+    result = db['Urls'].find_one({'$or': [
+        {'$and': [
+            {'visited': False},
+            {'queued': True}]},
+        {'$and': [
+            {'visited': False},
+            {'queued': False},
+            {'timeout': {'$exists': False}}]}]})
+
+    return not ((result is None) or (len(result) == 0))
+
+
+def insert_crawler_start(db):
+    """Save when crawler start into database"""
+    result = db['CrawlerInfo'].update({'_id': 1},
+                                      {'$set':
+                                       {'time.start': str(datetime.now())}},
+                                      upsert=True)
+
+    return result is not None
+
+
+def insert_crawler_end(db):
+    """Save when crawler ends into database"""
+    result = db['CrawlerInfo'].update({'_id': 1},
+                                      {'$set':
+                                       {'time.end': str(datetime.now())}},
+                                      upsert=True)
+
+    return result is not None
 
 
 def main(args=None):
@@ -34,7 +68,7 @@ def main(args=None):
     if crawler.load_seed(SEED_FILE, database) == 0:
         print("WARNING: Nothing was added from seed.txt")
     else:
-        db.insert_crawler_start(database)
+        insert_crawler_start(database)
 
     end_load_time = datetime.datetime.now()
 
@@ -88,7 +122,7 @@ def main(args=None):
 
             sleep(int(CONFIG.get('Settings', 'delay_between_feeding')))
 
-            if not db.should_crawler_wait(database):
+            if not should_crawler_wait(database):
                 number_of_waiting = number_of_waiting + 1
             else:
                 number_of_waiting = 0
@@ -102,7 +136,7 @@ def main(args=None):
 
     end_time = datetime.datetime.now()
     duration = end_time - start_time
-    db.insert_crawler_end(database)
+    insert_crawler_end(database)
 
     print("------------------------------")
     print("Crawl FINISHED")

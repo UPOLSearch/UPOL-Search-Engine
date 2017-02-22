@@ -10,7 +10,7 @@ import pymongo
 from celery.utils.log import get_task_logger
 
 from upol_crawler.celery import app
-from upol_crawler.db import db_mongodb as db
+from upol_crawler import db
 from upol_crawler.settings import *
 
 

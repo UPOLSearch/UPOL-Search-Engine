@@ -2,7 +2,7 @@ import urllib.parse
 
 import pymongo
 
-from upol_crawler.db import db_mongodb as db
+from upol_crawler import db
 from upol_crawler.settings import DOMAIN_REGEX
 from upol_crawler.tools import blacklist, logger, robots
 

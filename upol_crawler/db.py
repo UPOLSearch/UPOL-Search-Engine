@@ -1,3 +1,8 @@
+"""
+Universal database functions.
+specific functions related to some components are in component file
+"""
+
 import random
 import urllib.parse
 from datetime import datetime
@@ -9,6 +14,7 @@ from upol_crawler.utils import urls
 
 
 def init(db):
+    """Database init, create indexes"""
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
@@ -16,6 +22,7 @@ def init(db):
 
 
 def _prepare_url_object(url, visited, queued, depth):
+    """Prepare url object before inserting into database"""
     url_object = {'_id': urls.hash(url),
                   'url': url,
                   'domain': urls.domain(url),
@@ -29,35 +36,16 @@ def _prepare_url_object(url, visited, queued, depth):
     return url_object
 
 
-def _universal_insert_url(url, collection, visited, queued, depth):
+def insert_url(db, url, visited, queued, depth):
+    """Insert url into db"""
     url_object = _prepare_url_object(url, visited, queued, depth)
 
     try:
-        result = collection.insert_one(url_object).inserted_id
+        result = db['Urls'].insert_one(url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
         return False
 
     return result
-
-
-def insert_url(db, url, visited, queued, depth):
-    """Insert url into db"""
-    return _universal_insert_url(url, db['Urls'], visited, queued, depth)
-
-
-def insert_url_info(db, url, info_type, arg={}):
-    collection = db[info_type]
-
-    log_object = {'_id': urls.hash(url),
-                  'url': url}
-
-    for key, depth in arg.items():
-        log_object[key] = str(depth)
-
-    try:
-        collection.insert_one(log_object).inserted_id
-    except pymongo.errors.DuplicateKeyError as e:
-        return False
 
 
 def batch_insert_url(db, urls_with_depths, visited, queued):
@@ -80,46 +68,27 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     return result
 
 
+def insert_url_info(db, url, info_type, arg={}):
+    """Insert aditional info about url into database"""
+    collection = db[info_type]
+
+    log_object = {'_id': urls.hash(url),
+                  'url': url}
+
+    for key, depth in arg.items():
+        log_object[key] = str(depth)
+
+    try:
+        collection.insert_one(log_object).inserted_id
+    except pymongo.errors.DuplicateKeyError as e:
+        return False
+
+
 def delete_url(db, url):
     """Try to delete url from db, returns True if case of success"""
     result = db['Urls'].delete_one({'_id': urls.hash(url)})
 
     return result.deleted_count > 0
-
-
-def exists_url(db, url):
-    """Return if url is exists in db"""
-    url_hash = urls.hash(url)
-
-    result = db['Urls'].find_one({'_id': url_hash})
-
-    return result is not None
-
-
-def get_batch_url_for_crawl(db, size):
-    """Return batch of url from db for crawl"""
-    db_batch = list(db['Urls'].aggregate([{'$match':
-                                           {'$and': [
-                                               {'visited': False},
-                                               {'queued': False},
-                                               {'timeout': {
-                                                   '$exists': False}}]}},
-                                          {'$sample': {'size': size}}]))
-
-    if len(db_batch) != 0:
-        batch = []
-
-        for field in db_batch:
-            url = {'_id': field.get('_id'),
-                   'url': field.get('url'),
-                   'depth': field.get('depth')}
-
-            batch.append(url)
-            shuffle(batch)
-
-        return batch
-    else:
-        return None
 
 
 def set_visited_url(db, url, response, html):
@@ -211,6 +180,41 @@ def set_timeout_url(db, url):
     return result is not None
 
 
+def get_batch_url_for_crawl(db, size):
+    """Return batch of url from db for crawl"""
+    db_batch = list(db['Urls'].aggregate([{'$match':
+                                           {'$and': [
+                                               {'visited': False},
+                                               {'queued': False},
+                                               {'timeout': {
+                                                   '$exists': False}}]}},
+                                          {'$sample': {'size': size}}]))
+
+    if len(db_batch) != 0:
+        batch = []
+
+        for field in db_batch:
+            url = {'_id': field.get('_id'),
+                   'url': field.get('url'),
+                   'depth': field.get('depth')}
+
+            batch.append(url)
+            shuffle(batch)
+
+        return batch
+    else:
+        return None
+
+
+def exists_url(db, url):
+    """Return if url is exists in db"""
+    url_hash = urls.hash(url)
+
+    result = db['Urls'].find_one({'_id': url_hash})
+
+    return result is not None
+
+
 def is_visited(db, url):
     """Check if url is visited"""
     result = db['Urls'].find_one({'visited': True})
@@ -236,63 +240,3 @@ def is_visited_or_queued(db, url):
 
     if result is not None:
         return True
-
-
-def should_crawler_wait(db):
-    """Check if crawler can terminate or not"""
-    result = db['Urls'].find_one({'$or': [
-        {'$and': [
-            {'visited': False},
-            {'queued': True}]},
-        {'$and': [
-            {'visited': False},
-            {'queued': False},
-            {'timeout': {'$exists': False}}]}]})
-
-    return not ((result is None) or (len(result) == 0))
-
-
-def insert_crawler_start(db):
-    """Save when crawler start into database"""
-    result = db['CrawlerInfo'].update({'_id': 1},
-                                      {'$set':
-                                       {'time.start': str(datetime.now())}},
-                                      upsert=True)
-
-    return result is not None
-
-
-def insert_crawler_end(db):
-    """Save when crawler start into database"""
-    result = db['CrawlerInfo'].update({'_id': 1},
-                                      {'$set':
-                                       {'time.end': str(datetime.now())}},
-                                      upsert=True)
-
-    return result is not None
-
-
-def insert_limits_for_ip(db, domain, ip, last, max_frequency):
-    """Insert limits for specific IP"""
-    result = db['Limiter'].insert_one({'ip': ip,
-                                       'domain': domain,
-                                       'last': str(last),
-                                       'max_frequency': max_frequency})
-
-    return result is not None
-
-
-def get_limits_for_ip(db, ip):
-    """Return limits informations for specific IP"""
-    result = db['Limiter'].find_one({'ip': ip})
-
-    return result
-
-
-def set_last_for_ip_limit(db, ip, last):
-    """Set the last property for specific IP"""
-    result = db['Limiter'].update({'ip': ip},
-                                  {'$set':
-                                   {'last': str(last)}})
-
-    return result is not None
