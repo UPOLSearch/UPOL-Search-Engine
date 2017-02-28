@@ -9,6 +9,8 @@ from upol_crawler.utils import urls
     ("https://upol.cz", "upol.cz"),
     ("https://upol.cz/", "upol.cz"),
     ("https://www.upol.cz/", "upol.cz"),
+    ("https://www.upol.cz:232/", "upol.cz"),
+    ("https://www.upol.cz:2322222/", "upol.cz"),
     pytest.mark.raises(("www.upol.cz/", "upol.cz"), exception=ValueError),
     ])
 def test_url_domain(url, domain):
