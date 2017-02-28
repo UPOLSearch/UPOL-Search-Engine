@@ -53,7 +53,7 @@ def domain(url):
         raise ValueError('Domain has no scheme: {0}'.format(url))
 
     if ':' in netloc:
-        netloc = netloc[:-3]
+        netloc = netloc.split(':', 1)[0]
 
     return netloc
 
