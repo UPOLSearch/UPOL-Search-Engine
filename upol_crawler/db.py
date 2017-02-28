@@ -28,12 +28,30 @@ def _prepare_url_object(url, visited, queued, depth):
                   'domain': urls.domain(url),
                   'depth': depth,
                   'visited': visited,
-                  'queued': queued}
-
-    url_object['progress'] = {}
-    url_object['progress']['discovered'] = str(datetime.now())
+                  'queued': queued,
+                  'progress': {'discovered': str(datetime.now())}}
 
     return url_object
+
+
+def _prepare_file_url_object(url, response, depth):
+    """Prepare file url object before inserting into database"""
+    # Prepare content_type, remove charset etc
+    # for example 'text/html; charset=utf-8'
+    content_type = response.headers.get('Content-Type')
+
+    if content_type is not None:
+        content_type = content_type.split(';')[0]
+
+    file_url_object = {'_id': urls.hash(url),
+                       'url': url,
+                       'domain': urls.domain(url),
+                       'depth': depth,
+                       'content_type': content_type,
+                       'content_length': response.headers.get('Content-Length'),
+                       'progress': {'discovered': str(datetime.now())}}
+
+    return file_url_object
 
 
 def insert_url(db, url, visited, queued, depth):
@@ -42,6 +60,18 @@ def insert_url(db, url, visited, queued, depth):
 
     try:
         result = db['Urls'].insert_one(url_object).inserted_id
+    except pymongo.errors.DuplicateKeyError as e:
+        return False
+
+    return result
+
+
+def inser_file_url(db, url, response, depth):
+    """Insert file url into db"""
+    file_url_object = _prepare_file_url_object(url, response, depth)
+
+    try:
+        result = db['Files'].insert_one(file_url_object).inserted_id
     except pymongo.errors.DuplicateKeyError as e:
         return False
 

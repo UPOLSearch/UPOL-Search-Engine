@@ -1,16 +1,15 @@
 from __future__ import absolute_import, unicode_literals
 
 import cProfile
-import datetime
 import hashlib
 import os
 import time
+from datetime import datetime
 
 import pymongo
 from celery.utils.log import get_task_logger
-
-from upol_crawler.celery import app
 from upol_crawler import db
+from upol_crawler.celery import app
 from upol_crawler.settings import *
 
 
@@ -21,7 +20,7 @@ def crawl_url_task(url, depth):
     if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
         os.makedirs(CPROFILE_DIR, exist_ok=True)
 
-        actual_time = str(datetime.datetime.now()).encode('utf-8')
+        actual_time = str(datetime.now()).encode('utf-8')
 
         cprofile_filename = hashlib.sha1(actual_time).hexdigest()
         cprofile_path = os.path.join(CPROFILE_DIR, cprofile_filename)

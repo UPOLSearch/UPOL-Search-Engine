@@ -1,26 +1,25 @@
 import urllib.parse
 
 import pymongo
-
 from upol_crawler import db
 from upol_crawler.settings import DOMAIN_REGEX
 from upol_crawler.tools import blacklist, logger, robots
 
 # TODO - load values from file
-content_type_whitelist = ['text/html']
+# content_type_whitelist = ['text/html']
 file_extension_whitelist = ['.php',
                             '.html',
                             '.xhtml',
                             '.htm']
-                            
 
-def validate_content_type(content_type_header):
-    """Validate if content-type is in content-type whitelist"""
-    for content_type in content_type_whitelist:
-        if content_type in content_type_header:
-            return True
 
-    return False
+# def validate_content_type(content_type_header):
+#     """Validate if content-type is in content-type whitelist"""
+#     for content_type in content_type_whitelist:
+#         if content_type in content_type_header:
+#             return True
+#
+#     return False
 
 
 def validate_file_extension(url):
@@ -105,7 +104,7 @@ def validate(url):
         return False, 'UrlRobotsBlocked'
 
     # Need to be last
-    if not validate_file_extension(url):
-        return False, 'UrlIsFile'
+    # if not validate_file_extension(url):
+    #     return False, 'UrlIsFile'
 
     return True, None

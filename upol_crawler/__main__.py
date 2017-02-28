@@ -1,15 +1,13 @@
-import datetime
 import shutil
 import sys
+from datetime import datetime
 from time import sleep
 
 import pymongo
 from celery.app.control import Control
-
-from upol_crawler import tasks
+from upol_crawler import db, tasks
 from upol_crawler.celery import app
 from upol_crawler.core import crawler, validator
-from upol_crawler import db
 from upol_crawler.settings import *
 
 
@@ -77,7 +75,7 @@ def main(args=None):
     print("******************************")
     print("LOADING..")
 
-    start_load_time = datetime.datetime.now()
+    start_load_time = datetime.now()
 
     # Start procedure
     client = pymongo.MongoClient(
@@ -94,7 +92,7 @@ def main(args=None):
     else:
         insert_crawler_start(database)
 
-    end_load_time = datetime.datetime.now()
+    end_load_time = datetime.now()
 
     if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
         os.makedirs(CPROFILE_DIR, exist_ok=True)
@@ -107,7 +105,7 @@ def main(args=None):
     print("Start crawling...")
     print("******************************")
 
-    start_time = datetime.datetime.now()
+    start_time = datetime.now()
     sleeping = False
     number_of_waiting = 0
     number_of_added_links = 0
@@ -137,7 +135,7 @@ def main(args=None):
             sleeping = True
         else:
             print("------------------------------")
-            print("Uptime: {0}".format(datetime.datetime.now() - start_time))
+            print("Uptime: {0}".format(datetime.now() - start_time))
             print("Added links: {0}".format(number_of_added_links))
             print("Workers are running - SLEEPING")
             print("------------------------------")
@@ -158,7 +156,7 @@ def main(args=None):
 
             print("FEEDING...")
 
-    end_time = datetime.datetime.now()
+    end_time = datetime.now()
     duration = end_time - start_time
     insert_crawler_end(database)
 

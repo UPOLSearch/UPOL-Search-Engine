@@ -3,11 +3,10 @@ import re
 import urllib.parse
 
 import w3lib.html
-
 from upol_crawler import tasks
 from upol_crawler.core import validator
-from upol_crawler.utils import urls
 from upol_crawler.tools import logger
+from upol_crawler.utils import urls
 
 log = logger.universal_logger('link_extractor')
 
@@ -188,7 +187,7 @@ def validated_page_urls(soup, url):
         if valid:
             valid_urls.add(link_url)
         else:
-            if reason == 'UrlIsFile' or reason == 'UrlRobotsBlocked':
+            if reason == 'UrlRobotsBlocked':
                 tasks.collect_url_info_task.delay(link_url, reason)
 
     return valid_urls
