@@ -121,7 +121,7 @@ def delete_url(db, url):
     return result.deleted_count > 0
 
 
-def set_visited_url(db, url, response, html):
+def set_visited_url(db, url, response, content):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
 
@@ -146,11 +146,11 @@ def set_visited_url(db, url, response, html):
 
     url_addition['progress.last_visited'] = str(datetime.now())
 
-    url_addition['content.html'] = html
-    url_addition['content.hashes.document'] = urls.hash_document(html)
+    url_addition['content.binary'] = content
+    url_addition['content.hashes.document'] = urls.hash_document(content)
     url_addition['content.encoding'] = response.encoding
     # Later detect language
-
+    
     url_addition['response.elapsed'] = str(response.elapsed)
     url_addition['response.is_redirect'] = is_redirect
     url_addition['response.is_permanent_redirect'] = is_permanent_redirect

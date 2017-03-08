@@ -116,8 +116,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
     # Begin parse part, should avoid 404
     try:
-        html = response.text
-        soup = BeautifulSoup(html, 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml')
         validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
 
         urls_for_insert = []
@@ -143,7 +142,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         log.exception('Exception: {0}'.format(url))
         raise
 
-    db.set_visited_url(database, url, response, html)
+    db.set_visited_url(database, url, response, response.content)
     log.info('Done [{0}]: {1}'.format(response.reason, url))
 
 

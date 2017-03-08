@@ -13,7 +13,7 @@ def hash(url):
 
 def hash_document(document):
     """Returns hash of document"""
-    return hashlib.sha1(document.encode('utf-8')).hexdigest()
+    return hashlib.sha1(document).hexdigest()
 
 
 def remove_www(url):
