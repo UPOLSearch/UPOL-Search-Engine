@@ -53,6 +53,9 @@ def get_page(url):
 def _handle_response(database, url, original_url, redirected, response, depth):
     content_type = response.headers.get('Content-Type')
 
+    if content_type is None:
+        content_type = ''
+
     if 'text/html' not in content_type:
         # If original url was redirected delete original url from database
         if redirected:
@@ -60,17 +63,18 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
         # Delete file url from url database, we have separate db for files
         db.delete_url(database, url)
-
+        
         if ('application/pdf' in content_type or
             'text/plain' in content_type or
             'application/msword' in content_type or
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type):
             db.inser_file_url(database, url, response, depth)
         else:
-            content_type = response.headers.get('Content-Type')
 
-            if content_type is not None:
+            if content_type is not '':
                 content_type = content_type.split(';')[0]
+            else:
+                content_type = 'unknown'
 
             tasks.collect_url_info_task.delay(url,
                                               'UrlIsIgnoredFile',
