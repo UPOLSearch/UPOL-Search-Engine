@@ -18,6 +18,7 @@ def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
+    db['Urls'].create_index('content.hashes.document')
     db['Limiter'].create_index('ip', unique=True)
 
 
