@@ -63,7 +63,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
         # Delete file url from url database, we have separate db for files
         db.delete_url(database, url)
-        
+
         if ('application/pdf' in content_type or
             'text/plain' in content_type or
             'application/msword' in content_type or
@@ -127,7 +127,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
         for page_url in validated_urls_on_page:
             insert_url = {'url': page_url}
-            insert_url['url'] = page_url
+            
             if urls.is_same_domain(url, page_url):
                 if depth - 1 != 0:
                     insert_url['depth'] = depth - 1
