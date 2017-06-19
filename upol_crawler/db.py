@@ -127,7 +127,7 @@ def get_or_create_canonical_group(db, content_hash):
     """Try to get canonical group with given hash.
        Create new canonical group in case of fail."""
 
-    # Possible chance of optimalization here
+    # TODO - Possible chance of optimalization here
     canonical_group = list(db['CanonicalGroups'].find({'content_hash': content_hash}).limit(1))
 
     # Create new one
@@ -163,6 +163,7 @@ def set_visited_url(db, url, response, content):
     url_addition['progress.last_visited'] = str(datetime.now())
 
     url_addition['content.binary'] = content
+    # TODO - probably delete in the future
     url_addition['content.hashes.document'] = urls.hash_document(content)
     url_addition['content.encoding'] = response.encoding
     # Later detect language
