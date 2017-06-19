@@ -94,6 +94,7 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     try:
         result = db['Urls'].insert_many(url_documents, ordered=False)
     except pymongo.errors.BulkWriteError:
+        # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
         result = None
 
     return result
@@ -151,7 +152,7 @@ def set_visited_url(db, url, response, content):
     url_addition['content.hashes.document'] = urls.hash_document(content)
     url_addition['content.encoding'] = response.encoding
     # Later detect language
-    
+
     url_addition['response.elapsed'] = str(response.elapsed)
     url_addition['response.is_redirect'] = is_redirect
     url_addition['response.is_permanent_redirect'] = is_permanent_redirect

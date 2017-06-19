@@ -127,7 +127,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
         for page_url in validated_urls_on_page:
             insert_url = {'url': page_url}
-            
+
             if urls.is_same_domain(url, page_url):
                 if depth - 1 != 0:
                     insert_url['depth'] = depth - 1
@@ -137,6 +137,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
 
             urls_for_insert.append(insert_url)
+            # TODO - Here is suitable place where I can call iterate_inlinks. It's better to insert URLs first, solve duplicates and than iterate all inlinks.
 
         if len(urls_for_insert) > 0:
             # Maybe use for-else
