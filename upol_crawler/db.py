@@ -123,6 +123,20 @@ def delete_url(db, url):
     return result.deleted_count > 0
 
 
+def get_or_create_canonical_group(db, content_hash):
+    """Try to get canonical group with given hash.
+       Create new canonical group in case of fail."""
+
+    # Possible chance of optimalization here
+    canonical_group = list(db['CanonicalGroups'].find({'content_hash': content_hash}).limit(1))
+
+    # Create new one
+    if len(canonical_group) == 0:
+        return db['CanonicalGroups'].insert({'content_hash': content_hash})
+    else:
+        return canonical_group[0].get('_id')
+
+
 def set_visited_url(db, url, response, content):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
