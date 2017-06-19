@@ -18,7 +18,7 @@ def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
-    db['Urls'].create_index('content.hashes.document')
+    db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
 
 
@@ -154,6 +154,10 @@ def set_visited_url(db, url, response, content):
         if history.is_redirect:
             is_redirect = True
             break
+
+    # Pairing url with canonical group id
+    content_hash = urls.hash_document(content)
+    url_addition['canonical_group'] = get_or_create_canonical_group(db, content_hash=content_hash)
 
     url_addition = {}
 
