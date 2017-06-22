@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import cProfile
 import hashlib
 import os
@@ -7,9 +5,8 @@ import time
 from datetime import datetime
 
 import pymongo
-from celery.utils.log import get_task_logger
 from upol_crawler import db
-from upol_crawler.celery import app
+from upol_crawler.celery_app import app
 from upol_crawler.settings import *
 
 
