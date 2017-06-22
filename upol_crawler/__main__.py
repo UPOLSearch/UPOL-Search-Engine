@@ -4,9 +4,8 @@ from datetime import datetime
 from time import sleep
 
 import pymongo
-from celery.app.control import Control
 from upol_crawler import db, tasks
-from upol_crawler.celery import app
+from upol_crawler.celery_app import app
 from upol_crawler.core import crawler, validator
 from upol_crawler.settings import *
 

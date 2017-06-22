@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+# from __future__ import absolute_import
 
 from celery import Celery
 from kombu import Exchange, Queue
@@ -25,7 +25,7 @@ class Config(object):
     include = ['upol_crawler.tasks']
     worker_hijack_root_logger = False
 
-app = Celery('upol_crawler')
+app = Celery('celery_app')
 app.config_from_object(Config)
 
 if __name__ == '__main__':
