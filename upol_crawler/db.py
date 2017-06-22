@@ -154,12 +154,12 @@ def set_visited_url(db, url, response, content):
         if history.is_redirect:
             is_redirect = True
             break
+            
+    url_addition = {}
 
     # Pairing url with canonical group id
     content_hash = urls.hash_document(content)
     url_addition['canonical_group'] = get_or_create_canonical_group(db, content_hash=content_hash)
-
-    url_addition = {}
 
     url_addition['visited'] = True
     url_addition['queued'] = False
