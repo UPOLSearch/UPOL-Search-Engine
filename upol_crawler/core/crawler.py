@@ -147,7 +147,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         log.exception('Exception: {0}'.format(url))
         raise
 
-    db.set_visited_url(database, url, response, response.content)
+    db.set_visited_url(database, url, response, soup)
     log.info('Done [{0}]: {1}'.format(response.reason, url))
 
 

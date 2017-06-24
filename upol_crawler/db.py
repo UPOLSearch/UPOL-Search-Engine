@@ -18,7 +18,7 @@ def init(db):
     db['Urls'].create_index('visited')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
-    db['Urls'].create_index('content.hashes.document')
+    db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
 
 
@@ -123,7 +123,36 @@ def delete_url(db, url):
     return result.deleted_count > 0
 
 
-def set_visited_url(db, url, response, content):
+def get_or_create_canonical_group(db, text_hash):
+    """Try to get canonical group with given hash.
+       Create new canonical group in case of fail.
+       Canonical group groups url with same text hash, not HTML tags."""
+
+    # TODO - Possible chance of optimalization here
+    canonical_group = list(db['CanonicalGroups'].find({'text_hash': text_hash}).limit(1))
+
+    # Create new one
+    if len(canonical_group) == 0:
+        return db['CanonicalGroups'].insert({'text_hash': text_hash})
+    else:
+        return canonical_group[0].get('_id')
+
+
+def get_or_create_duplicity_group(db, content_hash):
+    """Try to get duplicity group with given hash.
+       Create new duplicity group in case of fail."""
+
+    # TODO - Possible chance of optimalization here
+    duplicity_group = list(db['DuplicityGroups'].find({'content_hash': content_hash}).limit(1))
+
+    # Create new one
+    if len(duplicity_group) == 0:
+        return db['DuplicityGroups'].insert({'content_hash': content_hash})
+    else:
+        return duplicity_group[0].get('_id')
+
+
+def set_visited_url(db, url, response, soup):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
 
@@ -143,13 +172,22 @@ def set_visited_url(db, url, response, content):
 
     url_addition = {}
 
+    # Pairing url with canonical group id
+    text_hash = urls.hash_document(soup.text.encode())
+    url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
+
+    # Pairing url with duplicates group id
+    document_hash = urls.hash_document(response.content)
+    url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
+
     url_addition['visited'] = True
     url_addition['queued'] = False
 
     url_addition['progress.last_visited'] = str(datetime.now())
 
-    url_addition['content.binary'] = content
-    url_addition['content.hashes.document'] = urls.hash_document(content)
+    url_addition['content.binary'] = response.content
+    url_addition['content.hashes.document'] = document_hash
+    url_addition['content.hashes.text'] = text_hash
     url_addition['content.encoding'] = response.encoding
     # Later detect language
 
