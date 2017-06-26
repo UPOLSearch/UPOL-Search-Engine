@@ -16,6 +16,7 @@ from upol_crawler.utils import urls
 def init(db):
     """Database init, create indexes"""
     db['Urls'].create_index('visited')
+    db['Urls'].create_index('indexed')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('canonical_group')
@@ -125,7 +126,7 @@ def delete_url(db, url):
 
 def get_or_create_canonical_group(db, text_hash):
     """Try to get canonical group with given hash.
-       Create new canonical group in case of fail.
+       Create new canonical g roup in case of fail.
        Canonical group groups url with same text hash, not HTML tags."""
 
     # TODO - Possible chance of optimalization here
@@ -182,6 +183,7 @@ def set_visited_url(db, url, response, soup):
 
     url_addition['visited'] = True
     url_addition['queued'] = False
+    url_addition['indexed'] = False
 
     url_addition['progress.last_visited'] = str(datetime.now())
 
