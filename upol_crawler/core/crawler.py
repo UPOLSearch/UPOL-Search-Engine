@@ -138,11 +138,15 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
 
             urls_for_insert.append(insert_url)
-            # TODO - Here is suitable place where I can call iterate_inlinks. It's better to insert URLs first, solve duplicates and than iterate all inlinks.
 
         if len(urls_for_insert) > 0:
             # Maybe use for-else
             db.batch_insert_url(database, urls_for_insert, False, False)
+
+            for url_iterate in urls_for_insert:
+                # Skip link from page itself
+                if url_iterate != url:
+                    db.iterate_inlinks(database, url_iterate.get('url'))
     except Exception as e:
         db.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))

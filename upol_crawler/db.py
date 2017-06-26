@@ -33,6 +33,7 @@ def _prepare_url_object(url, visited, queued, depth):
                   'depth': depth,
                   'visited': visited,
                   'queued': queued,
+                  'inlinks': 0,
                   'progress': {'discovered': str(datetime.now())}}
 
     return url_object
@@ -101,6 +102,13 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
         result = None
 
     return result
+
+
+def iterate_inlinks(db, url):
+    """Iterate number of inlinks of one url"""
+
+    return db['Urls'].find_one_and_update({'_id': urls.hash(url)},
+                                          {'$inc': {'inlinks': 1}})
 
 
 def insert_url_info(db, url, info_type, arg={}):
