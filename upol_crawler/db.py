@@ -10,6 +10,7 @@ from random import shuffle
 
 import pymongo
 from bson.objectid import ObjectId
+from upol_crawler.core import link_extractor
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
 
@@ -158,7 +159,7 @@ def select_representative_for_canonical_group(db, canonical_group):
     """Return id of URL which is suitable as representative of canonical group"""
 
     urls_representatives = db['Urls'].find({'canonical_group': ObjectId(canonical_group)})
-    
+
     representatives = []
 
     for url in urls_representatives:
@@ -206,6 +207,7 @@ def set_visited_url(db, url, response, soup):
     url_addition['visited'] = True
     url_addition['queued'] = False
     url_addition['indexed'] = False
+    url_addition['noindex'] = link_extractor.has_noindex(soup)
 
     url_addition['progress.last_visited'] = str(datetime.now())
 

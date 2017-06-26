@@ -121,6 +121,20 @@ def check_meta_robots(soup):
             return True
     else:
         return True
+        
+
+def has_noindex(soup):
+    """Check meta tag robots"""
+    meta = soup.find('meta', {'name': 'robots'})
+
+    if meta is not None:
+        content = meta.get('content')
+        if 'noindex' in content:
+            return True
+        else:
+            return False
+    else:
+        return False
 
 
 def get_canonical_url(soup):
