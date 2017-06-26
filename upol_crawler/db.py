@@ -9,6 +9,7 @@ from datetime import datetime
 from random import shuffle
 
 import pymongo
+from bson.objectid import ObjectId
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
 
@@ -153,6 +154,27 @@ def get_or_create_duplicity_group(db, content_hash):
         return duplicity_group[0].get('_id')
 
 
+def select_representative_for_canonical_group(db, canonical_group):
+    """Return id of URL which is suitable as representative of canonical group"""
+
+    urls_representatives = db['Urls'].find({'canonical_group': ObjectId(canonical_group)})
+    
+    representatives = []
+
+    for url in urls_representatives:
+        representatives.append(url.get('url'))
+
+    # Return hash of the shortest url
+    return urls.hash(min(representatives, key=len))
+
+
+def update_canonical_group_representative(db, canonical_group, representative):
+    """Update representative url of canonical group"""
+
+    return db['CanonicalGroups'].find_one_and_update({'_id': ObjectId(canonical_group)},
+                                                     {'$set': {'representative': representative}})
+
+
 def set_visited_url(db, url, response, soup):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
@@ -204,6 +226,11 @@ def set_visited_url(db, url, response, soup):
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
+
+    # If insertion was successful update representative of canonical group
+    if result is not None:
+        representative = select_representative_for_canonical_group(db, url_addition['canonical_group'])
+        update_canonical_group_representative(db, url_addition['canonical_group'], representative)
 
     return result is not None
 
