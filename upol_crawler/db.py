@@ -19,6 +19,7 @@ def init(db):
     """Database init, create indexes"""
     db['Urls'].create_index('visited')
     db['Urls'].create_index('indexed')
+    db['Urls'].create_index('noindex')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('canonical_group')
