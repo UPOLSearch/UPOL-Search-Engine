@@ -10,7 +10,6 @@ from random import shuffle
 
 import pymongo
 from bson.objectid import ObjectId
-from upol_crawler.core import link_extractor
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
 
@@ -177,7 +176,7 @@ def update_canonical_group_representative(db, canonical_group, representative):
                                                      {'$set': {'representative': representative}})
 
 
-def set_visited_url(db, url, response, soup):
+def set_visited_url(db, url, response, soup, noindex):
     """Try to set url to visited and update other important informations"""
     url_hash = urls.hash(url)
 
@@ -208,7 +207,7 @@ def set_visited_url(db, url, response, soup):
     url_addition['visited'] = True
     url_addition['queued'] = False
     url_addition['indexed'] = False
-    url_addition['noindex'] = link_extractor.has_noindex(soup)
+    url_addition['noindex'] = noindex
 
     url_addition['progress.last_visited'] = str(datetime.now())
 
