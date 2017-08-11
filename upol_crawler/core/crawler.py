@@ -142,6 +142,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         if len(urls_for_insert) > 0:
             # Maybe use for-else
             db.batch_insert_url(database, urls_for_insert, False, False)
+            db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
             for url_iterate in urls_for_insert:
                 # Skip link from page itself

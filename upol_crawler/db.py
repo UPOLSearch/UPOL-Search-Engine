@@ -111,6 +111,29 @@ def iterate_inlinks(db, url):
                                           {'$inc': {'inlinks': 1}})
 
 
+def batch_insert_pagerank_outlinks(db, from_url, to_urls):
+    """Inser batch of outlinks into database"""
+
+    url_documents = []
+
+    for to_url in to_urls:
+        to_url = to_url.get('url')
+        url_object = {'from_hash': urls.hash(from_url),
+                      'from_url': from_url,
+                      'to_hash': urls.hash(to_url),
+                      'to_url': to_url}
+
+        url_documents.append(url_object)
+
+    try:
+        result = db['PageRank'].insert_many(url_documents, ordered=False)
+    except pymongo.errors.BulkWriteError:
+        # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
+        result = None
+
+    return result
+
+
 def insert_url_info(db, url, info_type, arg={}):
     """Insert aditional info about url into database"""
     collection = db[info_type]
