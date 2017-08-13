@@ -119,9 +119,7 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     for to_url in to_urls:
         to_url = to_url.get('url')
         url_object = {'from_hash': urls.hash(from_url),
-                      'from_url': from_url,
-                      'to_hash': urls.hash(to_url),
-                      'to_url': to_url}
+                      'to_hash': urls.hash(to_url)}
 
         url_documents.append(url_object)
 
@@ -239,8 +237,8 @@ def set_visited_url(db, url, response, soup, noindex):
     url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
 
     # Pairing url with duplicates group id
-    document_hash = urls.hash_document(response.content)
-    url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
+    # document_hash = urls.hash_document(response.content)
+    # url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
 
     url_addition['visited'] = True
     url_addition['queued'] = False
