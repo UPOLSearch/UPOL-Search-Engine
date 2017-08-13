@@ -134,6 +134,13 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     return result
 
 
+def update_pagerank_url_hash(db, original_hash, new_hash):
+    """Update url hash in graph's edge if canonical group is changed"""
+
+    db['PageRank'].update_many({'from_url': original_hash}, {'$set': {'from_url': new_hash}})
+    db['PageRank'].update_many({'to_url': original_hash}, {'$set': {'to_url': new_hash}})
+
+
 def insert_url_info(db, url, info_type, arg={}):
     """Insert aditional info about url into database"""
     collection = db[info_type]
@@ -204,7 +211,7 @@ def update_canonical_group_representative(db, canonical_group, representative):
     """Update representative url of canonical group"""
 
     return db['CanonicalGroups'].find_one_and_update({'_id': ObjectId(canonical_group)},
-                                                     {'$set': {'representative': representative}})
+                         {'$set': {'representative': representative}})
 
 
 def set_visited_url(db, url, response, soup, noindex):
@@ -264,6 +271,13 @@ def set_visited_url(db, url, response, soup, noindex):
     if result is not None:
         representative = select_representative_for_canonical_group(db, url_addition['canonical_group'])
         update_canonical_group_representative(db, url_addition['canonical_group'], representative)
+
+        # update pagerank
+        group_members = db['Urls'].find('canonical_group': ObjectId(url_addition['canonical_group']))
+        
+        for member in group_members:
+            member_hash = member.get('_id')
+            update_pagerank_url_hash(db, member_hash, representative)
 
     return result is not None
 
