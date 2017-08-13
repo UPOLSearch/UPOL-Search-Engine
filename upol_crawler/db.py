@@ -273,8 +273,8 @@ def set_visited_url(db, url, response, soup, noindex):
         update_canonical_group_representative(db, url_addition['canonical_group'], representative)
 
         # update pagerank
-        group_members = db['Urls'].find('canonical_group': ObjectId(url_addition['canonical_group']))
-        
+        group_members = db['Urls'].find({'canonical_group': ObjectId(url_addition['canonical_group'])})
+
         for member in group_members:
             member_hash = member.get('_id')
             update_pagerank_url_hash(db, member_hash, representative)
