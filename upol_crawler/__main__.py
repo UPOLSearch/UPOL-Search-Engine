@@ -126,10 +126,10 @@ def main(args=None):
                 for url in batch:
                     hashes.append(url.get('_id'))
 
-                db.set_queued_batch(database, hashes)
-
                 for url in batch:
                     tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
+
+                db.set_queued_batch(database, hashes)
 
             sleeping = True
         else:

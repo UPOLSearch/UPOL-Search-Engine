@@ -24,6 +24,7 @@ class Config(object):
     timezone = 'Europe/Prague'
     include = ['upol_crawler.tasks']
     worker_hijack_root_logger = False
+    task_acks_late = True
 
 app = Celery('celery_app')
 app.config_from_object(Config)
