@@ -148,13 +148,13 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 # Skip link from page itself
                 if url_iterate != url:
                     db.iterate_inlinks(database, url_iterate.get('url'))
+
+        db.set_visited_url(database, url, response, soup, noindex)
+        log.info('Done [{0}]: {1}'.format(response.reason, url))
     except Exception as e:
         db.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))
         raise
-
-    db.set_visited_url(database, url, response, soup, noindex)
-    log.info('Done [{0}]: {1}'.format(response.reason, url))
 
 
 def crawl_url(url, depth):
