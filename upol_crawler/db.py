@@ -237,7 +237,7 @@ def set_visited_url(db, url, response, soup, noindex):
     url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
 
     # Pairing url with duplicates group id
-    # document_hash = urls.hash_document(response.content)
+    document_hash = urls.hash_document(response.content)
     # url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
 
     url_addition['visited'] = True
