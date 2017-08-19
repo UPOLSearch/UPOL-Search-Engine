@@ -144,11 +144,6 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             db.batch_insert_url(database, urls_for_insert, False, False)
             db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
-            for url_iterate in urls_for_insert:
-                # Skip link from page itself
-                if url_iterate != url:
-                    db.iterate_inlinks(database, url_iterate.get('url'))
-
         db.set_visited_url(database, url, response, soup, noindex)
         log.info('Done [{0}]: {1}'.format(response.reason, url))
     except Exception as e:

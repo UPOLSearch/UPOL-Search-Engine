@@ -23,6 +23,7 @@ def init(db):
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
+    db['PageRank'].create_index('from_hash', 'to_hash', unique=True)
 
 
 def _prepare_url_object(url, visited, queued, depth):
@@ -33,7 +34,6 @@ def _prepare_url_object(url, visited, queued, depth):
                   'depth': depth,
                   'visited': visited,
                   'queued': queued,
-                  'inlinks': 0,
                   'progress': {'discovered': str(datetime.now())}}
 
     return url_object
@@ -269,13 +269,6 @@ def set_visited_url(db, url, response, soup, noindex):
     if result is not None:
         representative = select_representative_for_canonical_group(db, url_addition['canonical_group'])
         update_canonical_group_representative(db, url_addition['canonical_group'], representative)
-
-        # update pagerank
-        group_members = db['Urls'].find({'canonical_group': ObjectId(url_addition['canonical_group'])})
-
-        for member in group_members:
-            member_hash = member.get('_id')
-            update_pagerank_url_hash(db, member_hash, representative)
 
     return result is not None
 
