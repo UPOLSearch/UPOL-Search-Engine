@@ -60,7 +60,7 @@ def is_crawl_allowed(url):
 
     result = True
     record = get_limits_for_ip(database, ip)
-    
+
     if record is not None:
         try:
             last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
@@ -81,7 +81,7 @@ def is_crawl_allowed(url):
                              datetime.now(),
                              float(CONFIG.get('Settings', 'crawl_frequency_per_server')))
 
-    if not result:
-        log.info('Limited: {0}'.format(url))
+    # if not result:
+    #     log.info('Limited: {0}'.format(url))
 
     return result

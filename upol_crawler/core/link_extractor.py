@@ -10,7 +10,6 @@ from upol_crawler.utils import urls
 
 log = logger.universal_logger('link_extractor')
 
-
 def is_page_wiki(soup):
     """Detect if page is wiki, from soup"""
 
@@ -121,7 +120,7 @@ def check_meta_robots(soup):
             return True
     else:
         return True
-        
+
 
 def has_noindex(soup):
     """Check meta tag robots"""
