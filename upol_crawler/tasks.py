@@ -8,6 +8,7 @@ import pymongo
 from upol_crawler import db
 from upol_crawler.celery_app import app
 from upol_crawler.settings import *
+from upol_crawler.tools import logger
 
 log_collector = logger.universal_logger('collector')
 log_crawler = logger.universal_logger('crawl_url')
