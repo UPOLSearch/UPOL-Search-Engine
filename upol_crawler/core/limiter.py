@@ -1,12 +1,11 @@
 import socket
 import threading
-import pymongo
 from datetime import datetime
 
-from upol_crawler.utils import urls
-from upol_crawler.tools import logger
+import pymongo
 from upol_crawler.settings import *
-
+from upol_crawler.tools import logger
+from upol_crawler.utils import urls
 
 log = logger.universal_logger('limiter')
 
@@ -63,7 +62,7 @@ def is_crawl_allowed(url):
     record = get_limits_for_ip(database, ip)
 
     if record is not None:
-        last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
+        last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S:%f')
         delta = _time_difference_from_now(last)
 
         if delta < float(record['max_frequency']):
