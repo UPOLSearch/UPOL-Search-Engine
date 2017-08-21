@@ -60,15 +60,12 @@ def is_crawl_allowed(url):
 
     result = True
     record = get_limits_for_ip(database, ip)
-
+    
     if record is not None:
         try:
             last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
-        except:
-            try:
-                last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S')
-            except:
-                raise
+        except ValueError as e:
+            last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S')
 
         delta = _time_difference_from_now(last)
 
