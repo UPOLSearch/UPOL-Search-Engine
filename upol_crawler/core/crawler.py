@@ -94,6 +94,9 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             # Delete original url from db, we want to keep only working urls
             db.delete_url(database, original_url)
 
+            # Update pagerank edges because of redirect
+            db.update_pagerank_url_hash(database, urls.hash(original_url), urls.hash(url))
+
             if not valid:
                 tasks.collect_url_info_task.delay(url,
                                                   'UrlNotValidRedirect',
