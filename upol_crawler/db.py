@@ -136,9 +136,10 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
 def update_pagerank_url_hash(db, original_hash, new_hash):
     """Update url hash in graph's edge if canonical group is changed"""
 
-    db['PageRank'].update_many({'from_url': original_hash}, {'$set': {'from_url': new_hash}})
-    db['PageRank'].update_many({'to_url': original_hash}, {'$set': {'to_url': new_hash}})
+    result1 = db['PageRank'].update_many({'from_url': original_hash}, {'$set': {'from_url': new_hash}})
+    result2 = db['PageRank'].update_many({'to_url': original_hash}, {'$set': {'to_url': new_hash}})
 
+    return result1, result2
 
 def insert_url_info(db, url, info_type, arg={}):
     """Insert aditional info about url into database"""
