@@ -98,6 +98,8 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             # Update pagerank edges because of redirect
             db.update_pagerank_url_hash(database, urls.hash(original_url), urls.hash(url))
 
+            log.info('Replacing pagerank old {0} new {1}'.format(urls.hash(original_url), urls.hash(url)))
+
             if not valid:
                 tasks.collect_url_info_task.delay(url,
                                                   'UrlNotValidRedirect',

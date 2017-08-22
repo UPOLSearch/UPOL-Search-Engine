@@ -128,7 +128,7 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
         result = db['PageRank'].insert_many(url_documents, ordered=False)
     except pymongo.errors.BulkWriteError:
         # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
-        result = None
+        sresult = None
 
     return result
 
@@ -330,7 +330,7 @@ def get_batch_url_for_crawl(db, size):
 
     if len(db_batch) != 0:
         batch = []
-        
+
         for field in db_batch:
             url = {'_id': field.get('_id'),
                    'url': field.get('url'),
