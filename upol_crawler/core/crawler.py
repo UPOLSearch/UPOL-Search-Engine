@@ -84,7 +84,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                                                    'content_length': response.headers.get('Content-Length'),
                                                    'depth': depth})
 
-            # log.info('Content-Type: {0}'.format(url))
+            log.info('Content-Type: {0}'.format(url))
 
             return
 
@@ -101,7 +101,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                                                   {'reason': reason,
                                                    'original_url': original_url})
 
-                # log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
+                log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
 
                 return
 
@@ -145,10 +145,10 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
         db.set_visited_url(database, url, response, soup, noindex)
-        # log.info('Done [{0}]: {1}'.format(response.reason, url))
+        log.info('Done [{0}]: {1}'.format(response.reason, url))
     except Exception as e:
         db.delete_url(database, url)
-        # log.exception('Exception: {0}'.format(url))
+        log.exception('Exception: {0}'.format(url))
         raise
 
 
