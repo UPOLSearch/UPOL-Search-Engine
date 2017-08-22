@@ -139,7 +139,7 @@ def update_pagerank_url_hash(db, original_hash, new_hash):
     result1 = db['PageRank'].update_many({'from_url': original_hash}, {'$set': {'from_url': new_hash}})
     result2 = db['PageRank'].update_many({'to_url': original_hash}, {'$set': {'to_url': new_hash}})
 
-    return result1, result2
+    return result1.raw_result, result2.raw_result
 
 def insert_url_info(db, url, info_type, arg={}):
     """Insert aditional info about url into database"""
