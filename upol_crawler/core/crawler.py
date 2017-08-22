@@ -88,6 +88,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             return
 
         if redirected:
+            log.info('Redirected: old {0} new {1}'.format(original_url, url))
             # Check if redirected url is valid
             valid, reason = validator.validate(url)
 
