@@ -23,6 +23,8 @@ def init(db):
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
+    db['PageRank'].create_index([('from_hash', pymongo.DESCENDING),
+                                 ('to_hash', pymongo.ASCENDING)], unique=True)
 
 
 def _prepare_url_object(url, visited, queued, depth):
@@ -33,7 +35,6 @@ def _prepare_url_object(url, visited, queued, depth):
                   'depth': depth,
                   'visited': visited,
                   'queued': queued,
-                  'inlinks': 0,
                   'progress': {'discovered': str(datetime.now())}}
 
     return url_object
@@ -111,6 +112,39 @@ def iterate_inlinks(db, url):
                                           {'$inc': {'inlinks': 1}})
 
 
+def batch_insert_pagerank_outlinks(db, from_url, to_urls):
+    """Inser batch of outlinks into database"""
+
+    url_documents = []
+
+    for to_url in to_urls:
+        to_url = to_url.get('url')
+        url_object = {'from_hash': urls.hash(from_url),
+                      'to_hash': urls.hash(to_url)}
+
+        url_documents.append(url_object)
+
+    try:
+        result = db['PageRank'].insert_many(url_documents, ordered=False)
+    except pymongo.errors.BulkWriteError:
+        # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
+        sresult = None
+
+    return result
+
+
+def update_pagerank_url_hash(db, original_hash, new_hash):
+    """Update url hash in graph's edge if canonical group is changed"""
+
+    try:
+        result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
+        result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
+    except pymongo.errors.DuplicateKeyError as e:
+        pass
+
+
+    return result1.raw_result, result2.raw_result
+
 def insert_url_info(db, url, info_type, arg={}):
     """Insert aditional info about url into database"""
     collection = db[info_type]
@@ -181,7 +215,7 @@ def update_canonical_group_representative(db, canonical_group, representative):
     """Update representative url of canonical group"""
 
     return db['CanonicalGroups'].find_one_and_update({'_id': ObjectId(canonical_group)},
-                                                     {'$set': {'representative': representative}})
+                         {'$set': {'representative': representative}})
 
 
 def set_visited_url(db, url, response, soup, noindex):
@@ -210,7 +244,7 @@ def set_visited_url(db, url, response, soup, noindex):
 
     # Pairing url with duplicates group id
     document_hash = urls.hash_document(response.content)
-    url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
+    # url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
 
     url_addition['visited'] = True
     url_addition['queued'] = False

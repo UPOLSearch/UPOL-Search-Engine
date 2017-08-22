@@ -51,75 +51,80 @@ def get_page(url):
 
 
 def _handle_response(database, url, original_url, redirected, response, depth):
-    content_type = response.headers.get('Content-Type')
+    try:
+        content_type = response.headers.get('Content-Type')
 
-    if content_type is None:
-        content_type = ''
+        if content_type is None:
+            content_type = ''
 
-    if 'text/html' not in content_type:
-        # If original url was redirected delete original url from database
+        if 'text/html' not in content_type:
+            # If original url was redirected delete original url from database
+            if redirected:
+                db.delete_url(database, original_url)
+
+            # Delete file url from url database, we have separate db for files
+            db.delete_url(database, url)
+
+            if ('application/pdf' in content_type or
+                'text/plain' in content_type or
+                'application/msword' in content_type or
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type):
+                db.inser_file_url(database, url, response, depth)
+            else:
+
+                if content_type is not '':
+                    content_type = content_type.split(';')[0]
+                else:
+                    content_type = 'unknown'
+
+                tasks.collect_url_info_task.delay(url,
+                                                  'UrlIsIgnoredFile',
+                                                  {'content_type': content_type,
+                                                   'content_length': response.headers.get('Content-Length'),
+                                                   'depth': depth})
+
+            log.info('Content-Type: {0}'.format(url))
+
+            return
+
         if redirected:
+            log.info('Redirected: old {0} new {1}'.format(original_url, url))
+            # Check if redirected url is valid
+            valid, reason = validator.validate(url)
+
+            # Delete original url from db, we want to keep only working urls
             db.delete_url(database, original_url)
 
-        # Delete file url from url database, we have separate db for files
-        db.delete_url(database, url)
+            # Update pagerank edges because of redirect
+            db.update_pagerank_url_hash(database, urls.hash(original_url), urls.hash(url))
 
-        if ('application/pdf' in content_type or
-            'text/plain' in content_type or
-            'application/msword' in content_type or
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type):
-            db.inser_file_url(database, url, response, depth)
-        else:
+            if not valid:
+                tasks.collect_url_info_task.delay(url,
+                                                  'UrlNotValidRedirect',
+                                                  {'reason': reason,
+                                                   'original_url': original_url})
 
-            if content_type is not '':
-                content_type = content_type.split(';')[0]
+                log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
+
+                return
+
+            if not db.exists_url(database, url):
+                if urls.is_same_domain(url, original_url):
+                    db.insert_url(database, url, True, False, depth - 1)
+                else:
+                    db.insert_url(database,
+                                  url,
+                                  True,
+                                  False,
+                                  int(CONFIG.get('Settings', 'max_depth')))
             else:
-                content_type = 'unknown'
+                if db.is_queued(database, url):
+                    tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
 
-            tasks.collect_url_info_task.delay(url,
-                                              'UrlIsIgnoredFile',
-                                              {'content_type': content_type,
-                                               'content_length': response.headers.get('Content-Length'),
-                                               'depth': depth})
+                return
 
-        log.info('Content-Type: {0}'.format(url))
+            # Begin parse part, should avoid 404
 
-        return
-
-    if redirected:
-        # Check if redirected url is valid
-        valid, reason = validator.validate(url)
-
-        # Delete original url from db, we want to keep only working urls
-        db.delete_url(database, original_url)
-
-        if not valid:
-            tasks.collect_url_info_task.delay(url,
-                                              'UrlNotValidRedirect',
-                                              {'reason': reason,
-                                               'original_url': original_url})
-
-            log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
-
-            return
-
-        if not db.exists_url(database, url):
-            if urls.is_same_domain(url, original_url):
-                db.insert_url(database, url, True, False, depth - 1)
-            else:
-                db.insert_url(database,
-                              url,
-                              True,
-                              False,
-                              int(CONFIG.get('Settings', 'max_depth')))
-        else:
-            if db.is_queued(database, url):
-                tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
-
-            return
-
-    # Begin parse part, should avoid 404
-    try:
         soup = BeautifulSoup(response.content, 'lxml')
         noindex = link_extractor.has_noindex(soup)
         validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
@@ -142,18 +147,14 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         if len(urls_for_insert) > 0:
             # Maybe use for-else
             db.batch_insert_url(database, urls_for_insert, False, False)
+            db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
-            for url_iterate in urls_for_insert:
-                # Skip link from page itself
-                if url_iterate != url:
-                    db.iterate_inlinks(database, url_iterate.get('url'))
+        db.set_visited_url(database, url, response, soup, noindex)
+        log.info('Done [{0}]: {1}'.format(response.reason, url))
     except Exception as e:
         db.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))
         raise
-
-    db.set_visited_url(database, url, response, soup, noindex)
-    log.info('Done [{0}]: {1}'.format(response.reason, url))
 
 
 def crawl_url(url, depth):
@@ -174,21 +175,20 @@ def crawl_url(url, depth):
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         log.warning('(Timeout) - ReadTimeout: {0}'.format(url))
-        return
     except requests.exceptions.ConnectionError as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         log.warning('(Timeout) - ConnectionError: {0}'.format(url))
-        return
     except requests.exceptions.ChunkedEncodingError as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
         log.warning('(Timeout) - ChunkedEncodingError: {0}'.format(url))
-        return
     except Exception as e:
         db.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))
+        client.close()
         raise
     else:
         _handle_response(database, url, original_url, redirected, response, depth)
-        client.close()
+
+    client.close()
