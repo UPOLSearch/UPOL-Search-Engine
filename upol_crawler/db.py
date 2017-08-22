@@ -131,13 +131,17 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
         sresult = None
 
     return result
-    
+
 
 def update_pagerank_url_hash(db, original_hash, new_hash):
     """Update url hash in graph's edge if canonical group is changed"""
 
-    result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
-    result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
+    try:
+        result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
+        result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
+    except pymongo.errors.DuplicateKeyError as e:
+        pass
+
 
     return result1.raw_result, result2.raw_result
 
