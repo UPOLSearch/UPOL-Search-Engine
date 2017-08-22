@@ -330,7 +330,7 @@ def get_batch_url_for_crawl(db, size):
 
     if len(db_batch) != 0:
         batch = []
-
+        
         for field in db_batch:
             url = {'_id': field.get('_id'),
                    'url': field.get('url'),
