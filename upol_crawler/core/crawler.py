@@ -53,7 +53,7 @@ def get_page(url):
 def _handle_response(database, url, original_url, redirected, response, depth):
     try:
         # Redirect handling
-        if redirected:
+        if (redirected and original_url != url):
             log.info('Redirect: {0} (original: {1})'.format(original_url, url))
 
             # Check if redirected url is valid
@@ -105,7 +105,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 return
             else:
                 # Handle file
-                if redirected:
+                if (redirected and original_url != url):
                     db.set_visited_file_url(database, url, response, original_url)
                 else:
                     db.set_visited_file_url(database, url, response)
