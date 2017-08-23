@@ -75,7 +75,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 #         # Set the url as queued, so the feeder know the url is in the progress
                 #         db.set_queued_url(database, url)
             else:
-                db.set_visited_invalid_url(database, url, response, "invalid_redirect")
+                db.set_visited_invalid_url(database, original_url, response, "invalid_redirect")
                 db.delete_pagerank_edge_to(database, urls.hash(original_url))
 
                 log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
