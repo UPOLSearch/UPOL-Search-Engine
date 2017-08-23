@@ -35,6 +35,8 @@ def _prepare_url_object(url, visited, queued, depth):
                   'depth': depth,
                   'visited': visited,
                   'queued': queued,
+                  'alias': False,
+                  'invalid': False,
                   'progress': {'discovered': str(datetime.now())}}
 
     return url_object
@@ -72,16 +74,16 @@ def insert_url(db, url, visited, queued, depth):
     return result
 
 
-def inser_file_url(db, url, response, depth):
-    """Insert file url into db"""
-    file_url_object = _prepare_file_url_object(url, response, depth)
-
-    try:
-        result = db['Files'].insert_one(file_url_object).inserted_id
-    except pymongo.errors.DuplicateKeyError as e:
-        return False
-
-    return result
+# def inser_file_url(db, url, response, depth):
+#     """Insert file url into db"""
+#     file_url_object = _prepare_file_url_object(url, response, depth)
+#
+#     try:
+#         result = db['Files'].insert_one(file_url_object).inserted_id
+#     except pymongo.errors.DuplicateKeyError as e:
+#         return False
+#
+#     return result
 
 
 def batch_insert_url(db, urls_with_depths, visited, queued):
@@ -105,12 +107,19 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     return result
 
 
-def iterate_inlinks(db, url):
-    """Iterate number of inlinks of one url"""
+# def iterate_inlinks(db, url):
+#     """Iterate number of inlinks of one url"""
+#
+#     return db['Urls'].find_one_and_update({'_id': urls.hash(url)},
+#                                           {'$inc': {'inlinks': 1}})
 
-    return db['Urls'].find_one_and_update({'_id': urls.hash(url)},
-                                          {'$inc': {'inlinks': 1}})
 
+# def insert_pagerank_outlink(db, from_url, to_url):
+#     """Insert outlink into database"""
+#
+#     result = db['PageRank'].insert_one({urls.hash(from_url), urls.hash(to_url)}})
+#
+#     return result
 
 def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     """Inser batch of outlinks into database"""
@@ -133,32 +142,41 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     return result
 
 
-def update_pagerank_url_hash(db, original_hash, new_hash):
-    """Update url hash in graph's edge if canonical group is changed"""
+# def update_pagerank_url_hash(db, original_hash, new_hash):
+#     """Update url hash in graph's edge if canonical group is changed"""
+#
+#     try:
+#         result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
+#         result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
+#     except pymongo.errors.DuplicateKeyError as e:
+#         pass
+#
+#
+#     return result1.raw_result, result2.raw_result
 
-    try:
-        result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
-        result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
-    except pymongo.errors.DuplicateKeyError as e:
-        pass
+
+def delete_pagerank_edge_to(db, to_hash):
+    """Delete edge from pagerank"""
+
+    result = db['PageRank'].delete_many({'to_hash': to_hash})
+
+    return result.deleted_count > 0
 
 
-    return result1.raw_result, result2.raw_result
-
-def insert_url_info(db, url, info_type, arg={}):
-    """Insert aditional info about url into database"""
-    collection = db[info_type]
-
-    log_object = {'_id': urls.hash(url),
-                  'url': url}
-
-    for key, depth in arg.items():
-        log_object[key] = str(depth)
-
-    try:
-        collection.insert_one(log_object).inserted_id
-    except pymongo.errors.DuplicateKeyError as e:
-        return False
+# def insert_url_info(db, url, info_type, arg={}):
+#     """Insert aditional info about url into database"""
+#     collection = db[info_type]
+#
+#     log_object = {'_id': urls.hash(url),
+#                   'url': url}
+#
+#     for key, depth in arg.items():
+#         log_object[key] = str(depth)
+#
+#     try:
+#         collection.insert_one(log_object).inserted_id
+#     except pymongo.errors.DuplicateKeyError as e:
+#         return False
 
 
 def delete_url(db, url):
@@ -183,24 +201,24 @@ def get_or_create_canonical_group(db, text_hash):
         return canonical_group[0].get('_id')
 
 
-def get_or_create_duplicity_group(db, content_hash):
-    """Try to get duplicity group with given hash.
-       Create new duplicity group in case of fail."""
-
-    # TODO - Possible chance of optimalization here
-    duplicity_group = list(db['DuplicityGroups'].find({'content_hash': content_hash}).limit(1))
-
-    # Create new one
-    if len(duplicity_group) == 0:
-        return db['DuplicityGroups'].insert({'content_hash': content_hash})
-    else:
-        return duplicity_group[0].get('_id')
+# def get_or_create_duplicity_group(db, content_hash):
+#     """Try to get duplicity group with given hash.
+#        Create new duplicity group in case of fail."""
+#
+#     # TODO - Possible chance of optimalization here
+#     duplicity_group = list(db['DuplicityGroups'].find({'content_hash': content_hash}).limit(1))
+#
+#     # Create new one
+#     if len(duplicity_group) == 0:
+#         return db['DuplicityGroups'].insert({'content_hash': content_hash})
+#     else:
+#         return duplicity_group[0].get('_id')
 
 
 def select_representative_for_canonical_group(db, canonical_group):
     """Return id of URL which is suitable as representative of canonical group"""
 
-    urls_representatives = db['Urls'].find({'canonical_group': ObjectId(canonical_group)})
+    urls_representatives = db['Urls'].find({'canonical_group': ObjectId(canonical_group), 'alias': False, 'invalid': False})
 
     representatives = []
 
@@ -218,10 +236,39 @@ def update_canonical_group_representative(db, canonical_group, representative):
                          {'$set': {'representative': representative}})
 
 
-def set_visited_url(db, url, response, soup, noindex):
-    """Try to set url to visited and update other important informations"""
+def set_alias_visited_url(db, url):
     url_hash = urls.hash(url)
 
+    url_addition = {}
+
+    url_addition['visited'] = True
+    url_addition['queued'] = False
+    url_addition['alias'] = True
+    url_addition['progress.last_visited'] = str(datetime.now())
+
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': url_addition})
+
+    return result is not None
+
+def set_visited_invalid_url(db, url, response, reason):
+    url_hash = urls.hash(url)
+
+    url_addition = {}
+
+    url_addition['visited'] = True
+    url_addition['queued'] = False
+    url_addition['invalid'] = True
+    url_addition['invalid_reason'] = reason
+    url_addition['progress.last_visited'] = str(datetime.now())
+
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': url_addition})
+
+    return result is not None
+
+
+def _determine_type_of_redirect(response):
     is_permanent_redirect = False
 
     for history in response.history:
@@ -236,15 +283,79 @@ def set_visited_url(db, url, response, soup, noindex):
             is_redirect = True
             break
 
+    return is_redirect, is_permanent_redirect
+
+
+def _set_canonical_group_to_alias(db, original_url, canonical_group):
+    """If there was redirect, set the canonical group to the orginal alias url"""
+
+    modification = {'canonical_group': canonical_group}
+    return db['Urls'].find_one_and_update({'_id': urls.hash(original_url)}, {'$set': modification})
+
+
+def _update_representatives_of_canonical_groups(db, canonical_group):
+    """If insertion was successful update representative of canonical group"""
+
+    representative = select_representative_for_canonical_group(db, canonical_group)
+    return update_canonical_group_representative(db, canonical_group, representative)
+
+
+def set_visited_file_url(db, url, response, original_url=None):
+    """Save file into database and set is as visited"""
+
+    url_hash = urls.hash(url)
+
+    is_redirect, is_permanent_redirect = _determine_type_of_redirect(response)
+
+    url_addition = {}
+
+    # Pairing url with canonical group id
+    content_hash = urls.hash_document(response.content)
+    url_addition['canonical_group'] = get_or_create_canonical_group(db, content_hash)
+
+    url_addition['visited'] = True
+    url_addition['queued'] = False
+    url_addition['indexed'] = False
+    url_addition['noindex'] = False
+
+    url_addition['progress.last_visited'] = str(datetime.now())
+
+    url_addition['content.binary'] = response.content
+    url_addition['content.hashes.content'] = content_hash
+
+    url_addition['response.elapsed'] = str(response.elapsed)
+    url_addition['response.is_redirect'] = is_redirect
+    url_addition['response.is_permanent_redirect'] = is_permanent_redirect
+    url_addition['response.status_code'] = response.status_code
+    url_addition['response.reason'] = response.reason
+
+    for key, value in response.headers.items():
+        url_addition['response.' + str(key)] = str(value)
+
+    result = db['Urls'].find_one_and_update({'_id': url_hash},
+                                            {'$set': url_addition})
+
+    # If there was redirect, set the canonical group to the orginal alias url
+    if original_url is not None:
+        _set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+
+    # If insertion was successful update representative of canonical group
+    if result is not None:
+        _update_representatives_of_canonical_groups(db, url_addition['canonical_group'])
+
+    return result is not None
+
+def set_visited_url(db, url, response, soup, noindex, original_url=None):
+    """Try to set url to visited and update other important informations"""
+    url_hash = urls.hash(url)
+
+    is_redirect, is_permanent_redirect = _determine_type_of_redirect(response)
+
     url_addition = {}
 
     # Pairing url with canonical group id
     text_hash = urls.hash_document(soup.text.encode())
     url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
-
-    # Pairing url with duplicates group id
-    document_hash = urls.hash_document(response.content)
-    # url_addition['duplicity_group'] = get_or_create_duplicity_group(db, document_hash)
 
     url_addition['visited'] = True
     url_addition['queued'] = False
@@ -254,7 +365,6 @@ def set_visited_url(db, url, response, soup, noindex):
     url_addition['progress.last_visited'] = str(datetime.now())
 
     url_addition['content.binary'] = response.content
-    url_addition['content.hashes.document'] = document_hash
     url_addition['content.hashes.text'] = text_hash
     url_addition['content.encoding'] = response.encoding
     # Later detect language
@@ -271,22 +381,36 @@ def set_visited_url(db, url, response, soup, noindex):
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
 
+    # If there was redirect, set the canonical group to the orginal alias url
+    if original_url is not None:
+        _set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+
     # If insertion was successful update representative of canonical group
     if result is not None:
-        representative = select_representative_for_canonical_group(db, url_addition['canonical_group'])
-        update_canonical_group_representative(db, url_addition['canonical_group'], representative)
+        _update_representatives_of_canonical_groups(db, url_addition['canonical_group'])
+
 
     return result is not None
 
 
-def set_queued_url(db, url):
-    """Try to set url to queued"""
-    url_hash = urls.hash(url)
+# def set_redirected_url(db, url):
+#     """Try to set url as redirected"""
+#     url_hash = urls.hash(url)
+#
+#     result = db['Urls'].find_one_and_update({'_id': url_hash},
+#                                             {'$set': {'redirected': True}})
+#
+#     return result is not None
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash},
-                                            {'$set': {'queued': True}})
 
-    return result is not None
+# def set_queued_url(db, url):
+#     """Try to set url to queued"""
+#     url_hash = urls.hash(url)
+#
+#     result = db['Urls'].find_one_and_update({'_id': url_hash},
+#                                             {'$set': {'queued': True}})
+#
+#     return result is not None
 
 
 def set_queued_batch(db, list_url_hash):
@@ -358,28 +482,28 @@ def exists_url(db, url):
     return result is not None
 
 
-def is_visited(db, url):
-    """Check if url is visited"""
-    result = db['Urls'].find_one({'visited': True})
-
-    if result is not None:
-        return True
-
-
-def is_queued(db, url):
-    """Check if url is queued"""
-    result = db['Urls'].find_one({'queued': True})
-
-    if result is not None:
-        return True
+# def is_visited(db, url):
+#     """Check if url is visited"""
+#     result = db['Urls'].find_one({'visited': True})
+#
+#     if result is not None:
+#         return True
 
 
-def is_visited_or_queued(db, url):
-    """Check if url is visited or queued"""
-    result = db['Urls'].find_one({'$or': [
-                                {'visited': True},
-                                {'queued': True}
-                              ]})
+# def is_queued(db, url):
+#     """Check if url is queued"""
+#     result = db['Urls'].find_one({'queued': True})
+#
+#     if result is not None:
+#         return True
 
-    if result is not None:
-        return True
+
+# def is_visited_or_queued(db, url):
+#     """Check if url is visited or queued"""
+#     result = db['Urls'].find_one({'$or': [
+#                                 {'visited': True},
+#                                 {'queued': True}
+#                               ]})
+#
+#     if result is not None:
+#         return True

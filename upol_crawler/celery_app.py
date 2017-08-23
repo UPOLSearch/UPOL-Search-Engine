@@ -13,11 +13,11 @@ class Config(object):
             exchange=Exchange('crawler'),
             routing_key='crawler'
         ),
-        Queue(
-            'collector',
-            exchange=Exchange('collector'),
-            routing_key='collector'
-        ),
+        # Queue(
+        #     'collector',
+        #     exchange=Exchange('collector'),
+        #     routing_key='collector'
+        # ),
     )
 
     enable_utc = False

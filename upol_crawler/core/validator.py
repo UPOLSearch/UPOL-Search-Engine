@@ -5,13 +5,14 @@ from upol_crawler import db
 from upol_crawler.settings import DOMAIN_REGEX
 from upol_crawler.tools import blacklist, logger, robots
 
+
 # TODO - load values from file
 # content_type_whitelist = ['text/html']
-file_extension_whitelist = ['.php',
-                            '.html',
-                            '.xhtml',
-                            '.htm']
-
+# file_extension_whitelist = ['.php',
+#                             '.html',
+#                             '.xhtml',
+#                             '.htm']
+#
 
 # def validate_content_type(content_type_header):
 #     """Validate if content-type is in content-type whitelist"""
@@ -22,25 +23,25 @@ file_extension_whitelist = ['.php',
 #     return False
 
 
-def validate_file_extension(url):
-    """Check if url include blacklisted file extension"""
-    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-
-    if scheme is '':
-        raise ValueError("Domain has no scheme - invalid URL")
-
-    path_split = path.split('/')
-    valid = True
-
-    if '.' in path_split[-1]:
-        if len(path_split[-1].split('.')[-1]) < 5:
-            valid = False
-            for file_extension in file_extension_whitelist:
-                if file_extension in path_split[-1]:
-                    valid = True
-                    break
-
-    return valid
+# def validate_file_extension(url):
+#     """Check if url include blacklisted file extension"""
+#     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+#
+#     if scheme is '':
+#         raise ValueError("Domain has no scheme - invalid URL")
+#
+#     path_split = path.split('/')
+#     valid = True
+#
+#     if '.' in path_split[-1]:
+#         if len(path_split[-1].split('.')[-1]) < 5:
+#             valid = False
+#             for file_extension in file_extension_whitelist:
+#                 if file_extension in path_split[-1]:
+#                     valid = True
+#                     break
+#
+#     return valid
 
 
 def validate_regex(url):

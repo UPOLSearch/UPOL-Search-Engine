@@ -52,105 +52,92 @@ def get_page(url):
 
 def _handle_response(database, url, original_url, redirected, response, depth):
     try:
+        # Redirect handling
+        if redirected:
+            log.info('Redirect: {0} (original: {1})'.format(original_url, url))
+
+            # Check if redirected url is valid
+            is_valid_redirect, reason = validator.validate(url)
+
+            if is_valid_redirect:
+                db.set_alias_visited_url(database, original_url)
+
+                if not db.exists_url(database, url):
+                    if not urls.is_same_domain(url, original_url):
+                        depth = int(CONFIG.get('Settings', 'max_depth'))
+
+                    db.insert_url(database, url, False, False, depth)
+                # else:
+                #     if db.is_queued(database, url):
+                #         log.info('Already queued: {0}'.format(url))
+                #         return
+                #     else:
+                #         # Set the url as queued, so the feeder know the url is in the progress
+                #         db.set_queued_url(database, url)
+            else:
+                db.set_visited_invalid_url(database, url, response, "invalid_redirect")
+                db.delete_pagerank_edge_to(database, urls.hash(original_url))
+
+                log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
+
+                return
+
+        # File handling
         content_type = response.headers.get('Content-Type')
 
         if content_type is None:
             content_type = ''
 
         if 'text/html' not in content_type:
-            # If original url was redirected delete original url from database
-            if redirected:
-                db.delete_url(database, original_url)
-
-            # Delete file url from url database, we have separate db for files
-            db.delete_url(database, url)
-
-            if ('application/pdf' in content_type or
-                'text/plain' in content_type or
-                'application/msword' in content_type or
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type):
-                db.inser_file_url(database, url, response, depth)
-            else:
-
+            # 'application/msword' in content_type or
+            # 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' in content_type
+            if (('application/pdf' not in content_type) and ('text/plain' not in content_type)):
+                # Not valid file
                 if content_type is not '':
                     content_type = content_type.split(';')[0]
                 else:
                     content_type = 'unknown'
 
-                tasks.collect_url_info_task.delay(url,
-                                                  'UrlIsIgnoredFile',
-                                                  {'content_type': content_type,
-                                                   'content_length': response.headers.get('Content-Length'),
-                                                   'depth': depth})
+                db.delete_pagerank_edge_to(database, urls.hash(url))
+                db.set_visited_invalid_url(database, url, response, "invalid_file")
 
-            log.info('Content-Type: {0}'.format(url))
-
-            return
-
-        if redirected:
-            log.info('Redirected: old {0} new {1}'.format(original_url, url))
-            # Check if redirected url is valid
-            valid, reason = validator.validate(url)
-
-            # Delete original url from db, we want to keep only working urls
-            db.delete_url(database, original_url)
-
-            # Update pagerank edges because of redirect
-            db.update_pagerank_url_hash(database, urls.hash(original_url), urls.hash(url))
-
-            if not valid:
-                tasks.collect_url_info_task.delay(url,
-                                                  'UrlNotValidRedirect',
-                                                  {'reason': reason,
-                                                   'original_url': original_url})
-
-                log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
-
+                log.info('Not valid file: {0}'.format(url))
                 return
-
-            if not db.exists_url(database, url):
-                if urls.is_same_domain(url, original_url):
-                    db.insert_url(database, url, True, False, depth - 1)
-                else:
-                    db.insert_url(database,
-                                  url,
-                                  True,
-                                  False,
-                                  int(CONFIG.get('Settings', 'max_depth')))
             else:
-                if db.is_queued(database, url):
-                    tasks.collect_url_info_task.delay(url, 'UrlIsAlreadyInQueue')
-
-                return
-
-            # Begin parse part, should avoid 404
-
-        soup = BeautifulSoup(response.content, 'lxml')
-        noindex = link_extractor.has_noindex(soup)
-        validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
-
-        urls_for_insert = []
-
-        for page_url in validated_urls_on_page:
-            insert_url = {'url': page_url}
-
-            if urls.is_same_domain(url, page_url):
-                if depth - 1 != 0:
-                    insert_url['depth'] = depth - 1
+                # Handle file
+                if redirected:
+                    db.set_visited_file_url(database, url, response, original_url)
                 else:
-                    continue
-            else:
-                insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
+                    db.set_visited_file_url(database, url, response)
+                log.info('Done (file) [{0}]: {1}'.format(response.reason, url))
+        else:
+            # Handle normal page
+            soup = BeautifulSoup(response.content, 'lxml')
+            no_index = link_extractor.has_noindex(soup)
+            validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
 
-            urls_for_insert.append(insert_url)
+            urls_for_insert = []
 
-        if len(urls_for_insert) > 0:
-            # Maybe use for-else
-            db.batch_insert_url(database, urls_for_insert, False, False)
-            db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
+            for page_url in validated_urls_on_page:
+                insert_url = {'url': page_url}
 
-        db.set_visited_url(database, url, response, soup, noindex)
-        log.info('Done [{0}]: {1}'.format(response.reason, url))
+                if urls.is_same_domain(url, page_url):
+                    if depth - 1 != 0:
+                        insert_url['depth'] = depth - 1
+                    else:
+                        continue
+                else:
+                    insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
+
+                urls_for_insert.append(insert_url)
+
+            if len(urls_for_insert) > 0:
+                db.batch_insert_url(database, urls_for_insert, False, False)
+                db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
+
+            db.set_visited_url(database, url, response, soup, no_index, original_url)
+            log.info('Done [{0}]: {1}'.format(response.reason, url))
+
     except Exception as e:
         db.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))

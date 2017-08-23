@@ -121,7 +121,7 @@ def check_meta_robots(soup):
             return True
     else:
         return True
-        
+
 
 def has_noindex(soup):
     """Check meta tag robots"""
@@ -202,6 +202,6 @@ def validated_page_urls(soup, url):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlRobotsBlocked':
-                tasks.collect_url_info_task.delay(link_url, reason)
+                log.exception('Robots blocked: {0} (on url: {1})'.format(url, link_url))
 
     return valid_urls
