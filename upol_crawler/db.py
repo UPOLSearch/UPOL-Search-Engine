@@ -8,6 +8,7 @@ import urllib.parse
 from datetime import datetime
 from random import shuffle
 
+import gridfs
 import pymongo
 from bson.objectid import ObjectId
 from upol_crawler.settings import *
@@ -37,6 +38,7 @@ def _prepare_url_object(url, visited, queued, depth):
                   'queued': queued,
                   'alias': False,
                   'invalid': False,
+                  'file': False,
                   'progress': {'discovered': str(datetime.now())}}
 
     return url_object
@@ -320,10 +322,16 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['queued'] = False
     url_addition['indexed'] = False
     url_addition['noindex'] = False
+    url_addition['file'] = True
 
     url_addition['progress.last_visited'] = str(datetime.now())
 
-    url_addition['content.binary'] = response.content
+    # GridFS connection
+    fs = gridfs.GridFS(db)
+    file_id = fs.put(response.content)
+
+    url_addition['content.binary'] = file_id
+
     url_addition['content.hashes.content'] = content_hash
 
     url_addition['response.elapsed'] = str(response.elapsed)
