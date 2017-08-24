@@ -299,12 +299,9 @@ def _set_canonical_group_to_alias(db, original_url, canonical_group):
 
 def _update_representatives_of_canonical_groups(db, canonical_group):
     """If insertion was successful update representative of canonical group"""
-
-    try:
-        representative = select_representative_for_canonical_group(db, canonical_group)
-        return update_canonical_group_representative(db, canonical_group, representative)
-    except:
-        pass
+    
+    representative = select_representative_for_canonical_group(db, canonical_group)
+    return update_canonical_group_representative(db, canonical_group, representative)
 
 
 def set_visited_file_url(db, url, response, original_url=None):

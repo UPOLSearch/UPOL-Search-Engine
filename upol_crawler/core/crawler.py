@@ -67,13 +67,9 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                         depth = int(CONFIG.get('Settings', 'max_depth'))
 
                     db.insert_url(database, url, False, False, depth)
-                # else:
-                #     if db.is_queued(database, url):
-                #         log.info('Already queued: {0}'.format(url))
-                #         return
-                #     else:
-                #         # Set the url as queued, so the feeder know the url is in the progress
-                #         db.set_queued_url(database, url)
+                else:
+                    if db.is_queued(database, url):
+                        log.info('Already queued: {0}'.format(url))
             else:
                 db.set_visited_invalid_url(database, original_url, response, "invalid_redirect")
                 db.delete_pagerank_edge_to(database, urls.hash(original_url))
@@ -139,6 +135,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 db.set_visited_url(database, url, response, soup, no_index, original_url)
             else:
                 db.set_visited_url(database, url, response, soup, no_index)
+
             log.info('Done [{0}]: {1}'.format(response.reason, url))
 
     except Exception as e:
