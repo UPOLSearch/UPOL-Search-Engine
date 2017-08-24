@@ -218,6 +218,11 @@ def get_or_create_canonical_group(db, text_hash):
 #     else:
 #         return duplicity_group[0].get('_id')
 
+def get_url(db, url):
+    document = db['Urls'].find_one({'_id': urls.hash(url)})
+
+    return document
+
 
 def select_representative_for_canonical_group(db, canonical_group):
     """Return id of URL which is suitable as representative of canonical group"""
@@ -290,7 +295,7 @@ def _determine_type_of_redirect(response):
     return is_redirect, is_permanent_redirect
 
 
-def _set_canonical_group_to_alias(db, original_url, canonical_group):
+def set_canonical_group_to_alias(db, original_url, canonical_group):
     """If there was redirect, set the canonical group to the orginal alias url"""
 
     modification = {'canonical_group': canonical_group}
@@ -347,7 +352,7 @@ def set_visited_file_url(db, url, response, original_url=None):
 
     # If there was redirect, set the canonical group to the orginal alias url
     if original_url is not None:
-        _set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+        set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
 
     # If insertion was successful update representative of canonical group
     if result is not None:
@@ -393,7 +398,7 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
 
     # If there was redirect, set the canonical group to the orginal alias url
     if original_url is not None:
-        _set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+        set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
 
     # If insertion was successful update representative of canonical group
     if result is not None:

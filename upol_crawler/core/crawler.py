@@ -62,14 +62,21 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             if is_valid_redirect:
                 db.set_alias_visited_url(database, original_url)
 
-                if not db.exists_url(database, url):
+                url_document = db.get_url(database, url)
+
+                if url_document is not None:
+                    if url_document.get('queued'):
+                        log.info('Already queued: {0}'.format(url))
+                    elif url_document.get('visited') and not url_document.get('alias'):
+                        canonical_group = url_document.get('canonical_group')
+                        db.set_canonical_group_to_alias(db, original_url, canonical_group)
+                        return
+                else:
                     if not urls.is_same_domain(url, original_url):
                         depth = int(CONFIG.get('Settings', 'max_depth'))
 
                     db.insert_url(database, url, False, False, depth)
-                else:
-                    if db.is_queued(database, url):
-                        log.info('Already queued: {0}'.format(url))
+
             else:
                 db.set_visited_invalid_url(database, original_url, response, "invalid_redirect")
                 db.delete_pagerank_edge_to(database, urls.hash(original_url))
