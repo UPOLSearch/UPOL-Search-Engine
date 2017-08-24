@@ -135,7 +135,10 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
                 db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
-            db.set_visited_url(database, url, response, soup, no_index, original_url)
+            if (redirected and original_url != url):
+                db.set_visited_url(database, url, response, soup, no_index, original_url)
+            else:
+                db.set_visited_url(database, url, response, soup, no_index)
             log.info('Done [{0}]: {1}'.format(response.reason, url))
 
     except Exception as e:
