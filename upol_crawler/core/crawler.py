@@ -69,7 +69,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                         log.info('Already queued: {0}'.format(url))
                     elif url_document.get('visited') and not url_document.get('alias'):
                         canonical_group = url_document.get('canonical_group')
-                        db.set_canonical_group_to_alias(db, original_url, canonical_group)
+                        db.set_canonical_group_to_alias(database, original_url, canonical_group)
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
