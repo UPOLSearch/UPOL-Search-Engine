@@ -1,7 +1,7 @@
 import hashlib
+import os.path
 import re
 import urllib.parse
-import os.path
 
 import w3lib.url
 

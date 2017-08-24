@@ -369,6 +369,10 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     url_addition = {}
 
     # Pairing url with canonical group id
+    # Remove script tags from soup
+    for script in soup('script'):
+        script.extract()
+
     text_hash = urls.hash_document(soup.text.encode())
     url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
 
