@@ -52,6 +52,14 @@ def get_page(url):
 
 def _handle_response(database, url, original_url, redirected, response, depth):
     try:
+        url_document = db.get_url(database, url)
+
+        # Check if url is already visited
+        if url_document is not None:
+            if url_document.get('visited'):
+                log.info('Already visited: {0}'.format(url))
+                return
+
         # Redirect handling
         if (redirected and original_url != url):
             log.info('Redirect: {0} (original: {1})'.format(original_url, url))
