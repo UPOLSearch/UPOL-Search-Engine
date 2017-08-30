@@ -54,12 +54,6 @@ def _handle_response(database, url, original_url, redirected, response, depth):
     try:
         url_document = db.get_url(database, url)
 
-        # Check if url is already visited
-        if url_document is not None:
-            if url_document.get('visited'):
-                log.info('Already visited: {0}'.format(url))
-                return
-
         # Redirect handling
         if (redirected and original_url != url):
             log.info('Redirect: {0} (original: {1})'.format(original_url, url))
@@ -73,9 +67,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 url_document = db.get_url(database, url)
 
                 if url_document is not None:
-                    if url_document.get('queued'):
-                        log.info('Already queued: {0}'.format(url))
-                    elif url_document.get('visited') and not url_document.get('alias'):
+                    if url_document.get('visited') and not url_document.get('alias'):
                         canonical_group = url_document.get('canonical_group')
                         db.set_canonical_group_to_alias(database, original_url, canonical_group)
                         return
@@ -92,6 +84,12 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 log.info('Not Valid Redirect: {0} (original: {1})'.format(url, original_url))
 
                 return
+        else:
+            # Check if url is already visited
+            if url_document is not None:
+                if url_document.get('visited'):
+                    log.info('Already visited: {0}'.format(url))
+                    return
 
         # File handling
         content_type = response.headers.get('Content-Type')
