@@ -260,7 +260,7 @@ def set_alias_visited_url(db, url):
 
     return result is not None
 
-def set_visited_invalid_url(db, url, response, reason):
+def set_visited_invalid_url(db, url, response, reason, is_file=False):
     url_hash = urls.hash(url)
 
     url_addition = {}
@@ -268,6 +268,7 @@ def set_visited_invalid_url(db, url, response, reason):
     url_addition['visited'] = True
     url_addition['queued'] = False
     url_addition['invalid'] = True
+    url_addition['file'] = is_file
     url_addition['invalid_reason'] = reason
     url_addition['progress.last_visited'] = str(datetime.now())
 

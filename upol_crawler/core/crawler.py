@@ -106,9 +106,9 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                     content_type = content_type.split(';')[0]
                 else:
                     content_type = 'unknown'
-
+                    
                 db.delete_pagerank_edge_to(database, urls.hash(url))
-                db.set_visited_invalid_url(database, url, response, "invalid_file")
+                db.set_visited_invalid_url(database, url, response, "invalid_file", is_file)
 
                 log.info('Not valid file: {0}'.format(url))
                 return
