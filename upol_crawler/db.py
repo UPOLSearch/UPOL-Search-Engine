@@ -11,6 +11,7 @@ from random import shuffle
 import gridfs
 import pymongo
 from bson.objectid import ObjectId
+
 from langdetect import detect
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
@@ -378,9 +379,9 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     text = soup.getText(separator='\n')
 
     try:
-        language = detect(text)
+        url_addition['language'] = detect(text)
     except Exception as e:
-        language = None
+        url_addition['language'] = None
 
     text_hash = urls.hash_document(soup.text.encode())
     url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
