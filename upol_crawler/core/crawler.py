@@ -1,8 +1,9 @@
 import re
 
 import pymongo
-import requests
 from bs4 import BeautifulSoup
+
+import requests
 from upol_crawler import db, tasks
 from upol_crawler.core import limiter, link_extractor, validator
 from upol_crawler.settings import *
@@ -106,9 +107,9 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                     content_type = content_type.split(';')[0]
                 else:
                     content_type = 'unknown'
-                    
+
                 db.delete_pagerank_edge_to(database, urls.hash(url))
-                db.set_visited_invalid_url(database, url, response, "invalid_file", is_file)
+                db.set_visited_invalid_url(database, url, response, "invalid_file", True)
 
                 log.info('Not valid file: {0}'.format(url))
                 return
