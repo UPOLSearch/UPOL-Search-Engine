@@ -11,7 +11,6 @@ from random import shuffle
 import gridfs
 import pymongo
 from bson.objectid import ObjectId
-
 from langdetect import detect
 from upol_crawler.settings import *
 from upol_crawler.utils import urls
@@ -312,6 +311,13 @@ def _update_representatives_of_canonical_groups(db, canonical_group):
     return update_canonical_group_representative(db, canonical_group, representative)
 
 
+def _format_response_header(response, url_addition):
+    for key, value in response.headers.items():
+        url_addition['response.' + str(key).replace('$', '')] = str(value)
+
+    return url_addition
+
+
 def set_visited_file_url(db, url, response, original_url=None):
     """Save file into database and set is as visited"""
 
@@ -347,8 +353,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['response.status_code'] = response.status_code
     url_addition['response.reason'] = response.reason
 
-    for key, value in response.headers.items():
-        url_addition['response.' + str(key)] = str(value)
+    url_addition = _format_response_header(response, url_addition)
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
@@ -404,8 +409,7 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     url_addition['response.status_code'] = response.status_code
     url_addition['response.reason'] = response.reason
 
-    for key, value in response.headers.items():
-        url_addition['response.' + str(key)] = str(value)
+    url_addition = _format_response_header(response, url_addition)
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
