@@ -1,9 +1,8 @@
 import re
 
 import pymongo
-from bs4 import BeautifulSoup
-
 import requests
+from bs4 import BeautifulSoup
 from upol_crawler import db, tasks
 from upol_crawler.core import limiter, link_extractor, validator
 from upol_crawler.settings import *
@@ -56,7 +55,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         url_document = db.get_url(database, url)
 
         # Redirect handling
-        if (redirected and original_url != url):
+        if original_url != url:
             log.info('Redirect: {0} (original: {1})'.format(original_url, url))
 
             # Check if redirected url is valid
@@ -115,7 +114,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 return
             else:
                 # Handle file
-                if (redirected and original_url != url):
+                if original_url != url:
                     db.set_visited_file_url(database, url, response, original_url)
                 else:
                     db.set_visited_file_url(database, url, response)
@@ -145,7 +144,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                 db.batch_insert_url(database, urls_for_insert, False, False)
                 db.batch_insert_pagerank_outlinks(database, url, urls_for_insert)
 
-            if (redirected and original_url != url):
+            if original_url != url:
                 db.set_visited_url(database, url, response, soup, no_index, original_url)
             else:
                 db.set_visited_url(database, url, response, soup, no_index)
