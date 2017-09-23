@@ -3,9 +3,8 @@ import re
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-from upol_crawler import db, tasks
+from upol_crawler import db, settings, tasks
 from upol_crawler.core import limiter, link_extractor, validator
-from upol_crawler.settings import *
 from upol_crawler.tools import logger, robots
 from upol_crawler.utils import urls
 
@@ -14,13 +13,13 @@ log = logger.universal_logger('crawler')
 
 def get_response(url):
     """Request url and check if content-type is valid"""
-    headers = {'user-agent': CONFIG.get('Info', 'user_agent')}
+    headers = {'user-agent': settings.CONFIG.get('Info', 'user_agent')}
     response = requests.get(url,
                             headers=headers,
-                            verify=CONFIG.getboolean('Settings', 'verify_ssl'),
+                            verify=settings.VERIFY_SSL,
                             timeout=(
-                                float(CONFIG.get('Settings', 'connect_max_timeout')),
-                                float(CONFIG.get('Settings', 'read_max_timeout'))))
+                                settings.CONNECT_MAX_TIMEOUT,
+                                settings.READ_MAX_TIMEOUT))
 
     # content_type = response.headers.get('Content-Type')
     #
@@ -73,7 +72,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
-                        depth = int(CONFIG.get('Settings', 'max_depth'))
+                        depth = settings.MAX_DEPTH
 
                     db.insert_url(database, url, False, False, depth)
 
@@ -136,7 +135,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                     else:
                         continue
                 else:
-                    insert_url['depth'] = int(CONFIG.get('Settings', 'max_depth'))
+                    insert_url['depth'] = settings.MAX_DEPTH
 
                 urls_for_insert.append(insert_url)
 
@@ -159,10 +158,10 @@ def _handle_response(database, url, original_url, redirected, response, depth):
 
 def crawl_url(url, depth):
     client = pymongo.MongoClient(
-      CONFIG.get('Database', 'db_server'),
-      int(CONFIG.get('Database', 'db_port')),
+      settings.DB_SERVER,
+      settings.DB_PORT,
       maxPoolSize=None)
-    database = client[DATABASE_NAME]
+    database = client[settings.DB_NAME]
 
     if not limiter.is_crawl_allowed(url):
         db.set_url_for_recrawl(database, url)

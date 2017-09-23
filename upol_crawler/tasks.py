@@ -5,20 +5,19 @@ import time
 from datetime import datetime
 
 import pymongo
-from upol_crawler import db
+from upol_crawler import db, settings
 from upol_crawler.celery_app import app
-from upol_crawler.settings import *
 from upol_crawler.tools import logger
 
 # log_collector = logger.universal_logger('collector')
 log_crawler = logger.universal_logger('crawl_url')
 
-@app.task(rate_limit=CONFIG.get('Settings', 'crawl_frequency'), queue='crawler', ignore_result=True, task_compression='zlib')
+@app.task(rate_limit=settings.TASK_FREQUENCY, queue='crawler', ignore_result=True, task_compression='zlib')
 def crawl_url_task(url, depth):
     try:
         from upol_crawler.core import crawler
 
-        if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
+        if settings.CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
             os.makedirs(CPROFILE_DIR, exist_ok=True)
 
             actual_time = str(datetime.now()).encode('utf-8')
@@ -41,10 +40,10 @@ def crawl_url_task(url, depth):
 # def collect_url_info_task(url, info_type, args={}):
 #     try:
 #         client = pymongo.MongoClient(
-#           CONFIG.get('Database', 'db_server'),
-#           int(CONFIG.get('Database', 'db_port')),
+#           settings.DB_SERVER,
+#           settings.DB_PORT,
 #           maxPoolSize=None)
-#         database = client[DATABASE_NAME]
+#         database = client[settings.DB_NAME]
 #
 #         db.insert_url_info(database, url, info_type, args)
 #

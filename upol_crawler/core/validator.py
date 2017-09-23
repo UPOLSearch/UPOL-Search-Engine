@@ -1,8 +1,7 @@
 import urllib.parse
 
 import pymongo
-from upol_crawler import db
-from upol_crawler.settings import DOMAIN_REGEX
+from upol_crawler import db, settings
 from upol_crawler.tools import blacklist, logger, robots
 
 
@@ -46,7 +45,7 @@ from upol_crawler.tools import blacklist, logger, robots
 
 def validate_regex(url):
     """Check if url is validate with regex"""
-    return DOMAIN_REGEX.match(url)
+    return settings.DOMAIN_REGEX.match(url)
 
 
 def validate_anchor(url):

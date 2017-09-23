@@ -1,14 +1,14 @@
 import logging
 import os
 
-from upol_crawler.settings import *
+from upol_crawler import settings
 
 
 def universal_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    logs_path = os.path.join(ROOT_DIR, 'logs/')
+    logs_path = os.path.join(settings.ROOT_DIR, 'logs/')
     os.makedirs(logs_path, exist_ok=True)
 
     handler = logging.FileHandler(os.path.join(logs_path, name + '.log'), 'a')

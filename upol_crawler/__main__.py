@@ -4,11 +4,11 @@ from datetime import datetime
 from time import sleep
 
 import pymongo
-from upol_crawler import db, tasks
+from upol_crawler import db, settings, tasks
 from upol_crawler.celery_app import app
 from upol_crawler.core import crawler, validator
-from upol_crawler.settings import *
 from upol_crawler.tools import logger
+from upol_crawler.utils import urls
 
 log = logger.universal_logger('feeder')
 
@@ -46,11 +46,27 @@ def insert_crawler_end(db):
     return result is not None
 
 
-def load_seed(seed_path, database):
+def get_crawler_stats(db):
+    stats = {}
+
+    stats['urls_count'] = db['Urls'].count()
+    stats['files_count'] = db['Urls'].find({'file': True}).count()
+    stats['ignored_files_count'] = db['Urls'].find({'invalid_reason': 'invalid_file', 'invalid': True}).count()
+    stats['timeout_count'] = db['Urls'].find({'timeout.timeout': True}).count()
+    stats['robots_blocked_count'] = db['UrlRobotsBlocked'].count()
+    stats['urls_visited'] = db['Urls'].find({'visited': True}).count()
+    stats['urls_queued'] = db['Urls'].find({'$and': [{'visited': False}, {'queued': True}]}).count()
+    stats['urls_not_queued'] = db['Urls'].find({'$and': [{'visited': False}, {'queued': False}, {'timeout': {'$exists': False}}]}).count()
+
+    return stats
+
+def load_seed(seed, database):
     """Load urls seed from file"""
 
-    # Load url from file
-    seed_urls = urls.load_urls_from_file(seed_path)
+    if '.txt' in seed:
+        seed_urls = load_seed_from_file(seed)
+    else:
+        seed_urls = load_seed_from_text(seed)
 
     number_of_url = 0
 
@@ -62,41 +78,94 @@ def load_seed(seed_path, database):
                                           url,
                                           False,
                                           False,
-                                          int(CONFIG.get('Settings', 'max_depth')))
+                                          settings.MAX_DEPTH)
 
             if insert_result:
                 number_of_url = number_of_url + 1
 
-    return number_of_url
+    if number_of_url == 0:
+        print("WARNING: Nothing was added from seed.txt")
+    else:
+        insert_crawler_start(database)
+
+
+def load_seed_from_text(seed):
+    """Load urls seed from text"""
+
+    seed_urls = urls.load_urls_from_text(seed)
+
+    return seed_urls
+
+
+def load_seed_from_file(seed_path):
+    """Load urls seed from file"""
+
+    # Load url from file
+    seed_urls = urls.load_urls_from_file(seed_path)
+
+    return seed_urls
+
+def start_crawler():
+    client = pymongo.MongoClient(
+      settings.DB_SERVER,
+      settings.DB_PORT,
+      maxPoolSize=None)
+    database = client[settings.DB_NAME]
+
+    # Init database
+    db.init(database)
+
+    return client, database
+
+
+def feed_crawler(database):
+    batch = db.get_batch_url_for_crawl(database, settings.DB_BATCH_SIZE)
+
+    if batch is not None:
+        number_of_added_links = len(batch)
+    else:
+        number_of_added_links = 0
+
+    if batch is not None:
+        hashes = []
+
+        for url in batch:
+            hashes.append(url.get('_id'))
+
+        db.set_queued_batch(database, hashes)
+
+        for url in batch:
+            tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
+
+    return number_of_added_links
+
+
+def sleep_crawler(database, number_of_waiting):
+    sleep(settings.DELAY_BETWEEN_FEEDING)
+
+    if not should_crawler_wait(database):
+        number_of_waiting = number_of_waiting + 1
+    else:
+        number_of_waiting = 0
+
+    return number_of_waiting
 
 
 def main(args=None):
     try:
         print("******************************")
-        print("UPOL-Crawler v{0}".format(CONFIG.get('Info', 'version')))
+        print("UPOL-Crawler v{0}".format(settings.CONFIG.get('Info', 'version')))
         print("******************************")
         print("LOADING..")
 
         start_load_time = datetime.now()
 
         # Start procedure
-        client = pymongo.MongoClient(
-          CONFIG.get('Database', 'db_server'),
-          int(CONFIG.get('Database', 'db_port')),
-          maxPoolSize=None)
-        database = client[DATABASE_NAME]
-
-        # Init database
-        db.init(database)
-
-        if load_seed(SEED_FILE, database) == 0:
-            print("WARNING: Nothing was added from seed.txt")
-        else:
-            insert_crawler_start(database)
+        client, database = start_crawler()
 
         end_load_time = datetime.now()
 
-        if CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
+        if settings.CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
             os.makedirs(CPROFILE_DIR, exist_ok=True)
             print("Deleting cprofile folder...")
             # Cleaning cprofile folder
@@ -114,25 +183,7 @@ def main(args=None):
 
         while True:
             if sleeping is False:
-                batch = db.get_batch_url_for_crawl(database,
-                                                   int(CONFIG.get('Database',
-                                                                  'db_batch_size')))
-
-                if batch is not None:
-                    number_of_added_links = len(batch)
-                else:
-                    number_of_added_links = 0
-
-                if batch is not None:
-                    hashes = []
-
-                    for url in batch:
-                        hashes.append(url.get('_id'))
-
-                    db.set_queued_batch(database, hashes)
-
-                    for url in batch:
-                        tasks.crawl_url_task.delay(url.get('url'), url.get('depth'))
+                number_of_added_links = feed_crawler(database)
 
                 sleeping = True
             else:
@@ -144,12 +195,7 @@ def main(args=None):
 
                 number_of_added_links = 0
 
-                sleep(int(CONFIG.get('Settings', 'delay_between_feeding')))
-
-                if not should_crawler_wait(database):
-                    number_of_waiting = number_of_waiting + 1
-                else:
-                    number_of_waiting = 0
+                number_of_waiting = sleep_crawler(database, number_of_waiting)
 
                 if number_of_waiting >= 2:
                     break

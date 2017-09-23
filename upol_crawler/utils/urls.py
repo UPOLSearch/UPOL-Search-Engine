@@ -95,3 +95,19 @@ def load_urls_from_file(filepath):
                 urls.add(url)
 
     return urls
+
+
+def load_urls_from_text(text):
+    """Load urls from text, one per line, ignore lines with #, ignores duplicity"""
+    urls = set()
+
+    lines = text.split('\n')
+
+    for line in lines:
+        # Ignore all white characters
+        url = line.rstrip()
+        # Take url only if is not commented
+        if not line.startswith("#"):
+            urls.add(url)
+
+    return urls

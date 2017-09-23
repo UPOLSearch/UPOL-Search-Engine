@@ -12,8 +12,16 @@ import gridfs
 import pymongo
 from bson.objectid import ObjectId
 from langdetect import detect
-from upol_crawler.settings import *
+from upol_crawler import settings
 from upol_crawler.utils import urls
+
+
+def drop_database():
+    client = pymongo.MongoClient(
+      settings.DB_SERVER,
+      settings.DB_PORT,
+      maxPoolSize=None)
+    client.drop_database(settings.DB_NAME)
 
 
 def init(db):

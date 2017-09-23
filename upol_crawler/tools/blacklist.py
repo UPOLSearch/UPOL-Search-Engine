@@ -1,10 +1,9 @@
 import urllib.parse
 
+from upol_crawler import settings
 from upol_crawler.utils import urls
-from upol_crawler.settings import *
 
-
-blacklist = urls.load_urls_from_file(BLACKLIST_FILE)
+blacklist = urls.load_urls_from_file(settings.BLACKLIST_FILE)
 
 
 # def load_blacklist(blacklist_path):

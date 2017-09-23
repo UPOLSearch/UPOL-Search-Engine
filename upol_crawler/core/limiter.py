@@ -3,7 +3,7 @@ import threading
 from datetime import datetime
 
 import pymongo
-from upol_crawler.settings import *
+from upol_crawler import settings
 from upol_crawler.tools import logger
 from upol_crawler.utils import urls
 
@@ -51,16 +51,16 @@ def get_ip(url):
 def is_crawl_allowed(url):
     """Check if crawler is allowed to crawl given URL"""
     client = pymongo.MongoClient(
-      CONFIG.get('Database', 'db_server'),
-      int(CONFIG.get('Database', 'db_port')),
+      settings.DB_SERVER,
+      settings.DB_PORT,
       maxPoolSize=None)
-    database = client[DATABASE_NAME]
+    database = client[settings.DB_NAME]
 
     ip = get_ip(url)
 
     result = True
     record = get_limits_for_ip(database, ip)
-    
+
     if record is not None:
         try:
             last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
@@ -79,7 +79,7 @@ def is_crawl_allowed(url):
                              urls.domain(url),
                              ip,
                              datetime.now(),
-                             float(CONFIG.get('Settings', 'crawl_frequency_per_server')))
+                             settings.FREQUENCY_PER_SERVER)
 
     if not result:
         log.info('Limited: {0}'.format(url))
