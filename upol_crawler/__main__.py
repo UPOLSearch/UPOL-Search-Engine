@@ -63,10 +63,11 @@ def get_crawler_stats(db):
 def load_seed(seed, database):
     """Load urls seed from file"""
 
-    if '.txt' in seed:
-        seed_urls = load_seed_from_file(seed)
-    else:
-        seed_urls = load_seed_from_text(seed)
+    if seed is not None:
+        if '.txt' in seed:
+            seed_urls = load_seed_from_file(seed)
+        else:
+            seed_urls = load_seed_from_text(seed)
 
     number_of_url = 0
 
@@ -91,9 +92,6 @@ def load_seed(seed, database):
 
 def load_seed_from_text(seed):
     """Load urls seed from text"""
-
-    if seed is None:
-        return []
 
     seed_urls = urls.load_urls_from_text(seed)
 
