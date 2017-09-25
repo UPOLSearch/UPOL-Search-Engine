@@ -1,1 +1,1 @@
-include config-default.ini
+include upol_crawler/config-default.ini
