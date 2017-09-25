@@ -92,6 +92,9 @@ def load_seed(seed, database):
 def load_seed_from_text(seed):
     """Load urls seed from text"""
 
+    if seed is None:
+        return []
+
     seed_urls = urls.load_urls_from_text(seed)
 
     return seed_urls
