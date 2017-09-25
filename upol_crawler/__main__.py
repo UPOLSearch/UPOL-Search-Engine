@@ -62,6 +62,7 @@ def get_crawler_stats(db):
 
 def load_seed(seed, database):
     """Load urls seed from file"""
+    number_of_url = 0
 
     if seed is not None:
         if '.txt' in seed:
@@ -69,20 +70,20 @@ def load_seed(seed, database):
         else:
             seed_urls = load_seed_from_text(seed)
 
-    number_of_url = 0
 
-    # Insert loaded urls into database
-    for url in seed_urls:
-        url = urls.clean(url)
-        if validator.validate(url):
-            insert_result = db.insert_url(database,
-                                          url,
-                                          False,
-                                          False,
-                                          settings.MAX_DEPTH)
 
-            if insert_result:
-                number_of_url = number_of_url + 1
+        # Insert loaded urls into database
+        for url in seed_urls:
+            url = urls.clean(url)
+            if validator.validate(url):
+                insert_result = db.insert_url(database,
+                                              url,
+                                              False,
+                                              False,
+                                              settings.MAX_DEPTH)
+
+                if insert_result:
+                    number_of_url = number_of_url + 1
 
     if number_of_url == 0:
         print("WARNING: Nothing was added from seed.txt")
