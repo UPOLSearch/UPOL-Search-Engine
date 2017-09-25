@@ -4,13 +4,12 @@ import os
 from upol_crawler.utils import urls
 
 CRAWLER_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT_DIR = os.path.dirname(CRAWLER_DIR)
+ROOT_DIR = CRAWLER_DIR
 CONFIG_DIR = ROOT_DIR
 
 CONFIG = configparser.ConfigParser()
 config_path = os.path.join(CONFIG_DIR, 'config.ini')
 default_config_path = os.path.join(CONFIG_DIR, 'config-default.ini')
-
 
 if os.path.isfile(config_path):
     CONFIG.read(config_path)
