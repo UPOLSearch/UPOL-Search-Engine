@@ -11,6 +11,9 @@ setup(name='UPOL-Crawler',
       license='MIT',
       url='https://github.com/UPOLSearch/UPOL-Crawler',
       packages=find_packages(),
+      package_data={
+          'upol_crawler': ['config-default.ini'],
+      },
       install_requires=[
           'beautifulsoup4',
           'celery',
