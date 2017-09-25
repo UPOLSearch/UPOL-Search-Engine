@@ -9,7 +9,12 @@ CONFIG_DIR = ROOT_DIR
 
 CONFIG = configparser.ConfigParser()
 config_path = os.path.join(CONFIG_DIR, 'config.ini')
-CONFIG.read(config_path)
+default_config_path = os.path.join(CONFIG_DIR, 'config-default.ini')
+
+if os.path.isfile(config_path):
+    CONFIG.read(config_path)
+else:
+    CONFIG.read(default_config_path)
 
 BLACKLIST_FILE = os.path.join(CONFIG_DIR, 'blacklist.txt')
 
