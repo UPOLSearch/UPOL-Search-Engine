@@ -8,7 +8,7 @@ def universal_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
-    logs_path = os.path.join(settings.ROOT_DIR, 'logs/')
+    logs_path = settings.LOG_DIR
     os.makedirs(logs_path, exist_ok=True)
 
     handler = logging.FileHandler(os.path.join(logs_path, name + '.log'), 'a')
