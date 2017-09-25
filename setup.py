@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+# from distutils.core import setup
+from setuptools import find_packages, setup
 
 setup(name='UPOL-Crawler',
       version='0.4-dev',
@@ -9,7 +10,7 @@ setup(name='UPOL-Crawler',
       author_email='mail@tomasmikula.cz',
       license='MIT',
       url='https://github.com/UPOLSearch/UPOL-Crawler',
-      packages=['upol_crawler'],
+      packages=find_packages(),
       install_requires=[
           'beautifulsoup4',
           'celery',
