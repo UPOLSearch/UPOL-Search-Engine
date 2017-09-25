@@ -2,10 +2,8 @@
 
 from distutils.core import setup
 
-from upol_crawler import settings
-
 setup(name='UPOL-Crawler',
-      version=settings.CONFIG.get('Info', 'version'),
+      version='0.4-dev',
       description='Web crawler for UPOL Search, part of Master thesis on Department of Computer Science UPOL',
       author='Tomas Mikula',
       author_email='mail@tomasmikula.cz',
