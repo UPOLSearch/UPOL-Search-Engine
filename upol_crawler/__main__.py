@@ -151,7 +151,8 @@ def sleep_crawler(database, number_of_waiting):
     return number_of_waiting
 
 
-def main(args=None):
+def main():
+    import sys
     try:
         print("******************************")
         print("UPOL-Crawler v{0}".format(settings.CONFIG.get('Info', 'version')))
@@ -162,6 +163,11 @@ def main(args=None):
 
         # Start procedure
         client, database = start_crawler()
+
+        if len(sys.argv) > 1:
+            load_seed(sys.argv[1], database)
+        else:
+            insert_crawler_start(database)
 
         end_load_time = datetime.now()
 
