@@ -71,12 +71,9 @@ def decode(url):
     return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
 
 
-def generate_regex(url):
-    """Generate regex for url"""
-    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-    netloc = netloc.replace('.', '\.')
-
-    return re.compile('^(https?:\/\/)?([a-z0-9]+[.])*'+netloc+'.*$')
+def generate_regex(domain):
+    """Generate regex for domain"""
+    return re.compile('^(https?:\/\/)?([a-z0-9]+[.])*' + domain + '.*$')
 
 
 def load_urls_from_file(filepath):
@@ -111,3 +108,8 @@ def load_urls_from_text(text):
             urls.add(url)
 
     return urls
+
+
+def domain_replace_dots(domain):
+    """Simple function which replace . in domain by -"""
+    return domain.replace('.', '-')

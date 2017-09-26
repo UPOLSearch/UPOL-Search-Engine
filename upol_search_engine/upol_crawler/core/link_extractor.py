@@ -1,14 +1,12 @@
-import hashlib
-import re
 import urllib.parse
 
 import w3lib.html
-from upol_crawler import tasks
-from upol_crawler.core import validator
-from upol_crawler.tools import logger
-from upol_crawler.utils import urls
+from celery.utils.log import get_task_logger
+from upol_search_engine.upol_crawler.core import validator
+# from upol_search_engine.upol_crawler.tools import logger
+from upol_search_engine.upol_crawler.utils import urls
 
-log = logger.universal_logger('link_extractor')
+log = get_task_logger(__name__)
 
 
 def is_page_wiki(soup):
@@ -159,7 +157,7 @@ def get_canonical_url(soup):
         return None
 
 
-def validated_page_urls(soup, url):
+def validated_page_urls(soup, url, regex, blacklist):
     """Parse page and return set of valid urls"""
 
     valid_urls = set()
@@ -196,7 +194,7 @@ def validated_page_urls(soup, url):
             if canonical_url in link_url:
                 continue
 
-        valid, reason = validator.validate(link_url)
+        valid, reason = validator.validate(link_url, regex, blacklist)
 
         if valid:
             valid_urls.add(link_url)

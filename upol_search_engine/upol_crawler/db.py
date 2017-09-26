@@ -3,8 +3,8 @@ Universal database functions.
 specific functions related to some components are in component file
 """
 
-import random
-import urllib.parse
+# import random
+# import urllib.parse
 from datetime import datetime
 from random import shuffle
 
@@ -12,15 +12,28 @@ import gridfs
 import pymongo
 from bson.objectid import ObjectId
 from langdetect import detect
-from upol_crawler import settings
-from upol_crawler.utils import urls
+from upol_search_engine import settings
+from upol_search_engine.upol_crawler.utils import urls
+
+
+def create_client():
+    client = pymongo.MongoClient(
+        settings.CONFIG.get('Settings', 'mongo_db_server'),
+        settings.CONFIG.getint('Settings', 'mongo_db_port'),
+        maxPoolSize=None)
+
+    return client
+
+
+def get_database(limit_domain, client):
+    database_name = urls.domain_replace_dots(limit_domain)
+    database = client[database_name]
+
+    return database
 
 
 def drop_database():
-    client = pymongo.MongoClient(
-      settings.DB_SERVER,
-      settings.DB_PORT,
-      maxPoolSize=None)
+    client = create_client()
     client.drop_database(settings.DB_NAME)
 
 
@@ -114,7 +127,6 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     try:
         result = db['Urls'].insert_many(url_documents, ordered=False)
     except pymongo.errors.BulkWriteError:
-        # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
         result = None
 
     return result
@@ -149,7 +161,6 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     try:
         result = db['PageRank'].insert_many(url_documents, ordered=False)
     except pymongo.errors.BulkWriteError:
-        # TODO - There is no point of returning result variable from this function. insert_many can fail on one url because of duplicity and thats totally fine. So probably better to ignore return statement
         result = None
 
     return result
@@ -205,7 +216,8 @@ def get_or_create_canonical_group(db, text_hash):
        Canonical group groups url with same text hash, not HTML tags."""
 
     # TODO - Possible chance of optimalization here
-    canonical_group = list(db['CanonicalGroups'].find({'text_hash': text_hash}).limit(1))
+    canonical_group = list(db['CanonicalGroups'].find(
+        {'text_hash': text_hash}).limit(1))
 
     # Create new one
     if len(canonical_group) == 0:
@@ -236,7 +248,10 @@ def get_url(db, url):
 def select_representative_for_canonical_group(db, canonical_group):
     """Return id of URL which is suitable as representative of canonical group"""
 
-    urls_representatives = db['Urls'].find({'canonical_group': ObjectId(canonical_group), 'alias': False, 'invalid': False})
+    urls_representatives = db['Urls'].find(
+        {'canonical_group': ObjectId(canonical_group),
+         'alias': False,
+         'invalid': False})
 
     representatives = []
 
@@ -250,8 +265,9 @@ def select_representative_for_canonical_group(db, canonical_group):
 def update_canonical_group_representative(db, canonical_group, representative):
     """Update representative url of canonical group"""
 
-    return db['CanonicalGroups'].find_one_and_update({'_id': ObjectId(canonical_group)},
-                         {'$set': {'representative': representative}})
+    return db['CanonicalGroups'].find_one_and_update(
+        {'_id': ObjectId(canonical_group)},
+        {'$set': {'representative': representative}})
 
 
 def set_alias_visited_url(db, url):
@@ -268,6 +284,7 @@ def set_alias_visited_url(db, url):
                                             {'$set': url_addition})
 
     return result is not None
+
 
 def set_visited_invalid_url(db, url, response, reason, is_file=False):
     url_hash = urls.hash(url)
@@ -309,14 +326,18 @@ def set_canonical_group_to_alias(db, original_url, canonical_group):
     """If there was redirect, set the canonical group to the orginal alias url"""
 
     modification = {'canonical_group': canonical_group}
-    return db['Urls'].find_one_and_update({'_id': urls.hash(original_url)}, {'$set': modification})
+    return db['Urls'].find_one_and_update(
+        {'_id': urls.hash(original_url)}, {'$set': modification})
 
 
 def _update_representatives_of_canonical_groups(db, canonical_group):
     """If insertion was successful update representative of canonical group"""
 
-    representative = select_representative_for_canonical_group(db, canonical_group)
-    return update_canonical_group_representative(db, canonical_group, representative)
+    representative = select_representative_for_canonical_group(db,
+                                                               canonical_group)
+    return update_canonical_group_representative(db,
+                                                 canonical_group,
+                                                 representative)
 
 
 def _format_response_header(response, url_addition):
@@ -337,7 +358,9 @@ def set_visited_file_url(db, url, response, original_url=None):
 
     # Pairing url with canonical group id
     content_hash = urls.hash_document(response.content)
-    url_addition['canonical_group'] = get_or_create_canonical_group(db, content_hash)
+    url_addition['canonical_group'] = get_or_create_canonical_group(
+        db,
+        content_hash)
 
     url_addition['visited'] = True
     url_addition['queued'] = False
@@ -368,13 +391,18 @@ def set_visited_file_url(db, url, response, original_url=None):
 
     # If there was redirect, set the canonical group to the orginal alias url
     if original_url is not None:
-        set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+        set_canonical_group_to_alias(db,
+                                     original_url,
+                                     url_addition['canonical_group'])
 
     # If insertion was successful update representative of canonical group
     if result is not None:
-        _update_representatives_of_canonical_groups(db, url_addition['canonical_group'])
+        _update_representatives_of_canonical_groups(
+            db,
+            url_addition['canonical_group'])
 
     return result is not None
+
 
 def set_visited_url(db, url, response, soup, noindex, original_url=None):
     """Try to set url to visited and update other important informations"""
@@ -397,7 +425,8 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
         url_addition['language'] = None
 
     text_hash = urls.hash_document(soup.text.encode())
-    url_addition['canonical_group'] = get_or_create_canonical_group(db, text_hash)
+    url_addition['canonical_group'] = get_or_create_canonical_group(db,
+                                                                    text_hash)
 
     url_addition['visited'] = True
     url_addition['queued'] = False
@@ -424,12 +453,15 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
 
     # If there was redirect, set the canonical group to the orginal alias url
     if original_url is not None:
-        set_canonical_group_to_alias(db, original_url, url_addition['canonical_group'])
+        set_canonical_group_to_alias(db,
+                                     original_url,
+                                     url_addition['canonical_group'])
 
     # If insertion was successful update representative of canonical group
     if result is not None:
-        _update_representatives_of_canonical_groups(db, url_addition['canonical_group'])
-
+        _update_representatives_of_canonical_groups(
+            db,
+            url_addition['canonical_group'])
 
     return result is not None
 
@@ -478,12 +510,13 @@ def set_timeout_url(db, url):
     """Try to set url as timouted"""
     url_hash = urls.hash(url)
 
-    result = db['Urls'].find_one_and_update({'_id': url_hash},
-                                            {'$set': {
-                                                'queued': False,
-                                                'timeout.timeout': True,
-                                                'timeout.last_timeout': str(datetime.now())
-                                                }})
+    result = db['Urls'].find_one_and_update(
+        {'_id': url_hash},
+        {'$set': {
+            'queued': False,
+            'timeout.timeout': True,
+            'timeout.last_timeout': str(datetime.now())
+            }})
 
     return result is not None
 
@@ -548,3 +581,55 @@ def is_queued(db, url):
 #
 #     if result is not None:
 #         return True
+
+def should_crawler_wait(db):
+    """Check if crawler can terminate or not"""
+    result = db['Urls'].find_one({'$or': [
+        {'$and': [
+            {'visited': False},
+            {'queued': True}]},
+        {'$and': [
+            {'visited': False},
+            {'queued': False},
+            {'timeout': {'$exists': False}}]}]})
+
+    return not ((result is None) or (len(result) == 0))
+
+# def insert_crawler_start(db):
+#     """Save when crawler start into database"""
+#     result = db['CrawlerInfo'].update({'_id': 1},
+#                                       {'$set':
+#                                        {'time.start': str(datetime.now())}},
+#                                       upsert=True)
+#
+#     return result is not None
+#
+#
+# def insert_crawler_end(db):
+#     """Save when crawler ends into database"""
+#     result = db['CrawlerInfo'].update({'_id': 1},
+#                                       {'$set':
+#                                        {'time.end': str(datetime.now())}},
+#                                       upsert=True)
+#
+#     return result is not None
+
+
+def get_crawler_stats(db):
+    stats = {}
+
+    stats['urls_count'] = db['Urls'].count()
+    stats['files_count'] = db['Urls'].find({'file': True}).count()
+    stats['ignored_files_count'] = db['Urls'].find(
+        {'invalid_reason': 'invalid_file', 'invalid': True}).count()
+    stats['timeout_count'] = db['Urls'].find({'timeout.timeout': True}).count()
+    stats['robots_blocked_count'] = db['UrlRobotsBlocked'].count()
+    stats['urls_visited'] = db['Urls'].find({'visited': True}).count()
+    stats['urls_queued'] = db['Urls'].find(
+        {'$and': [{'visited': False}, {'queued': True}]}).count()
+    stats['urls_not_queued'] = db['Urls'].find(
+        {'$and': [{'visited': False},
+                  {'queued': False},
+                  {'timeout': {'$exists': False}}]}).count()
+
+    return stats

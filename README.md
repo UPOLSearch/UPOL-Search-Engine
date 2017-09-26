@@ -1,8 +1,5 @@
-# UPOL-Crawler
-
-[![Build Status](https://travis-ci.org/UPOLSearch/UPOL-Crawler.svg?branch=development)](https://travis-ci.org/UPOLSearch/UPOL-Crawler)
-
-Web crawler for UPOL Search, part of Master thesis on Department of Computer Science UPOL (https://github.com/UPOLSearch)
+# UPOL-Search-Engine
+UPOL Search engine is search engine for upol.cz domain, topic of Master thesis on Department of Computer Science UPOL
 
 ##Are you about to block my crawler?
 Contact me before you do that please.
@@ -19,13 +16,13 @@ Goal of the UPOL-Crawler is crawl http://upol.cz domain for gathering all avalib
 
 Full user-agent string
 ```
-Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Crawler)
+Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Search-Engine)
 ```
 
 ---
 
-# UPOL-Crawler (Czech)
-Webový crawler pro UPOL Search, část diplomové práce na Katedře Informatiky UPOL (https://github.com/UPOLSearch)
+# UPOL-Search-Engine (Czech)
+UPOL Search engine je search engine pro upol.cz doménu. Projekt je součástí diplomové práce na Katedře Informatiky UPOL.
 
 ## Chystáte se zablokovat tento crawler?
 Pokud je to možné kontaktujte mě.
@@ -42,5 +39,5 @@ Cílem crawleru je procházet doménu http://upol.cz za účelem získání vše
 
 Celkový user-agent
 ```
-Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Crawler)
+Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Search-Engine)
 ```

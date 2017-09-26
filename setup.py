@@ -3,17 +3,17 @@
 # from distutils.core import setup
 from setuptools import find_packages, setup
 
-setup(name='UPOL-Crawler',
-      version='0.4-dev',
-      description='Web crawler for UPOL Search, part of Master thesis on Department of Computer Science UPOL',
+setup(name='UPOL-Search-Engine',
+      version='0.6-dev',
+      description='UPOL Search engine is search engine for upol.cz domain, topic of Master thesis on Department of Computer Science UPOL',
       author='Tomas Mikula',
       author_email='mail@tomasmikula.cz',
       license='MIT',
-      url='https://github.com/UPOLSearch/UPOL-Crawler',
+      url='https://github.com/UPOLSearch/UPOL-Search-Engine',
       packages=find_packages(),
-      package_data={
-          'upol_crawler': ['config-default.ini'],
-      },
+    #   package_data={
+    #       'upol_crawler': ['config-default.ini'],
+    #   },
       install_requires=[
           'beautifulsoup4',
           'celery',
@@ -27,7 +27,7 @@ setup(name='UPOL-Crawler',
       ],
       entry_points={
           'console_scripts': [
-              'upol_crawler = upol_crawler.__main__:main'
+              'upol_search_engine = upol_search_engine.__main__:main'
           ]
       }
       )

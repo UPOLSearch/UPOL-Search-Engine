@@ -1,13 +1,11 @@
 import socket
-import threading
 from datetime import datetime
 
-import pymongo
-from upol_crawler import settings
-from upol_crawler.tools import logger
-from upol_crawler.utils import urls
+from celery.utils.log import get_task_logger
+# from upol_search_engine.upol_crawler.tools import logger
+from upol_search_engine.upol_crawler.utils import urls
 
-log = logger.universal_logger('limiter')
+log = get_task_logger(__name__)
 
 
 def insert_limits_for_ip(db, domain, ip, last, max_frequency):
@@ -48,14 +46,8 @@ def get_ip(url):
     return socket.gethostbyname(domain)
 
 
-def is_crawl_allowed(url):
+def is_crawl_allowed(url, database, max_frequency):
     """Check if crawler is allowed to crawl given URL"""
-    client = pymongo.MongoClient(
-      settings.DB_SERVER,
-      settings.DB_PORT,
-      maxPoolSize=None)
-    database = client[settings.DB_NAME]
-
     ip = get_ip(url)
 
     result = True
@@ -79,7 +71,7 @@ def is_crawl_allowed(url):
                              urls.domain(url),
                              ip,
                              datetime.now(),
-                             settings.FREQUENCY_PER_SERVER)
+                             max_frequency)
 
     if not result:
         log.info('Limited: {0}'.format(url))
