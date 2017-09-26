@@ -3,23 +3,30 @@ import re
 import pymongo
 import requests
 from bs4 import BeautifulSoup
-from upol_crawler import db, settings, tasks
-from upol_crawler.core import limiter, link_extractor, validator
-from upol_crawler.tools import logger, robots
-from upol_crawler.utils import urls
+from celery.utils.log import get_task_logger
+from upol_search_engine import settings
+from upol_search_engine.upol_crawler import db
+from upol_search_engine.upol_crawler.core import (limiter, link_extractor,
+                                                  validator)
+from upol_search_engine.upol_crawler.tools import blacklist, robots
+from upol_search_engine.upol_crawler.utils import urls
 
-log = logger.universal_logger('crawler')
+log = get_task_logger(__name__)
+# # import the Celery log getter
+#     from celery.utils.log import get_task_logger
+#
+#     # grab the logger for the Celery app
+#     logger = get_task_logger(__name__)
 
-
-def get_response(url):
+def get_response(url, connect_max_timeout, read_max_timeout):
     """Request url and check if content-type is valid"""
     headers = {'user-agent': settings.CONFIG.get('Info', 'user_agent')}
     response = requests.get(url,
                             headers=headers,
-                            verify=settings.VERIFY_SSL,
+                            verify=False,
                             timeout=(
-                                settings.CONNECT_MAX_TIMEOUT,
-                                settings.READ_MAX_TIMEOUT))
+                                connect_max_timeout,
+                                read_max_timeout))
 
     # content_type = response.headers.get('Content-Type')
     #
@@ -30,9 +37,9 @@ def get_response(url):
     return response
 
 
-def get_page(url):
+def get_page(url, connect_max_timeout, read_max_timeout):
     """Return url, original_url and boolean if url was redirected"""
-    response = get_response(url)
+    response = get_response(url, connect_max_timeout, read_max_timeout)
     original_url = url
 
     is_redirect = False
@@ -49,16 +56,17 @@ def get_page(url):
     return url, original_url, is_redirect, response
 
 
-def _handle_response(database, url, original_url, redirected, response, depth):
+def _handle_response(database, url, original_url, redirected, response, depth, max_depth, limit_domain, blacklist):
     try:
         url_document = db.get_url(database, url)
+        regex = urls.generate_regex(limit_domain)
 
         # Redirect handling
         if original_url != url:
             log.info('Redirect: {0} (original: {1})'.format(original_url, url))
 
             # Check if redirected url is valid
-            is_valid_redirect, reason = validator.validate(url)
+            is_valid_redirect, reason = validator.validate(url, regex, blacklist)
 
             if is_valid_redirect:
                 db.set_alias_visited_url(database, original_url)
@@ -72,7 +80,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
-                        depth = settings.MAX_DEPTH
+                        depth = max_depth
 
                     db.insert_url(database, url, False, False, depth)
 
@@ -122,7 +130,10 @@ def _handle_response(database, url, original_url, redirected, response, depth):
             # Handle normal page
             soup = BeautifulSoup(response.content, 'lxml')
             no_index = link_extractor.has_noindex(soup)
-            validated_urls_on_page = link_extractor.validated_page_urls(soup, url)
+            validated_urls_on_page = link_extractor.validated_page_urls(soup,
+                                                                        url,
+                                                                        regex,
+                                                                        blacklist)
 
             urls_for_insert = []
 
@@ -135,7 +146,7 @@ def _handle_response(database, url, original_url, redirected, response, depth):
                     else:
                         continue
                 else:
-                    insert_url['depth'] = settings.MAX_DEPTH
+                    insert_url['depth'] = max_depth
 
                 urls_for_insert.append(insert_url)
 
@@ -156,20 +167,22 @@ def _handle_response(database, url, original_url, redirected, response, depth):
         raise
 
 
-def crawl_url(url, depth):
-    client = pymongo.MongoClient(
-      settings.DB_SERVER,
-      settings.DB_PORT,
-      maxPoolSize=None)
-    database = client[settings.DB_NAME]
-
-    if not limiter.is_crawl_allowed(url):
-        db.set_url_for_recrawl(database, url)
-        client.close()
-        return
-
+def crawl_url(url, depth, crawler_settings):
     try:
-        url, original_url, redirected, response = get_page(url)
+        client = db.create_client()
+        database = db.get_database(crawler_settings.get('limit_domain'), client)
+
+        if not limiter.is_crawl_allowed(url,
+                                        database,
+                                        crawler_settings.get('frequency_per_server')):
+            db.set_url_for_recrawl(database, url)
+            client.close()
+            return
+
+
+        url, original_url, redirected, response = get_page(url,
+                                                           crawler_settings.get('connect_max_timeout'),
+                                                           crawler_settings.get('read_max_timeout'))
     except requests.exceptions.ReadTimeout as e:
         # It also remove url from queue and set it as timeouted
         db.set_timeout_url(database, url)
@@ -188,6 +201,14 @@ def crawl_url(url, depth):
         client.close()
         raise
     else:
-        _handle_response(database, url, original_url, redirected, response, depth)
+        _handle_response(database,
+                         url,
+                         original_url,
+                         redirected,
+                         response,
+                         depth,
+                         crawler_settings.get('max_depth'),
+                         crawler_settings.get('limit_domain'),
+                         blacklist.generate_blacklist(crawler_settings.get('blacklist')))
 
     client.close()
