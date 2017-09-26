@@ -17,8 +17,7 @@ def build_graph(database):
             from_canonical_group = from_document.get('canonical_group')
             to_canonical_group = to_document.get('canonical_group')
 
-            if (from_canonical_group is not None)
-            and (to_canonical_group is not None):
+            if (from_canonical_group is not None) and (to_canonical_group is not None):
                 graph.add_edge(from_canonical_group, to_canonical_group)
 
     return graph
