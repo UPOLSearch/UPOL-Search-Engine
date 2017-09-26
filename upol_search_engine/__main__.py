@@ -28,7 +28,7 @@ def main():
     print("Crawler done")
     print("Launching pagerank calculation")
 
-    pagerank = tasks.calculate_pagerank_task.delay(rawler_settings)
+    pagerank = tasks.calculate_pagerank_task.delay(crawler_settings)
 
     while pagerank.status != 'SUCCESS':
         print(pagerank.status)
