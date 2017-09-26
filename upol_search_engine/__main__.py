@@ -19,7 +19,7 @@ def main():
         batch_size=300,
         delay_between_feeding=5)
 
-    while 'RUNNING' in feeder.status:
+    while 'RUNNING' in feeder.status or 'PENDING' in feeder.status:
         print('running')
         sleep(5)
 
