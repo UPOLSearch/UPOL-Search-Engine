@@ -21,7 +21,7 @@ def crawl_url_task(url, depth, crawler_settings):
     #     raise
 
 
-@app.task(queue='feeder', bind=True)
+@app.task(queue='search_engine', bind=True)
 def feeder_task(self, crawler_settings, seed, batch_size, delay_between_feeding):
     from upol_search_engine.upol_crawler import db
     from upol_search_engine.upol_crawler.utils import urls
@@ -88,7 +88,7 @@ def feeder_task(self, crawler_settings, seed, batch_size, delay_between_feeding)
     client.close()
 
 
-@app.task(queue='feeder', bind=True)
+@app.task(queue='search_engine', bind=True)
 def calculate_pagerank_task(self, crawler_settings):
     from upol_search_engine.upol_crawler import db
     from upol_search_engine.upol_crawler.core import pagerank

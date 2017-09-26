@@ -16,9 +16,9 @@ class Config(object):
             routing_key='crawler'
         ),
         Queue(
-            'feeder',
-            exchange=Exchange('feeder'),
-            routing_key='feeder'
+            'search_engine',
+            exchange=Exchange('search_engine'),
+            routing_key='search_engine'
         ),
     )
 
