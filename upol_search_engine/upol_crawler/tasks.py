@@ -39,12 +39,17 @@ def feeder_task(self, crawler_settings, seed, batch_size, delay_between_feeding)
     # Init database
     db.init(database)
 
-    # Load seed into database
-    number_of_url_added = feeder.load_seed(seed,
-                                           database,
-                                           regex,
-                                           crawler_settings.get('max_depth'),
-                                           crawler_settings.get('blacklist'))
+    if db.is_first_run(database):
+        # Load seed into database
+        number_of_url_added = feeder.load_seed(seed,
+                                               database,
+                                               regex,
+                                               crawler_settings.get('max_depth'),
+                                               crawler_settings.get('blacklist'))
+    else:
+        db.reset_visited_for_fast_recrawl(database)
+
+
 
     self.update_state(state='RUNNING', meta={'start': start_time})
 

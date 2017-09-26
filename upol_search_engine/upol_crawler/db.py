@@ -484,6 +484,17 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
 #                                             {'$set': {'queued': True}})
 #
 #     return result is not None
+def is_first_run(db):
+    result = db['Urls'].find_one({'visited': True})
+    
+    return result is None
+
+
+def reset_visited_for_fast_recrawl(db):
+    result = db['Urls'].update_many({'visited': True, 'alias': False, 'invalid': False},
+                                    {'$set': {'visited': False}})
+
+    return result is not None
 
 
 def set_queued_batch(db, list_url_hash):
