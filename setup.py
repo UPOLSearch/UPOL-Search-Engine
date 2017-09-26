@@ -11,9 +11,9 @@ setup(name='UPOL-Search-Engine',
       license='MIT',
       url='https://github.com/UPOLSearch/UPOL-Search-Engine',
       packages=find_packages(),
-    #   package_data={
-    #       'upol_crawler': ['config-default.ini'],
-    #   },
+      package_data={
+          'upol_search_engine': ['config-default.ini'],
+      },
       install_requires=[
           'beautifulsoup4',
           'celery',
