@@ -108,11 +108,11 @@ def calculate_pagerank_task(self, crawler_settings):
 
     self.update_state(state='CALCULATING_PAGERANK', meta={'start': start_time})
 
-    pagerank = pagerank.calculate_pagerank(graph, database)
+    graph_pagerank = pagerank.calculate_pagerank(graph, database)
 
     self.update_state(state='INSERTING_PAGERANK', meta={'start': start_time})
 
-    pagerank.insert_pagerank_db(pagerank, database)
+    pagerank.insert_pagerank_db(graph_pagerank, database)
 
     self.update_state(state='DONE', meta={'start': start_time,
                                           'end': datetime.now()})
