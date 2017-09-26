@@ -13,17 +13,28 @@ def main():
 
     seed = "http://trnecka.inf.upol.cz"
 
+    print("Launching crawler")
+
     feeder = tasks.feeder_task.delay(
         crawler_settings=crawler_settings,
         seed=seed,
         batch_size=300,
         delay_between_feeding=5)
 
-    while 'RUNNING' in feeder.status or 'PENDING' in feeder.status:
-        print('running')
+    while feeder.status != 'SUCCESS':
+        print(feeder.status)
         sleep(5)
 
-    print('done')
+    print("Crawler done")
+    print("Launching pagerank calculation")
+
+    pagerank = tasks.calculate_pagerank_task.delay(rawler_settings)
+
+    while pagerank.status != 'SUCCESS':
+        print(pagerank.status)
+        sleep(5)
+
+    print("Pagerank done")
 
 if __name__ == "__main__":
     main()

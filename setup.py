@@ -23,7 +23,8 @@ setup(name='UPOL-Search-Engine',
           'reppy',
           'requests',
           'w3lib',
-          'langdetect'
+          'langdetect',
+          'networkx'
       ],
       entry_points={
           'console_scripts': [

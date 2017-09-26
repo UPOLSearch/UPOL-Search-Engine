@@ -84,3 +84,37 @@ def feeder_task(self, crawler_settings, seed, batch_size, delay_between_feeding)
 
     self.update_state(state='DONE', meta={'start': start_time,
                                           'end': datetime.now()})
+
+    client.close()
+
+
+@app.task(queue='feeder', bind=True)
+def calculate_pagerank_task(self, crawler_settings):
+    from upol_search_engine.upol_crawler import db
+    from upol_search_engine.upol_crawler.core import pagerank
+
+    from datetime import datetime
+
+    start_time = datetime.now()
+
+    self.update_state(state='STARTING', meta={'start': start_time})
+
+    client = db.create_client()
+    database = db.get_database(crawler_settings.get('limit_domain'), client)
+
+    self.update_state(state='BUILDING_GRAPH', meta={'start': start_time})
+
+    graph = pagerank.build_graph(database)
+
+    self.update_state(state='CALCULATING_PAGERANK', meta={'start': start_time})
+
+    pagerank = pagerank.calculate_pagerank(graph, database)
+
+    self.update_state(state='INSERTING_PAGERANK', meta={'start': start_time})
+
+    pagerank.insert_pagerank_db(pagerank, database)
+
+    self.update_state(state='DONE', meta={'start': start_time,
+                                          'end': datetime.now()})
+
+    client.close()
