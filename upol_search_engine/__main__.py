@@ -23,7 +23,8 @@ def main():
 
     while feeder.status != 'SUCCESS':
         print(feeder.status)
-        sleep(5)
+        print(feeder.info)
+        sleep(10)
 
     print("Crawler done")
     print("Launching pagerank calculation")
