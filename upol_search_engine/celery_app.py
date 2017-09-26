@@ -7,6 +7,7 @@ from upol_search_engine import settings
 
 class Config(object):
     broker_url = 'amqp://guest:guest@localhost:5672//'
+    result_backend = 'amqp://guest:guest@localhost:5672//'
 
     task_queues = (
         Queue(
