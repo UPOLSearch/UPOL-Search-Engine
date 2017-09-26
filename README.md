@@ -1,7 +1,7 @@
 # UPOL-Search-Engine
 UPOL Search engine is search engine for upol.cz domain, topic of Master thesis on Department of Computer Science UPOL
 
-##Are you about to block my crawler?
+## Are you about to block my crawler?
 Contact me before you do that please.
 
 * **Tomáš Mikula**
