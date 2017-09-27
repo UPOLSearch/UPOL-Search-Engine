@@ -1,14 +1,9 @@
 from time import sleep
 
-# from upol_search_engine import settings
 from upol_search_engine.upol_crawler import db, tasks
-# from upol_search_engine.upol_crawler.celery_app import app
 from upol_search_engine.upol_crawler.core import validator
-# from upol_search_engine.upol_crawler.tools import logger
 from upol_search_engine.upol_crawler.utils import urls
 
-
-# log = logger.universal_logger('feeder')
 
 def load_seed(seed, database, regex, max_depth, blacklist):
     """Load urls seed from file"""
@@ -47,16 +42,6 @@ def load_seed_from_file(seed_path):
 
     return seed_urls
 
-#
-# def start_crawler():
-#     client = db.create_client()
-#     database = client[settings.DB_NAME]
-#
-#     # Init database
-#     db.init(database)
-#
-#     return client, database
-
 
 def feed_crawler(database, crawler_settings, batch_size):
     batch = db.get_batch_url_for_crawl(database, batch_size)
@@ -91,75 +76,3 @@ def sleep_crawler(database, number_of_waiting, delay_between_feeding):
         number_of_waiting = 0
 
     return number_of_waiting
-
-
-# def main():
-#     import sys
-#     try:
-#         print("******************************")
-#         print("UPOL-Crawler v{0}".format(settings.CONFIG.get('Info', 'version')))
-#         print("******************************")
-#         print("LOADING..")
-#
-#         start_load_time = datetime.now()
-#
-#         # Start procedure
-#         client, database = start_crawler()
-#
-#         if len(sys.argv) > 1:
-#             load_seed(sys.argv[1], database)
-#         else:
-#             insert_crawler_start(database)
-#
-#         end_load_time = datetime.now()
-#
-#         if settings.CONFIG.getboolean('Debug', 'cprofile_crawl_task'):
-#             os.makedirs(CPROFILE_DIR, exist_ok=True)
-#             print("Deleting cprofile folder...")
-#             # Cleaning cprofile folder
-#             shutil.rmtree(CPROFILE_DIR)
-#
-#         print("DONE! {0}".format(end_load_time - start_load_time))
-#         print("------------------------------")
-#         print("Start crawling...")
-#         print("******************************")
-#
-#         start_time = datetime.now()
-#         sleeping = False
-#         number_of_waiting = 0
-#         number_of_added_links = 0
-#
-#         while True:
-#             if sleeping is False:
-#                 number_of_added_links = feed_crawler(database)
-#
-#                 sleeping = True
-#             else:
-#                 print("------------------------------")
-#                 print("Uptime: {0}".format(datetime.now() - start_time))
-#                 print("Added links: {0}".format(number_of_added_links))
-#                 print("Workers are running - SLEEPING")
-#                 print("------------------------------")
-#
-#                 number_of_added_links = 0
-#
-#                 number_of_waiting = sleep_crawler(database, number_of_waiting)
-#
-#                 if number_of_waiting >= 2:
-#                     break
-#
-#                 sleeping = False
-#
-#                 print("FEEDING...")
-#
-#         end_time = datetime.now()
-#         duration = end_time - start_time
-#         insert_crawler_end(database)
-#
-#         print("------------------------------")
-#         print("Crawl FINISHED")
-#         print("Duration: {0}".format(duration))
-#         print("------------------------------")
-#     except Exception as e:
-#         log.exception('Exception: {0}'.format(url))
-#         raise

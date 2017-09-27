@@ -3,7 +3,6 @@ import urllib.parse
 import w3lib.html
 from celery.utils.log import get_task_logger
 from upol_search_engine.upol_crawler.core import validator
-# from upol_search_engine.upol_crawler.tools import logger
 from upol_search_engine.upol_crawler.utils import urls
 
 log = get_task_logger(__name__)
@@ -25,17 +24,6 @@ def is_page_wiki(soup):
 def is_page_phpbb(soup):
     """Detect if page is phpBB, from soup"""
     return (soup.find('body', id='phpbb') is not None)
-
-
-def base_url(soup, url):
-    """Get base url from page (check if base html tag exists) - DEPRECATED"""
-    base_url = url
-    base_tag = soup.find_all('base', href=True)
-
-    if len(base_tag) > 0:
-        base_url = base_tag[0]['href']
-
-    return base_url
 
 
 def wiki_page(soup):
@@ -139,7 +127,8 @@ def get_canonical_url(soup):
     """
     Return canonical url if exists
 
-    for example: <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
+    for example:
+    <link rel="canonical" href="https://forum.inf.upol.cz/viewforum.php?f=18">
     """
     link = soup.find('link', {'rel': 'canonical'})
 
@@ -185,7 +174,8 @@ def validated_page_urls(soup, url, regex, blacklist):
         try:
             link_url = urls.clean(link_url)
         except ValueError:
-            log.exception('Exception on url: {0} with link: {1}'.format(url, link_url))
+            log.exception('Exception on url: {0} with link: {1}'.format(
+                url, link_url))
 
             continue
 
@@ -200,6 +190,7 @@ def validated_page_urls(soup, url, regex, blacklist):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlRobotsBlocked':
-                log.exception('Robots blocked: {0} (on url: {1})'.format(url, link_url))
+                log.exception('Robots blocked: {0} (on url: {1})'.format(
+                    url, link_url))
 
     return valid_urls

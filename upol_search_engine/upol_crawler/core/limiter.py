@@ -2,7 +2,6 @@ import socket
 from datetime import datetime
 
 from celery.utils.log import get_task_logger
-# from upol_search_engine.upol_crawler.tools import logger
 from upol_search_engine.upol_crawler.utils import urls
 
 log = get_task_logger(__name__)

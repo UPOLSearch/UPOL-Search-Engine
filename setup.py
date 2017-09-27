@@ -5,7 +5,8 @@ from setuptools import find_packages, setup
 
 setup(name='UPOL-Search-Engine',
       version='0.6-dev',
-      description='UPOL Search engine is search engine for upol.cz domain, topic of Master thesis on Department of Computer Science UPOL',
+      description='UPOL Search engine is search engine for upol.cz domain, \
+      topic of Master thesis on Department of Computer Science UPOL',
       author='Tomas Mikula',
       author_email='mail@tomasmikula.cz',
       license='MIT',

@@ -1,46 +1,6 @@
 import urllib.parse
 
-# import pymongo
-# from upol_search_engine.upol_crawler import db, settings
 from upol_search_engine.upol_crawler.tools import blacklist, robots
-
-
-# TODO - load values from file
-# content_type_whitelist = ['text/html']
-# file_extension_whitelist = ['.php',
-#                             '.html',
-#                             '.xhtml',
-#                             '.htm']
-#
-
-# def validate_content_type(content_type_header):
-#     """Validate if content-type is in content-type whitelist"""
-#     for content_type in content_type_whitelist:
-#         if content_type in content_type_header:
-#             return True
-#
-#     return False
-
-
-# def validate_file_extension(url):
-#     """Check if url include blacklisted file extension"""
-#     scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
-#
-#     if scheme is '':
-#         raise ValueError("Domain has no scheme - invalid URL")
-#
-#     path_split = path.split('/')
-#     valid = True
-#
-#     if '.' in path_split[-1]:
-#         if len(path_split[-1].split('.')[-1]) < 5:
-#             valid = False
-#             for file_extension in file_extension_whitelist:
-#                 if file_extension in path_split[-1]:
-#                     valid = True
-#                     break
-#
-#     return valid
 
 
 def validate_regex(url, regex):
@@ -102,9 +62,5 @@ def validate(url, regex, blacklist_list):
 
     if not robots.is_crawler_allowed(url):
         return False, 'UrlRobotsBlocked'
-
-    # Need to be last
-    # if not validate_file_extension(url):
-    #     return False, 'UrlIsFile'
 
     return True, None

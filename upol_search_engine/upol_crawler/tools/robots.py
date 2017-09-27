@@ -1,7 +1,6 @@
 import threading
 
 from reppy.cache import RobotsCache
-# from reppy.robots import Robots
 from upol_search_engine import settings
 
 lock = threading.RLock()

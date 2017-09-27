@@ -1,5 +1,3 @@
-# from __future__ import absolute_import
-
 from celery import Celery
 from kombu import Exchange, Queue
 from upol_search_engine import settings

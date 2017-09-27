@@ -1,10 +1,3 @@
-"""
-Universal database functions.
-specific functions related to some components are in component file
-"""
-
-# import random
-# import urllib.parse
 from datetime import datetime
 from random import shuffle
 
@@ -69,26 +62,6 @@ def _prepare_url_object(url, visited, queued, depth):
     return url_object
 
 
-# def _prepare_file_url_object(url, response, depth):
-#     """Prepare file url object before inserting into database"""
-#     # Prepare content_type, remove charset etc
-#     # for example 'text/html; charset=utf-8'
-#     content_type = response.headers.get('Content-Type')
-#
-#     if content_type is not None:
-#         content_type = content_type.split(';')[0]
-#
-#     file_url_object = {'_id': urls.hash(url),
-#                        'url': url,
-#                        'domain': urls.domain(url),
-#                        'depth': depth,
-#                        'content_type': content_type,
-#                        'content_length': response.headers.get('Content-Length'),
-#                        'progress': {'discovered': str(datetime.now())}}
-#
-#     return file_url_object
-
-
 def insert_url(db, url, visited, queued, depth):
     """Insert url into db"""
     url_object = _prepare_url_object(url, visited, queued, depth)
@@ -99,18 +72,6 @@ def insert_url(db, url, visited, queued, depth):
         return False
 
     return result
-
-
-# def inser_file_url(db, url, response, depth):
-#     """Insert file url into db"""
-#     file_url_object = _prepare_file_url_object(url, response, depth)
-#
-#     try:
-#         result = db['Files'].insert_one(file_url_object).inserted_id
-#     except pymongo.errors.DuplicateKeyError as e:
-#         return False
-#
-#     return result
 
 
 def batch_insert_url(db, urls_with_depths, visited, queued):
@@ -133,20 +94,6 @@ def batch_insert_url(db, urls_with_depths, visited, queued):
     return result
 
 
-# def iterate_inlinks(db, url):
-#     """Iterate number of inlinks of one url"""
-#
-#     return db['Urls'].find_one_and_update({'_id': urls.hash(url)},
-#                                           {'$inc': {'inlinks': 1}})
-
-
-# def insert_pagerank_outlink(db, from_url, to_url):
-#     """Insert outlink into database"""
-#
-#     result = db['PageRank'].insert_one({urls.hash(from_url), urls.hash(to_url)}})
-#
-#     return result
-
 def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     """Inser batch of outlinks into database"""
 
@@ -167,41 +114,12 @@ def batch_insert_pagerank_outlinks(db, from_url, to_urls):
     return result
 
 
-# def update_pagerank_url_hash(db, original_hash, new_hash):
-#     """Update url hash in graph's edge if canonical group is changed"""
-#
-#     try:
-#         result1 = db['PageRank'].update_many({'from_hash': original_hash}, {'$set': {'from_hash': new_hash}})
-#         result2 = db['PageRank'].update_many({'to_hash': original_hash}, {'$set': {'to_hash': new_hash}})
-#     except pymongo.errors.DuplicateKeyError as e:
-#         pass
-#
-#
-#     return result1.raw_result, result2.raw_result
-
-
 def delete_pagerank_edge_to(db, to_hash):
     """Delete edge from pagerank"""
 
     result = db['PageRank'].delete_many({'to_hash': to_hash})
 
     return result.deleted_count > 0
-
-
-# def insert_url_info(db, url, info_type, arg={}):
-#     """Insert aditional info about url into database"""
-#     collection = db[info_type]
-#
-#     log_object = {'_id': urls.hash(url),
-#                   'url': url}
-#
-#     for key, depth in arg.items():
-#         log_object[key] = str(depth)
-#
-#     try:
-#         collection.insert_one(log_object).inserted_id
-#     except pymongo.errors.DuplicateKeyError as e:
-#         return False
 
 
 def delete_url(db, url):
@@ -227,19 +145,6 @@ def get_or_create_canonical_group(db, text_hash):
         return canonical_group[0].get('_id')
 
 
-# def get_or_create_duplicity_group(db, content_hash):
-#     """Try to get duplicity group with given hash.
-#        Create new duplicity group in case of fail."""
-#
-#     # TODO - Possible chance of optimalization here
-#     duplicity_group = list(db['DuplicityGroups'].find({'content_hash': content_hash}).limit(1))
-#
-#     # Create new one
-#     if len(duplicity_group) == 0:
-#         return db['DuplicityGroups'].insert({'content_hash': content_hash})
-#     else:
-#         return duplicity_group[0].get('_id')
-
 def get_url(db, url):
     document = db['Urls'].find_one({'_id': urls.hash(url)})
 
@@ -247,7 +152,8 @@ def get_url(db, url):
 
 
 def select_representative_for_canonical_group(db, canonical_group):
-    """Return id of URL which is suitable as representative of canonical group"""
+    """Return id of URL which is suitable
+    as representative of canonical group"""
 
     urls_representatives = db['Urls'].find(
         {'canonical_group': ObjectId(canonical_group),
@@ -324,7 +230,8 @@ def _determine_type_of_redirect(response):
 
 
 def set_canonical_group_to_alias(db, original_url, canonical_group):
-    """If there was redirect, set the canonical group to the orginal alias url"""
+    """If there was redirect, set the canonical group to
+    the orginal alias url"""
 
     modification = {'canonical_group': canonical_group}
     return db['Urls'].find_one_and_update(
@@ -467,24 +374,6 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     return result is not None
 
 
-# def set_redirected_url(db, url):
-#     """Try to set url as redirected"""
-#     url_hash = urls.hash(url)
-#
-#     result = db['Urls'].find_one_and_update({'_id': url_hash},
-#                                             {'$set': {'redirected': True}})
-#
-#     return result is not None
-
-
-# def set_queued_url(db, url):
-#     """Try to set url to queued"""
-#     url_hash = urls.hash(url)
-#
-#     result = db['Urls'].find_one_and_update({'_id': url_hash},
-#                                             {'$set': {'queued': True}})
-#
-#     return result is not None
 def is_first_run(db):
     result = db['Urls'].find_one({'visited': True})
 
@@ -492,8 +381,9 @@ def is_first_run(db):
 
 
 def reset_visited_for_fast_recrawl(db):
-    result = db['Urls'].update_many({'visited': True, 'alias': False, 'invalid': False},
-                                    {'$set': {'visited': False}})
+    result = db['Urls'].update_many(
+        {'visited': True, 'alias': False, 'invalid': False},
+        {'$set': {'visited': False}})
 
     return result is not None
 
@@ -528,7 +418,7 @@ def set_timeout_url(db, url):
             'queued': False,
             'timeout.timeout': True,
             'timeout.last_timeout': str(datetime.now())
-            }})
+        }})
 
     return result is not None
 
@@ -568,14 +458,6 @@ def exists_url(db, url):
     return result is not None
 
 
-# def is_visited(db, url):
-#     """Check if url is visited"""
-#     result = db['Urls'].find_one({'visited': True})
-#
-#     if result is not None:
-#         return True
-
-
 def is_queued(db, url):
     """Check if url is queued"""
     result = db['Urls'].find_one({'queued': True})
@@ -583,16 +465,6 @@ def is_queued(db, url):
     if result is not None:
         return True
 
-
-# def is_visited_or_queued(db, url):
-#     """Check if url is visited or queued"""
-#     result = db['Urls'].find_one({'$or': [
-#                                 {'visited': True},
-#                                 {'queued': True}
-#                               ]})
-#
-#     if result is not None:
-#         return True
 
 def should_crawler_wait(db):
     """Check if crawler can terminate or not"""
@@ -606,25 +478,6 @@ def should_crawler_wait(db):
             {'timeout': {'$exists': False}}]}]})
 
     return not ((result is None) or (len(result) == 0))
-
-# def insert_crawler_start(db):
-#     """Save when crawler start into database"""
-#     result = db['CrawlerInfo'].update({'_id': 1},
-#                                       {'$set':
-#                                        {'time.start': str(datetime.now())}},
-#                                       upsert=True)
-#
-#     return result is not None
-#
-#
-# def insert_crawler_end(db):
-#     """Save when crawler ends into database"""
-#     result = db['CrawlerInfo'].update({'_id': 1},
-#                                       {'$set':
-#                                        {'time.end': str(datetime.now())}},
-#                                       upsert=True)
-#
-#     return result is not None
 
 
 def get_crawler_stats(db):

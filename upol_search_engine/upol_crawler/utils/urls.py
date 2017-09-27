@@ -26,7 +26,8 @@ def remove_www(url):
     if netloc[:4] == 'www.':
         netloc = netloc[4:]
 
-    url_without_www = urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+    url_without_www = urllib.parse.urlunsplit((scheme, netloc,
+                                               path, qs, anchor))
 
     return url_without_www
 
@@ -77,7 +78,8 @@ def generate_regex(domain):
 
 
 def load_urls_from_file(filepath):
-    """Load urls from file, one per line, ignore lines with #, ignores duplicity"""
+    """Load urls from file, one per line,
+    ignore lines with #, ignores duplicity"""
     urls = set()
 
     if not os.path.isfile(filepath):
@@ -95,7 +97,8 @@ def load_urls_from_file(filepath):
 
 
 def load_urls_from_text(text):
-    """Load urls from text, one per line, ignore lines with #, ignores duplicity"""
+    """Load urls from text, one per line,
+    ignore lines with #, ignores duplicity"""
     urls = set()
 
     lines = text.split('\n')
