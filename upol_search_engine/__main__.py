@@ -17,7 +17,7 @@ def main():
     edis.upol.cz
     courseware.upol.cz"""
 
-    crawler_settings = {'limit_domain': 'inf.upol.cz',
+    crawler_settings = {'limit_domain': 'upol.cz',
                         'max_depth': 10,
                         'connect_max_timeout': 3.05,
                         'read_max_timeout': 10,
