@@ -86,7 +86,7 @@ def load_urls_from_file(filepath):
     with open(filepath) as url_file:
         for line in url_file:
             # Ignore all white characters
-            url = line.rstrip()
+            url = line.strip()
             # Take url only if is not commented
             if not line.startswith("#"):
                 urls.add(url)
@@ -102,7 +102,7 @@ def load_urls_from_text(text):
 
     for line in lines:
         # Ignore all white characters
-        url = line.rstrip()
+        url = line.strip()
         # Take url only if is not commented
         if not line.startswith("#"):
             urls.add(url)
