@@ -48,10 +48,10 @@ def init(db):
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
-    db['PageRank'].create_index(('to_hash', pymongo.DESCENDING))
+    db['PageRank'].create_index('to_hash')
     db['PageRank'].create_index([('from_hash', pymongo.DESCENDING),
                                  ('to_hash', pymongo.DESCENDING)], unique=True)
-                                 
+
 
 def _prepare_url_object(url, visited, queued, depth):
     """Prepare url object before inserting into database"""
