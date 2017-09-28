@@ -47,11 +47,12 @@ def main():
 
     while feeder.status != 'SUCCESS':
         if feeder.info is not None:
-            start_time = feeder.info.get(start)
+            start_time = feeder.info.get('start')
+
+            duration = datetime.now() - start_time
+            print(duration)
         print(feeder.status)
         print(feeder.info)
-        duration = datetime.now() - start_time
-        print(duration)
         sleep(10)
 
     print("Crawler done")
