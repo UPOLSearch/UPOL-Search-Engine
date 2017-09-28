@@ -1,3 +1,4 @@
+from datetime import datetime
 from time import sleep
 
 from upol_search_engine.upol_crawler import tasks
@@ -42,7 +43,10 @@ def main():
         batch_size=300,
         delay_between_feeding=30)
 
+    start_time = None
+
     while feeder.status != 'SUCCESS':
+        start_time = feeder.info.get(start)
         print(feeder.status)
         print(feeder.info)
         sleep(10)
@@ -56,6 +60,9 @@ def main():
         print(pagerank.status)
         sleep(5)
 
+    end_time = datetime.now()
+    duration = end_time - start_time
+    print(duration)
     print("Pagerank done")
 
 
