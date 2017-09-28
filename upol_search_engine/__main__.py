@@ -50,6 +50,8 @@ def main():
             start_time = feeder.info.get(start)
         print(feeder.status)
         print(feeder.info)
+        duration = datetime.now() - start_time
+        print(duration)
         sleep(10)
 
     print("Crawler done")
