@@ -46,7 +46,8 @@ def main():
     start_time = None
 
     while feeder.status != 'SUCCESS':
-        start_time = feeder.info.get(start)
+        if feeder.info is not None:
+            start_time = feeder.info.get(start)
         print(feeder.status)
         print(feeder.info)
         sleep(10)
