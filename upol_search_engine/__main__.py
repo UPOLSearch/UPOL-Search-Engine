@@ -16,7 +16,8 @@ def main():
     smlouvy.upol.cz
     menza.upol.cz
     edis.upol.cz
-    courseware.upol.cz"""
+    courseware.upol.cz
+    m.zurnal.upol.cz"""
 
     crawler_settings = {'limit_domain': 'upol.cz',
                         'max_depth': 10,
