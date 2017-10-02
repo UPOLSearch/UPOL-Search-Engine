@@ -23,7 +23,7 @@ def main():
                         'max_depth': 10,
                         'connect_max_timeout': 3.05,
                         'read_max_timeout': 10,
-                        'frequency_per_server': 0.5,
+                        'frequency_per_server': 0.7,
                         'blacklist': blacklist}
 
     seed = """https://www.upol.cz
