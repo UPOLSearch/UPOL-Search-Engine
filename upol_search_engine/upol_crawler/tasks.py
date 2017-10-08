@@ -15,8 +15,8 @@ def crawl_url_task(url, depth, crawler_settings):
 @app.task(queue='search_engine', bind=True)
 def feeder_task(self, crawler_settings, seed, batch_size,
                 delay_between_feeding):
-    from upol_search_engine.upol_crawler import db
-    from upol_search_engine.upol_crawler.utils import urls
+    from upol_search_engine.db import mongodb
+    from upol_search_engine.utils import urls
     from upol_search_engine.upol_crawler.core import feeder
     from datetime import datetime
 
@@ -24,27 +24,27 @@ def feeder_task(self, crawler_settings, seed, batch_size,
 
     self.update_state(state='STARTING', meta={'start': start_time})
 
-    client = db.create_client()
-    database = db.get_database(crawler_settings.get('limit_domain'), client)
+    client = mongodb.create_client()
+    database = mongodb.get_database(crawler_settings.get('limit_domain'), client)
     regex = urls.generate_regex(crawler_settings.get('limit_domain'))
 
     # Init database
-    db.init(database)
+    mongodb.init(database)
 
-    if db.is_first_run(database):
+    if mongodb.is_first_run(database):
         # Load seed into database
         feeder.load_seed(
             seed, database, regex, crawler_settings.get('max_depth'),
             crawler_settings.get('blacklist'))
     else:
-        db.reset_visited_for_fast_recrawl(database)
+        mongodb.reset_visited_for_fast_recrawl(database)
 
     self.update_state(state='RUNNING', meta={'start': start_time})
 
     sleeping = False
     number_of_waiting = 0
     number_of_added_links = 0
-    stats = db.get_crawler_stats(database)
+    stats = mongodb.get_crawler_stats(database)
 
     while True:
         if sleeping is False:
@@ -63,7 +63,7 @@ def feeder_task(self, crawler_settings, seed, batch_size,
                                     'added_links': number_of_added_links,
                                     'stats': stats})
 
-            stats = db.get_crawler_stats(database)
+            stats = mongodb.get_crawler_stats(database)
 
             number_of_added_links = 0
 
@@ -84,7 +84,7 @@ def feeder_task(self, crawler_settings, seed, batch_size,
 
 @app.task(queue='search_engine', bind=True)
 def calculate_pagerank_task(self, crawler_settings):
-    from upol_search_engine.upol_crawler import db
+    from upol_search_engine.db import mongodb
     from upol_search_engine.upol_crawler.core import pagerank
 
     from datetime import datetime
@@ -93,8 +93,8 @@ def calculate_pagerank_task(self, crawler_settings):
 
     self.update_state(state='STARTING', meta={'start': start_time})
 
-    client = db.create_client()
-    database = db.get_database(crawler_settings.get('limit_domain'), client)
+    client = mongodb.create_client()
+    database = mongodb.get_database(crawler_settings.get('limit_domain'), client)
 
     self.update_state(state='BUILDING_GRAPH', meta={'start': start_time})
 

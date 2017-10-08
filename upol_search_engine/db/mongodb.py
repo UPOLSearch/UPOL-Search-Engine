@@ -6,7 +6,7 @@ import pymongo
 from bson.objectid import ObjectId
 from langdetect import detect
 from upol_search_engine import settings
-from upol_search_engine.upol_crawler.utils import urls
+from upol_search_engine.utils import urls
 
 
 def create_client():

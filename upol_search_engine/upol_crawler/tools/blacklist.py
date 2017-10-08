@@ -1,4 +1,4 @@
-from upol_search_engine.upol_crawler.utils import urls
+from upol_search_engine.utils import urls
 
 
 def generate_blacklist(text):

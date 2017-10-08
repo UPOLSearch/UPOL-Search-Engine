@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# from distutils.core import setup
 from setuptools import find_packages, setup
 
 setup(name='UPOL-Search-Engine',
@@ -25,7 +24,8 @@ setup(name='UPOL-Search-Engine',
           'requests',
           'w3lib',
           'langdetect',
-          'networkx'
+          'networkx',
+          'psycopg2'
       ],
       entry_points={
           'console_scripts': [

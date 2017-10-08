@@ -1,8 +1,9 @@
 from time import sleep
 
-from upol_search_engine.upol_crawler import db, tasks
+from upol_search_engine.db import mongodb
+from upol_search_engine.upol_crawler import tasks
 from upol_search_engine.upol_crawler.core import validator
-from upol_search_engine.upol_crawler.utils import urls
+from upol_search_engine.utils import urls
 
 
 def load_seed(seed, database, regex, max_depth, blacklist):
@@ -15,7 +16,7 @@ def load_seed(seed, database, regex, max_depth, blacklist):
     for url in seed_urls:
         url = urls.clean(url)
         if validator.validate(url, regex, blacklist):
-            insert_result = db.insert_url(database,
+            insert_result = mongodb.insert_url(database,
                                           url,
                                           False,
                                           False,
@@ -44,7 +45,7 @@ def load_seed_from_file(seed_path):
 
 
 def feed_crawler(database, crawler_settings, batch_size):
-    batch = db.get_batch_url_for_crawl(database, batch_size)
+    batch = mongodb.get_batch_url_for_crawl(database, batch_size)
 
     if batch is not None:
         number_of_added_links = len(batch)
@@ -57,7 +58,7 @@ def feed_crawler(database, crawler_settings, batch_size):
         for url in batch:
             hashes.append(url.get('_id'))
 
-        db.set_queued_batch(database, hashes)
+        mongodb.set_queued_batch(database, hashes)
 
         for url in batch:
             tasks.crawl_url_task.delay(url.get('url'),
@@ -70,7 +71,7 @@ def feed_crawler(database, crawler_settings, batch_size):
 def sleep_crawler(database, number_of_waiting, delay_between_feeding):
     sleep(delay_between_feeding)
 
-    if not db.should_crawler_wait(database):
+    if not mongodb.should_crawler_wait(database):
         number_of_waiting = number_of_waiting + 1
     else:
         number_of_waiting = 0
