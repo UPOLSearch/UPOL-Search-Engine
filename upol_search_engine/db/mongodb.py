@@ -498,3 +498,46 @@ def get_crawler_stats(db):
                   {'timeout': {'$exists': False}}]}).count()
 
     return stats
+
+
+def get_batch_for_indexer(db, size):
+    pipeline = [
+        {'$lookup': {
+            'from': 'Urls',
+            'localField': 'representative',
+            'foreignField': '_id',
+            'as': 'page'
+        }},
+        {'$unwind': '$page'},
+        {'$match': {
+            'page.visited': True,
+            'page.noindex': False,
+            'page.file': False,  # Just for now
+            'page.invalid': False,
+            'page.response.status_code': 200,
+            'page.indexed': False
+        }},
+        {'$project': {'representative': 1,
+                      'page.url': 1,
+                      'page.depth': 1,
+                      'page.file': 1,
+                      'page.language': 1,
+                      'page.content.binary': 1,
+                      'page.pagerank': 1}},
+        {'$limit': size}
+    ]
+
+    url_batch = db['CanonicalGroups'].aggregate(
+        pipeline, allowDiskUse=True)
+
+    return url_batch
+
+
+def set_documents_as_indexed(db, document_hashes):
+    requests = []
+
+    for url_hash in document_hashes:
+        requests.append(pymongo.UpdateOne(
+            {'_id': url_hash}, {'$set': {'indexed': True}}))
+
+    return db['Urls'].bulk_write(requests)
