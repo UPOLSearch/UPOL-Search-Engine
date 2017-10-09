@@ -60,7 +60,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
 
 def change_table_to_production(postgresql_client, postgresql_cursor,
                                table_name, table_name_production):
-    if test_if_table_exists(postgresql_cursor, table_name):
+    if test_if_table_exists(postgresql_cursor, table_name_production):
         postgresql_cursor.execute(
             sql.SQL("ALTER table {} RENAME TO {};").format(
                 sql.Identifier(table_name_production), sql.Identifier("tmp")))
