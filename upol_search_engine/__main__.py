@@ -20,11 +20,18 @@ def main():
     courseware.upol.cz
     m.zurnal.upol.cz"""
 
+    # crawler_settings = {'limit_domain': 'upol.cz',
+    #                     'max_depth': 10,
+    #                     'connect_max_timeout': 3.05,
+    #                     'read_max_timeout': 10,
+    #                     'frequency_per_server': 0.5,
+    #                     'blacklist': blacklist}
+
     crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
                         'max_depth': 10,
                         'connect_max_timeout': 3.05,
                         'read_max_timeout': 10,
-                        'frequency_per_server': 0.5,
+                        'frequency_per_server': 0.1,
                         'blacklist': blacklist}
 
     indexer_settings = {'batch_size': 300,
