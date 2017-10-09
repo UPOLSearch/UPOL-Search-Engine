@@ -69,7 +69,8 @@ def change_table_to_production(postgresql_client, postgresql_cursor,
         sql.SQL("ALTER table {} RENAME TO {};").format(
             sql.Identifier(table_name), sql.Identifier(table_name_production)))
 
-    postgresql_cursor.execute("DROP TABLE tmp;")
+    if test_if_table_exists(postgresql_cursor, "tmp"):
+        postgresql_cursor.execute("DROP TABLE tmp;")
 
     postgresql_client.commit()
 
