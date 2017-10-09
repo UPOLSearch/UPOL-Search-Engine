@@ -58,11 +58,13 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
 def change_table_to_production(postgresql_client, postgresql_cursor,
                                table_name, table_name_production):
     if test_if_table_exists(postgresql_cursor, table_name):
-        postgresql_cursor.execute("ALTER table \'{0}\' RENAME TO \'{1}\'".format(table_name_production, "tmp"))
+        postgresql_cursor.execute("ALTER table %s RENAME TO %s;",
+                                  (table_name_production, "tmp"))
 
-    postgresql_cursor.execute("ALTER table \'{0}\' RENAME TO \'{1}\'".format(table_name, table_name_production))
+    postgresql_cursor.execute("ALTER table %s RENAME TO %s;",
+                              (table_name, table_name_production))
 
-    postgresql_cursor.execute("DROP TABLE tmp")
+    postgresql_cursor.execute("DROP TABLE tmp;")
 
     postgresql_client.commit()
 
