@@ -1,7 +1,8 @@
 from datetime import datetime
 from time import sleep
 
-from upol_search_engine.upol_crawler import tasks
+from upol_search_engine.upol_crawler import tasks as crawler_tasks
+from upol_search_engine.upol_indexer import tasks as indexer_tasks
 
 
 def main():
@@ -26,6 +27,9 @@ def main():
                         'frequency_per_server': 0.5,
                         'blacklist': blacklist}
 
+    indexer_settings = {'batch_size': 300,
+                        'table_name': 'index'}
+
     seed = """https://www.upol.cz
     https://www.cmtf.upol.cz
     https://www.lf.upol.cz
@@ -38,7 +42,7 @@ def main():
 
     print("Launching crawler")
 
-    feeder = tasks.feeder_task.delay(
+    feeder = crawler_tasks.feeder_task.delay(
         crawler_settings=crawler_settings,
         seed=seed,
         batch_size=300,
@@ -56,16 +60,27 @@ def main():
     print("Crawler done")
     print("Launching pagerank calculation")
 
-    pagerank = tasks.calculate_pagerank_task.delay(crawler_settings)
+    pagerank = crawler_tasks.calculate_pagerank_task.delay(crawler_settings)
 
     while pagerank.status != 'SUCCESS':
         print(pagerank.status)
         sleep(5)
 
+    print("Pagerank done")
+
+    print("Launching indexer")
+
+    indexer = indexer_tasks.indexer_task.delay(
+        crawler_settings, indexer_settings)
+
+    while indexer.status != 'SUCCESS':
+        print(indexer.status)
+        sleep(5)
+
     end_time = datetime.now()
     duration = end_time - start_time
     print(duration)
-    print("Pagerank done")
+    print("Indexer done")
 
 
 if __name__ == "__main__":
