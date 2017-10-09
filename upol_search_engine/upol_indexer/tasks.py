@@ -56,7 +56,8 @@ def indexer_task(self, crawler_settings, indexer_settings):
         if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
                                               postgresql_cursor,
-                                              indexed_rows)
+                                              indexed_rows,
+                                              postgresql_table_name)
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
         else:
             break
