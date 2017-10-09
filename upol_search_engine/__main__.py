@@ -55,7 +55,7 @@ def main():
         crawler_settings=crawler_settings,
         seed=seed,
         batch_size=300,
-        delay_between_feeding=30)
+        delay_between_feeding=2)
 
     start_time = datetime.now()
 
