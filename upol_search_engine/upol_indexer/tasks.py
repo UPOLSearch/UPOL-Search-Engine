@@ -23,6 +23,7 @@ def indexer_task(self, crawler_settings, indexer_settings):
     postgresql_client = postgresql.create_client()
     postgresql_cursor = postgresql_client.cursor()
     postgresql_table_name = indexer_settings.get('table_name')
+    postgresql_table_name_production = indexer_settings.get('table_name_production')
 
     # Test if postgresql table is ready
     if not postgresql.test_if_table_exists(postgresql_cursor,
@@ -61,6 +62,11 @@ def indexer_task(self, crawler_settings, indexer_settings):
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
         else:
             break
+
+    postgresql.change_table_to_production(postgresql_client,
+                                          postgresql_cursor,
+                                          postgresql_table_name,
+                                          postgresql_table_name_production)
 
     postgresql_client.commit()
     postgresql_cursor.close()

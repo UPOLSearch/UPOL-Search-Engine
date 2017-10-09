@@ -55,6 +55,18 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_client.commit()
 
 
+def change_table_to_production(postgresql_client, postgresql_cursor,
+                               table_name, table_name_production):
+    if test_if_table_exists(postgresql_cursor, table_name):
+        postgresql_cursor.execute("ALTER table {0} RENAME TO {1}".format(table_name_production, "tmp"))
+
+    postgresql_cursor.execute("ALTER table {0} RENAME TO {1}".format(table_name, table_name_production))
+
+    postgresql_cursor.execute("DROP TABLE tmp")
+
+    postgresql_client.commit()
+
+
 def insert_rows_into_index(psql_client, psql_cursor, indexed_rows, table_name):
     dataText = ','.join(
         psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
