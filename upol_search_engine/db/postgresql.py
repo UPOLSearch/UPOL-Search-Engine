@@ -16,9 +16,9 @@ def create_client():
 def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_cursor.execute("DROP TABLE IF EXISTS {0};".format(table_name))
     postgresql_cursor.execute(
-        "DROP TRIGGER IF EXISTS tsvectorupdate ON {0};".format(table_name))
-    postgresql_cursor.execute(
         "DROP FUNCTION IF EXISTS documents_search_trigger();")
+    postgresql_cursor.execute(
+        "DROP TRIGGER IF EXISTS tsvectorupdate ON {0};".format(table_name))
     postgresql_cursor.execute(
         """CREATE TABLE {0} (hash varchar PRIMARY KEY,
         url text,
