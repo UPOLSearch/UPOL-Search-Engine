@@ -58,9 +58,9 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
 def change_table_to_production(postgresql_client, postgresql_cursor,
                                table_name, table_name_production):
     if test_if_table_exists(postgresql_cursor, table_name):
-        postgresql_cursor.execute("ALTER table {0} RENAME TO {1}".format(table_name_production, "tmp"))
+        postgresql_cursor.execute("ALTER table \'{0}\' RENAME TO \'{1}\'".format(table_name_production, "tmp"))
 
-    postgresql_cursor.execute("ALTER table {0} RENAME TO {1}".format(table_name, table_name_production))
+    postgresql_cursor.execute("ALTER table \'{0}\' RENAME TO \'{1}\'".format(table_name, table_name_production))
 
     postgresql_cursor.execute("DROP TABLE tmp")
 
@@ -83,4 +83,4 @@ def test_if_table_exists(psql_cursor, table_name):
     psql_cursor.execute(
         'SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=\'{0}\');'.format(table_name))
 
-    return psql_cursor.fetchone()[0]
+    return bool(psql_cursor.fetchone()[0])
