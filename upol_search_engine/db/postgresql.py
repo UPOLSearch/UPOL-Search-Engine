@@ -60,11 +60,6 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
 
 def change_table_to_production(postgresql_client, postgresql_cursor,
                                table_name, table_name_production):
-    cur.execute(
-    sql.SQL("insert into {} values (%s, %s)")
-        .format(sql.Identifier('my_table')),
-    [10, 20])
-
     if test_if_table_exists(postgresql_cursor, table_name):
         postgresql_cursor.execute(
             sql.SQL("ALTER table {} RENAME TO {};").format(
