@@ -68,7 +68,7 @@ def insert_rows_into_index(psql_client, psql_cursor, indexed_rows):
 
 
 def test_if_table_exists(psql_cursor, table_name):
-    postgresql_cursor.execute(
+    psql_cursor.execute(
         'SELECT exists(SELECT * FROM information_schema.tables WHERE table_name={0})'.format(table_name))
 
-    return postgresql_cursor.fetchone()[0]
+    return psql_cursor.fetchone()[0]
