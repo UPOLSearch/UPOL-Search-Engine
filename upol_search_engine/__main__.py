@@ -20,7 +20,7 @@ def main():
     courseware.upol.cz
     m.zurnal.upol.cz"""
 
-    crawler_settings = {'limit_domain': 'upol.cz',
+    crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
                         'max_depth': 10,
                         'connect_max_timeout': 3.05,
                         'read_max_timeout': 10,
@@ -30,15 +30,17 @@ def main():
     indexer_settings = {'batch_size': 300,
                         'table_name': 'index'}
 
-    seed = """https://www.upol.cz
-    https://www.cmtf.upol.cz
-    https://www.lf.upol.cz
-    https://www.ff.upol.cz
-    https://www.prf.upol.cz
-    https://www.pdf.upol.cz
-    https://ftk.upol.cz
-    https://www.pf.upol.cz
-    https://www.fzv.upol.cz"""
+    # seed = """https://www.upol.cz
+    # https://www.cmtf.upol.cz
+    # https://www.lf.upol.cz
+    # https://www.ff.upol.cz
+    # https://www.prf.upol.cz
+    # https://www.pdf.upol.cz
+    # https://ftk.upol.cz
+    # https://www.pf.upol.cz
+    # https://www.fzv.upol.cz"""
+
+    seed = """http://trnecka.inf.upol.cz"""
 
     print("Launching crawler")
 
