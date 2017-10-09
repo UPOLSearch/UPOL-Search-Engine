@@ -13,12 +13,26 @@ def create_client():
     return postgresql_client
 
 
+def create_function(postgresql_client, postgresql_cursor):
+    postgresql_cursor.execute(
+        "DROP FUNCTION IF EXISTS documents_search_trigger() CASCADE;")
+
+    postgresql_cursor.execute(
+        """CREATE FUNCTION documents_search_trigger() RETURNS trigger AS $$
+        begin
+          new.search_czech_index :=
+            setweight(to_tsvector('czech', coalesce(new.description, '')), 'B') ||
+            setweight(to_tsvector('czech', coalesce(new.keywords, '')), 'A') ||
+            setweight(to_tsvector('czech', coalesce(new.content, '')), 'B')||
+            setweight(to_tsvector('czech', coalesce(new.title, '')), 'A');
+          return new;
+        end
+        $$ LANGUAGE plpgsql;""")
+
+
 def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_cursor.execute("DROP TABLE IF EXISTS {0};".format(table_name))
-    postgresql_cursor.execute(
-        "DROP FUNCTION IF EXISTS documents_search_trigger();")
-    postgresql_cursor.execute(
-        "DROP TRIGGER IF EXISTS tsvectorupdate ON {0};".format(table_name))
+
     postgresql_cursor.execute(
         """CREATE TABLE {0} (hash varchar PRIMARY KEY,
         url text,
@@ -33,18 +47,6 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
         pagerank double precision,
         url_length integer,
         search_czech_index tsvector);""".format(table_name))
-
-    postgresql_cursor.execute(
-        """CREATE FUNCTION documents_search_trigger() RETURNS trigger AS $$
-        begin
-          new.search_czech_index :=
-            setweight(to_tsvector('czech', coalesce(new.description, '')), 'B') ||
-            setweight(to_tsvector('czech', coalesce(new.keywords, '')), 'A') ||
-            setweight(to_tsvector('czech', coalesce(new.content, '')), 'B')||
-            setweight(to_tsvector('czech', coalesce(new.title, '')), 'A');
-          return new;
-        end
-        $$ LANGUAGE plpgsql;""")
 
     postgresql_cursor.execute(
         """CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON {0} FOR EACH ROW EXECUTE PROCEDURE documents_search_trigger();""".format(table_name))
