@@ -25,7 +25,8 @@ def indexer_task(self, crawler_settings, indexer_settings):
     postgresql_table_name = indexer_settings.get('table_name')
 
     # Test if postgresql table is ready
-    if not postgresql.test_if_table_exists(postgresql_table_name):
+    if not postgresql.test_if_table_exists(postgresql_cursor,
+                                           postgresql_table_name):
         postgresql.reset_and_init_db(postgresql_client,
                                      postgresql_cursor,
                                      postgresql_table_name)
