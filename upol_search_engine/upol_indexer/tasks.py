@@ -11,7 +11,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
 
-    start_time = datetime.now()
+    # start_time = datetime.now()
 
     # self.update_state(state='STARTING', meta={'start': start_time})
 
@@ -38,7 +38,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     batch_number = 0
 
-    total_pages = mongodb.get_count_of_not_indexed(database)
+    total_pages = mongodb.get_count_of_not_indexed(mongodb_database)
 
     while True:
         # self.update_state(state='RUNNING', meta={'start': start_time,
