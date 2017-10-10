@@ -581,14 +581,14 @@ def update_indexer_progress(client, task_id, progress, total):
 
 
 def get_count_of_not_indexed(db):
-    count = db['Urls'].count({
+    count = db['Urls'].find({
         'page.visited': True,
         'page.noindex': False,
         'page.file': False,  # Just for now
         'page.invalid': False,
         'page.response.status_code': 200,
         'page.indexed': False
-    })
+    }).count()
 
     return count
 
