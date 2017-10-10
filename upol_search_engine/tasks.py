@@ -65,7 +65,7 @@ def main_task(self):
 
         mongodb.insert_sub_task_start(mongodb_client, task_id, "pagerank")
 
-        crawler_tasks.calculate_pagerank_task(crawler_settings)
+        crawler_tasks.calculate_pagerank_task(crawler_settings, task_id)
 
         mongodb.insert_sub_task_finish(
             mongodb_client, task_id, "pagerank", "finished")

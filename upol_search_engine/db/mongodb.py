@@ -562,6 +562,15 @@ def update_crawler_progress(client, db, task_id):
         {'$set': {'crawler.progress': stats}})
 
 
+def update_pagerank_progress(client, task_id, stage):
+    db_stats = get_stats_database(client)
+    start_time = datetime.now()
+
+    return db_stats['Stats'].find_one_and_update(
+        {'task_id': task_id},
+        {'$set': {'pagerank.progress' + stage: start_time}})
+
+
 def get_batch_for_indexer(db, size):
     pipeline = [
         {'$lookup': {

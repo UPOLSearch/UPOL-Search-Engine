@@ -87,7 +87,7 @@ def feeder_task(crawler_settings, seed, batch_size,
 
 
 # @app.task(queue='search_engine_sub_tasks', bind=True)
-def calculate_pagerank_task(crawler_settings):
+def calculate_pagerank_task(crawler_settings, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.upol_crawler.core import pagerank
 
@@ -102,14 +102,17 @@ def calculate_pagerank_task(crawler_settings):
 
     # self.update_state(state='BUILDING_GRAPH', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'building_graph')
     graph = pagerank.build_graph(database)
 
     # self.update_state(state='CALCULATING_PAGERANK', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'calculation')
     graph_pagerank = pagerank.calculate_pagerank(graph, database)
 
     # self.update_state(state='INSERTING_PAGERANK', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'uploading')
     pagerank.insert_pagerank_db(graph_pagerank, database)
 
     # self.update_state(state='DONE', meta={'start': start_time,
