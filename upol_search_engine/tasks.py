@@ -3,7 +3,7 @@ from upol_search_engine.upol_crawler import tasks as crawler_tasks
 from upol_search_engine.upol_indexer import tasks as indexer_tasks
 
 
-@app.task(queue='search_engine', bind=True):
+@app.task(queue='search_engine', bind=True)
 def main_task(self):
     """Main task of the project"""
 
