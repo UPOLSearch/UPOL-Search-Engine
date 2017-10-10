@@ -57,7 +57,8 @@ def main_task(self):
             crawler_settings=crawler_settings,
             seed=seed,
             batch_size=300,
-            delay_between_feeding=2)
+            delay_between_feeding=2,
+            task_id=task_id)
 
         mongodb.insert_sub_task_finish(
             mongodb_client, task_id, "crawler", "finished")

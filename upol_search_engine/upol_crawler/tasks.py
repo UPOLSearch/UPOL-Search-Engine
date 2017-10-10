@@ -13,7 +13,7 @@ def crawl_url_task(url, depth, crawler_settings):
 
 
 def feeder_task(crawler_settings, seed, batch_size,
-                delay_between_feeding):
+                delay_between_feeding, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.utils import urls
     from upol_search_engine.upol_crawler.core import feeder
@@ -67,7 +67,7 @@ def feeder_task(crawler_settings, seed, batch_size,
             #                         'stats': stats})
 
             # stats = mongodb.get_crawler_stats(database)
-            mongodb.update_crawler_progress(client)
+            mongodb.update_crawler_progress(client, task_id)
 
             number_of_added_links = 0
 
@@ -82,7 +82,7 @@ def feeder_task(crawler_settings, seed, batch_size,
 
     # self.update_state(state='DONE', meta={'start': start_time,
     #                                       'end': datetime.now()})
-    mongodb.update_crawler_progress(client)
+    mongodb.update_crawler_progress(client, task_id)
     client.close()
 
 

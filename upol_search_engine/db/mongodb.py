@@ -552,7 +552,7 @@ def insert_sub_task_finish(client, task_id, subtask_name, reason):
                   subtask_name + '.result': reason}})
 
 
-def update_crawler_progress(client):
+def update_crawler_progress(client, task_id):
     db_stats = get_stats_database(client)
 
     stats = get_stats_database(client)
