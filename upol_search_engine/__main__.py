@@ -27,19 +27,19 @@ def main():
     #                     'frequency_per_server': 0.5,
     #                     'blacklist': blacklist}
 
-    # crawler_settings = {'limit_domain': 'inf.upol.cz',
-    #                     'max_depth': 10,
-    #                     'connect_max_timeout': 3.05,
-    #                     'read_max_timeout': 10,
-    #                     'frequency_per_server': 0.2,
-    #                     'blacklist': blacklist}
-
-    crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
+    crawler_settings = {'limit_domain': 'inf.upol.cz',
                         'max_depth': 10,
                         'connect_max_timeout': 3.05,
                         'read_max_timeout': 10,
                         'frequency_per_server': 0.2,
                         'blacklist': blacklist}
+
+    # crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
+    #                     'max_depth': 10,
+    #                     'connect_max_timeout': 3.05,
+    #                     'read_max_timeout': 10,
+    #                     'frequency_per_server': 0.2,
+    #                     'blacklist': blacklist}
 
     indexer_settings = {'batch_size': 300,
                         'table_name': 'index_tmp',
@@ -55,9 +55,9 @@ def main():
     # https://www.pf.upol.cz
     # https://www.fzv.upol.cz"""
 
-    # seed = """http://inf.upol.cz"""
+    seed = """http://inf.upol.cz"""
 
-    seed = """http://trnecka.inf.upol.cz"""
+    # seed = """http://trnecka.inf.upol.cz"""
 
     print("Launching crawler")
 
