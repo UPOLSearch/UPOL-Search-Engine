@@ -568,7 +568,7 @@ def update_pagerank_progress(client, task_id, stage):
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
-        {'$set': {'pagerank.progress' + stage: start_time}})
+        {'$set': {'pagerank.progress.' + stage: start_time}})
 
 
 def get_batch_for_indexer(db, size):
