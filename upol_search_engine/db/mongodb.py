@@ -25,9 +25,9 @@ def get_database(limit_domain, client):
     return database
 
 
-def drop_database():
+def drop_database(db_name):
     client = create_client()
-    client.drop_database(settings.DB_NAME)
+    client.drop_database(db_name)
 
 
 def init(db):

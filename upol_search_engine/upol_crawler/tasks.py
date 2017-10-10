@@ -28,16 +28,20 @@ def feeder_task(self, crawler_settings, seed, batch_size,
     database = mongodb.get_database(crawler_settings.get('limit_domain'), client)
     regex = urls.generate_regex(crawler_settings.get('limit_domain'))
 
+    mongodb.drop_database(
+        urls.domain_replace_dots(crawler_settings.get('limit_domain')))
+
     # Init database
     mongodb.init(database)
 
-    if mongodb.is_first_run(database):
+    # if mongodb.is_first_run(database):
         # Load seed into database
-        feeder.load_seed(
-            seed, database, regex, crawler_settings.get('max_depth'),
-            crawler_settings.get('blacklist'))
-    else:
-        mongodb.reset_visited_for_fast_recrawl(database)
+
+    feeder.load_seed(
+        seed, database, regex, crawler_settings.get('max_depth'),
+        crawler_settings.get('blacklist'))
+    # else:
+    #     mongodb.reset_visited_for_fast_recrawl(database)
 
     self.update_state(state='RUNNING', meta={'start': start_time})
 
