@@ -25,6 +25,10 @@ def get_database(limit_domain, client):
     return database
 
 
+def get_stats_database(client):
+    return client["stats"]
+
+
 def drop_database(db_name):
     client = create_client()
     client.drop_database(db_name)
@@ -498,6 +502,54 @@ def get_crawler_stats(db):
                   {'timeout': {'$exists': False}}]}).count()
 
     return stats
+
+
+def insert_engine_start(client, task_id, crawler_settings):
+    db_stats = get_stats_database(client)
+    start_time = datetime.now()
+
+    stats_object = {
+        'task_id': task_id,
+        'progress': {'start': start_time,
+                     'end': None,
+                     'result': "running"},
+        'crawler': {'result': None},
+        'pagerank': {'result': None},
+        'indexer': {'result': None},
+        'limit_domain': crawler_settings.get('limit_domain'),
+    }
+
+    return db_stats['Stats'].insert_one(stats_object)
+
+
+def insert_engine_finish(client, task_id, reason):
+    db_stats = get_stats_database(client)
+    end_time = datetime.now()
+
+    return db_stats['Stats'].find_one_and_update(
+        {'task_id': task_id},
+        {'$set': {'progress.end': end_time,
+                  'progress.result': reason}})
+
+
+def insert_sub_task_start(client, task_id, subtask_name):
+    db_stats = get_stats_database(client)
+    start_time = datetime.now()
+
+    return db_stats['Stats'].find_one_and_update(
+        {'task_id': task_id},
+        {'$set': {subtask_name + '.start': start_time,
+                  subtask_name + '.result': "running"}})
+
+
+def insert_sub_task_finish(client, task_id, subtask_name, reason):
+    db_stats = get_stats_database(client)
+    end_time = datetime.now()
+
+    return db_stats['Stats'].find_one_and_update(
+        {'task_id': task_id},
+        {'$set': {subtask_name + '.end': end_time,
+                  subtask_name + '.result': reason}})
 
 
 def get_batch_for_indexer(db, size):
