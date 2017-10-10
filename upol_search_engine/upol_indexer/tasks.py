@@ -1,8 +1,8 @@
 from upol_search_engine.celery_app import app
 
 
-@app.task(queue='search_engine', bind=True)
-def indexer_task(self, crawler_settings, indexer_settings):
+# @app.task(queue='search_engine_sub_tasks', bind=True)
+def indexer_task(crawler_settings, indexer_settings):
     from datetime import datetime
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
@@ -13,7 +13,7 @@ def indexer_task(self, crawler_settings, indexer_settings):
 
     start_time = datetime.now()
 
-    self.update_state(state='STARTING', meta={'start': start_time})
+    # self.update_state(state='STARTING', meta={'start': start_time})
 
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database(
@@ -39,8 +39,8 @@ def indexer_task(self, crawler_settings, indexer_settings):
     batch_number = 0
 
     while True:
-        self.update_state(state='RUNNING', meta={'start': start_time,
-                                                 'batch_number': batch_number})
+        # self.update_state(state='RUNNING', meta={'start': start_time,
+        #                                          'batch_number': batch_number})
 
         document_batch = mongodb.get_batch_for_indexer(mongodb_database,
                                                        mongodb_batch_size)
@@ -77,5 +77,5 @@ def indexer_task(self, crawler_settings, indexer_settings):
     postgresql_client.close()
     mongodb_client.close()
 
-    self.update_state(state='DONE', meta={'start': start_time,
-                                          'end': datetime.now()})
+    # self.update_state(state='DONE', meta={'start': start_time,
+    #                                       'end': datetime.now()})

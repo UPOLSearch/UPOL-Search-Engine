@@ -23,8 +23,8 @@ class Config(object):
     enable_utc = False
     timezone = 'Europe/Prague'
     include = ['upol_search_engine.upol_crawler.tasks',
-               'upol_search_engine.upol_indexer.tasks']
-    # worker_hijack_root_logger = False
+               'upol_search_engine.tasks']
+
     log_file = settings.CONFIG.get('Settings', 'log_dir')
     task_acks_late = True
 
