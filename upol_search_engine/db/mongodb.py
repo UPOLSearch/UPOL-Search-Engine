@@ -571,6 +571,28 @@ def update_pagerank_progress(client, task_id, stage):
         {'$set': {'pagerank.progress.' + stage: start_time}})
 
 
+def update_indexer_progress(client, task_id, progress, total):
+    db_stats = get_stats_database(client)
+
+    return db_stats['Stats'].find_one_and_update(
+        {'task_id': task_id},
+        {'$set': {'indexer.progress.total': total,
+                  'indexer.progress.progress': progress}})
+
+
+def get_count_of_not_indexed(db):
+    count = db['Urls'].count({
+        'page.visited': True,
+        'page.noindex': False,
+        'page.file': False,  # Just for now
+        'page.invalid': False,
+        'page.response.status_code': 200,
+        'page.indexed': False
+    })
+
+    return count
+
+
 def get_batch_for_indexer(db, size):
     pipeline = [
         {'$lookup': {

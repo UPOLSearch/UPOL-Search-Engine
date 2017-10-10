@@ -2,7 +2,7 @@ from upol_search_engine.celery_app import app
 
 
 # @app.task(queue='search_engine_sub_tasks', bind=True)
-def indexer_task(crawler_settings, indexer_settings):
+def indexer_task(crawler_settings, indexer_settings, task_id):
     from datetime import datetime
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
@@ -38,6 +38,8 @@ def indexer_task(crawler_settings, indexer_settings):
 
     batch_number = 0
 
+    total_pages = mongodb.get_count_of_not_indexed(database)
+
     while True:
         # self.update_state(state='RUNNING', meta={'start': start_time,
         #                                          'batch_number': batch_number})
@@ -64,6 +66,9 @@ def indexer_task(crawler_settings, indexer_settings):
                                               indexed_rows,
                                               postgresql_table_name)
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
+
+            mongodb.update_indexer_progress(
+                mongodb_client, task_id, len(indexed_rows), total_pages)
         else:
             break
 

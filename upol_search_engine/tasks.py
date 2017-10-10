@@ -72,7 +72,7 @@ def main_task(self):
 
         mongodb.insert_sub_task_start(mongodb_client, task_id, "indexer")
 
-        indexer_tasks.indexer_task(crawler_settings, indexer_settings)
+        indexer_tasks.indexer_task(crawler_settings, indexer_settings, task_id)
 
         mongodb.insert_sub_task_finish(
             mongodb_client, task_id, "indexer", "finished")
