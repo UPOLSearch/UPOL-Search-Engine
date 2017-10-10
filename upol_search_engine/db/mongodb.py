@@ -555,7 +555,7 @@ def insert_sub_task_finish(client, task_id, subtask_name, reason):
 def update_crawler_progress(client, task_id):
     db_stats = get_stats_database(client)
 
-    stats = get_stats_database(client)
+    stats = get_crawler_stats(client)
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
