@@ -67,6 +67,7 @@ def feeder_task(crawler_settings, seed, batch_size,
             #                         'stats': stats})
 
             # stats = mongodb.get_crawler_stats(database)
+            mongodb.update_crawler_progress(client)
 
             number_of_added_links = 0
 
@@ -81,7 +82,7 @@ def feeder_task(crawler_settings, seed, batch_size,
 
     # self.update_state(state='DONE', meta={'start': start_time,
     #                                       'end': datetime.now()})
-
+    mongodb.update_crawler_progress(client)
     client.close()
 
 
