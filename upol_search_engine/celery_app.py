@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.schedules import crontab
 from kombu import Exchange, Queue
 from upol_search_engine import settings
 
@@ -27,7 +28,15 @@ class Config(object):
 
     log_file = settings.CONFIG.get('Settings', 'log_dir')
     task_acks_late = True
-    
+
+    beat_schedule = {
+        'run-search-engine': {
+            'task': 'upol_search_engine.tasks.main_task',
+            'schedule': crontab(minute='*/2'),
+            'args': ()
+        }
+    }
+
 
 app = Celery('celery_app')
 app.config_from_object(Config)
