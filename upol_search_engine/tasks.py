@@ -1,8 +1,18 @@
 from celery.exceptions import SoftTimeLimitExceeded
+from celery.schedules import crontab
 from upol_search_engine.celery_app import app
 from upol_search_engine.db import mongodb
 from upol_search_engine.upol_crawler import tasks as crawler_tasks
 from upol_search_engine.upol_indexer import tasks as indexer_tasks
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    # Run crawler every 5minutes
+    sender.add_periodic_task(
+        crontab(minute='*/5'),
+        main_task.s()
+    )
 
 
 # Time limit, soft 1.8day, hard 2days
