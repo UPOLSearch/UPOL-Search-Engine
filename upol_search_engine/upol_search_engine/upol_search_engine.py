@@ -78,7 +78,8 @@ def api_stats():
         total_delta_time = end_time_db - start_time_db
         stage_delta_time = "N/A"
 
-    total_delta_time = timedelta_to_string(total_delta_time)
+    # total_delta_time = timedelta_to_string(total_delta_time)
+    total_delta_time = str(total_delta_time)
 
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
