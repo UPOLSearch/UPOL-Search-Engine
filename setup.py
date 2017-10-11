@@ -25,7 +25,8 @@ setup(name='UPOL-Search-Engine',
           'w3lib',
           'langdetect',
           'networkx',
-          'psycopg2'
+          'psycopg2',
+          'flask'
       ],
       entry_points={
           'console_scripts': [

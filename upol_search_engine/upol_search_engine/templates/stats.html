@@ -1,0 +1,160 @@
+{% extends "base.html" %} {% block body %} {% include "nav.html" %}
+
+<div class="container">
+
+    <div class="row mt-5 mb-5">
+        <div class="col-12">
+            <h2>Actual state</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="big-number">Crawling</div>
+                    <div class="big-number-label">
+                        stage
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="big-number">1h 5m</div>
+                    <div class="big-number-label">
+                        stage delta time
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="big-number">2h 5m</div>
+                    <div class="big-number-label">
+                        total delta time
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="big-number">2h 5m</div>
+                    <div class="big-number-label">
+                        time to next start
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h2>Crawler</h2>
+    </div>
+    <div class="row mb-5">
+        <div class="col-xl-6">
+            <canvas id="page_types_bar" height="200px"></canvas>
+        </div>
+        <div class="col-xl-6">
+            <canvas id="progress" height="200px"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-5 mb-5">
+        <div class="col-xl-8">
+            <h2>Pagerank</h2>
+            <div class="row">
+                <div class="col-4">
+                    <div class="big-number">1h 5m</div>
+                    <div class="big-number-label">
+                        graph
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="big-number">1h 5m</div>
+                    <div class="big-number-label">
+                        calculation
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="big-number">--</div>
+                    <div class="big-number-label">
+                        uploading
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <h2>Indexer</h2>
+            <div class="row">
+            <div class="col-12">
+                <div class="big-number">0/156</div>
+                <div class="big-number-label">
+                    indexed (pages)
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% include "footer.html" %}
+<script>
+    var legend = {
+        display: true,
+        position: 'bottom',
+    };
+    var layout = {
+        padding: {
+            left: 0,
+            right: 0,
+            top: 40,
+            bottom: 40
+        }
+    };
+
+    var page_types_bar = document.getElementById('page_types_bar').getContext('2d');
+
+    var myDoughnutChart = new Chart(page_types_bar, {
+        type: 'bar',
+
+        data: {
+
+            labels: ['Pages', 'Files', 'Ignored', 'Timeout', 'Blocked'],
+            datasets: [{
+                data: [40, 20, 20, 25, 25],
+                backgroundColor: [
+                    "#4A90E2",
+                    "#F5A623",
+                    "#D0021B",
+                    "#50E3C2",
+                    "#9013FE",
+                ],
+            }],
+        },
+
+        options: {
+            legend: {
+                display: false
+            },
+            layout: layout,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+
+    var progress = document.getElementById('progress').getContext('2d');
+    var myDoughnutChart = new Chart(progress, {
+        type: 'doughnut',
+        data: {
+            labels: ['Visited', 'Queued', 'Not queued'],
+            datasets: [{
+                data: [10, 20, 30],
+                backgroundColor: [
+                    "#F5A623",
+                    "#D0021B",
+                    "#50E3C2"
+                ],
+            }],
+        },
+        options: {
+            legend: legend,
+            layout: layout,
+        }
+    });
+</script>
+{% endblock %}
