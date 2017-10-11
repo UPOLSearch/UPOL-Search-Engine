@@ -48,16 +48,16 @@ def api_stats():
         stage = stages.get(result_db)
 
     start_time_db = return_time_or_none(stats.get('progress').get('start'))
-    end_time_db = return_time_or_none(stats.get('progress').get('start'))
+    end_time_db = return_time_or_none(stats.get('progress').get('end'))
 
     crawler_start_time_db = return_time_or_none(stats.get('crawler').get('start'))
-    crawler_end_time_db = return_time_or_none(stats.get('crawler').get('start'))
+    crawler_end_time_db = return_time_or_none(stats.get('crawler').get('end'))
 
     pagerank_start_time_db = return_time_or_none(stats.get('pagerank').get('start'))
-    pagerank_end_time_db = return_time_or_none(stats.get('pagerank').get('start'))
+    pagerank_end_time_db = return_time_or_none(stats.get('pagerank').get('end'))
 
     indexer_start_time_db = return_time_or_none(stats.get('indexer').get('start'))
-    indexer_end_time_db = return_time_or_none(stats.get('indexer').get('start'))
+    indexer_end_time_db = return_time_or_none(stats.get('indexer').get('end'))
 
     next_time_start = "N/A"
 
