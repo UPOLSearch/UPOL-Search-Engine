@@ -27,8 +27,7 @@ class Config(object):
 
     log_file = settings.CONFIG.get('Settings', 'log_dir')
     task_acks_late = True
-    }
-
+    
 
 app = Celery('celery_app')
 app.config_from_object(Config)
