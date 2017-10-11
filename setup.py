@@ -13,8 +13,8 @@ setup(name='UPOL-Search-Engine',
       packages=find_packages(),
       package_data={
           'upol_search_engine': ['config-default.ini',
-                                 'upol_search_engine/templates',
-                                 'upol_search_engine/static'],
+                                 'upol_search_engine/templates/*',
+                                 'upol_search_engine/static/*'],
       },
       install_requires=[
           'beautifulsoup4',
