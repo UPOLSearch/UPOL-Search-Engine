@@ -23,7 +23,7 @@ def api_stats():
     def timedelta_to_string(timedelta):
         seconds = timedelta.total_seconds()
 
-        return '{:02}h {:02}m'.format(seconds // 3600, seconds % 3600 // 60)
+        return '{}h {}m'.format(seconds // 3600, seconds % 3600 // 60)
 
 
     mongodb_client = mongodb.create_client()
