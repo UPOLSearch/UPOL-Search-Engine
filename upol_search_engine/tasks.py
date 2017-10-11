@@ -32,9 +32,9 @@ def main_task(self):
         m.zurnal.upol.cz
         """
 
-        seed = """http://trnecka.inf.upol.cz"""
+        seed = """http://inf.upol.cz"""
 
-        crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
+        crawler_settings = {'limit_domain': 'inf.upol.cz',
                             'max_depth': 10,
                             'connect_max_timeout': 3.05,
                             'read_max_timeout': 10,
