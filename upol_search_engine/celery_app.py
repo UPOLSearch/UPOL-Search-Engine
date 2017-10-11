@@ -32,7 +32,7 @@ class Config(object):
     beat_schedule = {
         'run-search-engine': {
             'task': 'upol_search_engine.tasks.main_task',
-            'schedule': 60 * 60 * 2,
+            'schedule': 20,
         }
     }
 
