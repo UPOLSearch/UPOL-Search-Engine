@@ -3,6 +3,7 @@ from random import shuffle
 
 import gridfs
 import pymongo
+from bson.codec_options import CodecOptions
 from bson.objectid import ObjectId
 from langdetect import detect
 from upol_search_engine import settings
@@ -61,7 +62,7 @@ def _prepare_url_object(url, visited, queued, depth):
                   'alias': False,
                   'invalid': False,
                   'file': False,
-                  'progress': {'discovered': str(datetime.now())}}
+                  'progress': {'discovered': str(datetime.utcnow())}}
 
     return url_object
 
@@ -189,7 +190,7 @@ def set_alias_visited_url(db, url):
     url_addition['visited'] = True
     url_addition['queued'] = False
     url_addition['alias'] = True
-    url_addition['progress.last_visited'] = str(datetime.now())
+    url_addition['progress.last_visited'] = str(datetime.utcnow())
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
@@ -207,7 +208,7 @@ def set_visited_invalid_url(db, url, response, reason, is_file=False):
     url_addition['invalid'] = True
     url_addition['file'] = is_file
     url_addition['invalid_reason'] = reason
-    url_addition['progress.last_visited'] = str(datetime.now())
+    url_addition['progress.last_visited'] = str(datetime.utcnow())
 
     result = db['Urls'].find_one_and_update({'_id': url_hash},
                                             {'$set': url_addition})
@@ -280,7 +281,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['noindex'] = False
     url_addition['file'] = True
 
-    url_addition['progress.last_visited'] = str(datetime.now())
+    url_addition['progress.last_visited'] = str(datetime.utcnow())
 
     # GridFS connection
     fs = gridfs.GridFS(db)
@@ -345,7 +346,7 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     url_addition['indexed'] = False
     url_addition['noindex'] = noindex
 
-    url_addition['progress.last_visited'] = str(datetime.now())
+    url_addition['progress.last_visited'] = str(datetime.utcnow())
 
     url_addition['content.binary'] = response.content
     url_addition['content.hashes.text'] = text_hash
@@ -421,7 +422,7 @@ def set_timeout_url(db, url):
         {'$set': {
             'queued': False,
             'timeout.timeout': True,
-            'timeout.last_timeout': str(datetime.now())
+            'timeout.last_timeout': str(datetime.utcnow())
         }})
 
     return result is not None
@@ -506,16 +507,23 @@ def get_crawler_stats(db):
 
 def insert_engine_start(client, task_id, crawler_settings):
     db_stats = get_stats_database(client)
-    start_time = datetime.now()
+    start_time = datetime.utcnow()
 
     stats_object = {
         'task_id': task_id,
         'progress': {'start': start_time,
                      'end': None,
-                     'result': "running"},
-        'crawler': {'result': None},
-        'pagerank': {'result': None},
-        'indexer': {'result': None},
+                     'result': 'running',
+                     'stage': 'loading'},
+        'crawler': {'result': None,
+                    'start': None,
+                    'end': None},
+        'pagerank': {'result': None,
+                     'start': None,
+                     'end': None},
+        'indexer': {'result': None,
+                    'start': None,
+                    'end': None},
         'limit_domain': crawler_settings.get('limit_domain'),
     }
 
@@ -524,7 +532,7 @@ def insert_engine_start(client, task_id, crawler_settings):
 
 def insert_engine_finish(client, task_id, reason):
     db_stats = get_stats_database(client)
-    end_time = datetime.now()
+    end_time = datetime.utcnow()
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
@@ -534,17 +542,18 @@ def insert_engine_finish(client, task_id, reason):
 
 def insert_sub_task_start(client, task_id, subtask_name):
     db_stats = get_stats_database(client)
-    start_time = datetime.now()
+    start_time = datetime.utcnow()
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
         {'$set': {subtask_name + '.start': start_time,
-                  subtask_name + '.result': "running"}})
+                  subtask_name + '.result': "running",
+                  'progress.stage': subtask_name}})
 
 
 def insert_sub_task_finish(client, task_id, subtask_name, reason):
     db_stats = get_stats_database(client)
-    end_time = datetime.now()
+    end_time = datetime.utcnow()
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
@@ -564,7 +573,7 @@ def update_crawler_progress(client, db, task_id):
 
 def update_pagerank_progress(client, task_id, stage):
     db_stats = get_stats_database(client)
-    start_time = datetime.now()
+    start_time = datetime.utcnow()
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
@@ -578,6 +587,16 @@ def update_indexer_progress(client, task_id, progress, total):
         {'task_id': task_id},
         {'$set': {'indexer.progress.total': total,
                   'indexer.progress.progress': progress}})
+
+
+def get_lastest_stats(client):
+    db_stats = get_stats_database(client)
+
+    aware_times = db_stats['Stats'].with_options(codec_options=CodecOptions(
+        tz_aware=True,
+        tzinfo=pytz.timezone('Europe/Prague')))
+
+    return aware_times.find().limit(1).sort({'$natural': -1})
 
 
 def get_count_of_not_indexed(db):

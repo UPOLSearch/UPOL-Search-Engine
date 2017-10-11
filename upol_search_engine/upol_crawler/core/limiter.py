@@ -35,7 +35,7 @@ def set_last_for_ip_limit(db, ip, last):
 
 def _time_difference_from_now(time):
     """Return time difference from time to now"""
-    delta = datetime.now() - time
+    delta = datetime.utcnow() - time
     return delta.total_seconds()
 
 
@@ -63,13 +63,13 @@ def is_crawl_allowed(url, database, max_frequency):
         if delta < float(record['max_frequency']):
             result = False
         else:
-            set_last_for_ip_limit(database, ip, datetime.now())
+            set_last_for_ip_limit(database, ip, datetime.utcnow())
 
     else:
         insert_limits_for_ip(database,
                              urls.domain(url),
                              ip,
-                             datetime.now(),
+                             datetime.utcnow(),
                              max_frequency)
 
     if not result:
