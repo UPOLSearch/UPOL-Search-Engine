@@ -78,5 +78,9 @@ def main_task(self):
             mongodb_client, task_id, "indexer", "finished")
 
         mongodb.insert_engine_finish(mongodb_client, task_id, "finished")
+
+        mongodb_client.close()
     except SoftTimeLimitExceeded:
         mongodb.insert_engine_finish(mongodb_client, task_id, "killed")
+
+        mongodb_client.close()
