@@ -1,3 +1,0 @@
-include upol_search_engine/upol_crawler/config-default.ini
-graft upol_search_engine/templates
-graft upol_search_engine/static
