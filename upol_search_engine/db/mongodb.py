@@ -3,6 +3,7 @@ from random import shuffle
 
 import gridfs
 import pymongo
+import pytz
 from bson.codec_options import CodecOptions
 from bson.objectid import ObjectId
 from langdetect import detect
@@ -589,7 +590,7 @@ def update_indexer_progress(client, task_id, progress, total):
                   'indexer.progress.progress': progress}})
 
 
-def get_lastest_stats(client):
+def get_latest_stats(client):
     db_stats = get_stats_database(client)
 
     aware_times = db_stats['Stats'].with_options(codec_options=CodecOptions(
