@@ -31,7 +31,7 @@ def api_stats():
 
     time = datetime.now()
 
-    stats = mongodb.get_lastest_stats(mongodb_client)
+    stats = mongodb.get_latest_stats(mongodb_client)
 
     result_db = stats.get('progress').get('result')
     stage_db = stats.get('progress').get('stage')
