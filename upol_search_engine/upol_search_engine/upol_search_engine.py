@@ -59,13 +59,6 @@ def api_stats():
     indexer_start_time_db = return_time_or_none(stats.get('indexer').get('start'))
     indexer_end_time_db = return_time_or_none(stats.get('indexer').get('start'))
 
-    if end_time_db is None:
-        total_delta_time = time - start_time_db
-    else:
-        total_delta_time = end_time_db - start_time_db
-
-    total_delta_time = timedelta_to_string(total_delta_time)
-
     next_time_start = "N/A"
 
     if indexer_start_time_db is None:
@@ -78,6 +71,14 @@ def api_stats():
             stage_delta_time = timedelta_to_string(time - pagerank_start_time_db)
     else:
         stage_delta_time = timedelta_to_string(time - indexer_start_time_db)
+
+    if end_time_db is None:
+        total_delta_time = time - start_time_db
+    else:
+        total_delta_time = end_time_db - start_time_db
+        stage_delta_time = "N/A"
+
+    total_delta_time = timedelta_to_string(total_delta_time)
 
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
