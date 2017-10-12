@@ -4,7 +4,7 @@
 
     <div class="row mt-5 mb-5">
         <div class="col-12">
-            <h2>Actual state</h2>
+            <h2>Actual stage</h2>
             <div class="row">
                 <div class="col-md-3">
                     <div id="stage" class="big-number"></div>
@@ -87,8 +87,9 @@
 
 
 {% include "footer.html" %}
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}">\x3C/script>')</script>
+{% endblock %}
+
+{% block scripts %}
 <script>
     reload();
 
@@ -96,8 +97,7 @@
         setInterval("reload()",10000); // call every 10 seconds
     });
 
-    // $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
     var legend = {
         display: true,
@@ -169,7 +169,7 @@
     });
 
     function reload() {
-        $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
+        $.getJSON($SCRIPT_ROOT + '/api/stats', function(data) {
             $("#stage").text(data.stage)
             $("#stage_delta").text(data.stage_delta_time)
             $("#total_delta").text(data.total_delta_time)
