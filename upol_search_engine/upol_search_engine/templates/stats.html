@@ -97,7 +97,7 @@
         setInterval("reload()",10000); // call every 10 seconds
     });
 
-    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
     var legend = {
         display: true,
