@@ -51,19 +51,19 @@
             <h2>Pagerank</h2>
             <div class="row">
                 <div class="col-4">
-                    <div class="big-number">1h 5m</div>
+                    <div id="pagerank_graph" class="big-number">1h 5m</div>
                     <div class="big-number-label">
                         graph
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="big-number">1h 5m</div>
+                    <div id="pagerank_calculation" class="big-number">1h 5m</div>
                     <div class="big-number-label">
                         calculation
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="big-number">--</div>
+                    <div id="pagerank_uploading" class="big-number">--</div>
                     <div class="big-number-label">
                         uploading
                     </div>
@@ -74,7 +74,7 @@
             <h2>Indexer</h2>
             <div class="row">
             <div class="col-12">
-                <div class="big-number">0/156</div>
+                <div id="indexer" class="big-number">0/156</div>
                 <div class="big-number-label">
                     indexed (pages)
                 </div>
@@ -149,7 +149,7 @@
 
 
     var progress = document.getElementById('progress').getContext('2d');
-    var myDoughnutChart = new Chart(progress, {
+    var queue = new Chart(progress, {
         type: 'doughnut',
         data: {
             labels: ['Visited', 'Queued', 'Not queued'],
@@ -174,9 +174,16 @@
             $("#stage_delta").text(data.stage_delta_time)
             $("#total_delta").text(data.total_delta_time)
             $("#next_start").text(data.next_time_start)
+            $("#pagerank_graph").text(data.pagerank_graph_deltatime)
+            $("#pagerank_calculation").text(data.pagerank_calculation_deltatime)
+            $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
+            $("#indexer").text(data.indexer_progress + '/' + data.indexer_total)
             page_types.data.datasets[0].data = data.crawler_progress_values
             page_types.data.labels = data.crawler_progress_labels
+            queue.data.dataset[0].data = data.crawler_queue_values
+            queue.data.labels = data.crawler_queue_labels
             page_types.update();
+            queue.update()
         });
     }
 </script>
