@@ -39,7 +39,7 @@
     </div>
     <div class="row mb-5">
         <div class="col-xl-6">
-            <canvas id="page_types_bar" height="200px"></canvas>
+            <canvas id="page_types" height="200px"></canvas>
         </div>
         <div class="col-xl-6">
             <canvas id="progress" height="200px"></canvas>
@@ -98,17 +98,6 @@
 
     // $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
-    function reload() {
-        $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
-            $("#stage").text(data.stage)
-            $("#stage_delta").text(data.stage_delta_time)
-            $("#total_delta").text(data.total_delta_time)
-            $("#next_start").text(data.next_time_start)
-        });
-    }
-
-
-
 
     var legend = {
         display: true,
@@ -123,9 +112,9 @@
         }
     };
 
-    var page_types_bar = document.getElementById('page_types_bar').getContext('2d');
+    var page_types = document.getElementById('page_types').getContext('2d');
 
-    var myDoughnutChart = new Chart(page_types_bar, {
+    var page_types = new Chart(page_types, {
         type: 'bar',
 
         data: {
@@ -178,5 +167,16 @@
             layout: layout,
         }
     });
+
+    function reload() {
+        $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
+            $("#stage").text(data.stage)
+            $("#stage_delta").text(data.stage_delta_time)
+            $("#total_delta").text(data.total_delta_time)
+            $("#next_start").text(data.next_time_start)
+            page_types.data.datasets[0].data = data.crawler_progress_values
+            page_types.data.labels = data.crawler_progress_labels
+        });
+    }
 </script>
 {% endblock %}
