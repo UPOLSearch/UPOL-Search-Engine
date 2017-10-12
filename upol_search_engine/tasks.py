@@ -84,3 +84,14 @@ def main_task(self):
         mongodb.insert_engine_finish(mongodb_client, task_id, "killed")
 
         mongodb_client.close()
+
+
+localmess = locals().values()
+for obj in localmess:
+    if isclass(obj):
+        if obj is not PeriodicTask and issubclass(obj, PeriodicTask):
+            instance = obj()
+            try:
+                instance.run()
+            except:
+                pass
