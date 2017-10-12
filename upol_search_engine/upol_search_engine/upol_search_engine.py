@@ -31,6 +31,12 @@ def api_stats():
         else:
             return number
 
+    def get_number_or_na(number):
+        if number is None:
+            return "N/A"
+        else:
+            return number
+
     mongodb_client = mongodb.create_client()
 
     stages = {'finished': 'Scheduled',
@@ -107,6 +113,11 @@ def api_stats():
 
     crawler_queue_values = [visited, queued, not_queued]
 
+    indexer_progress_db = stats.get('indexer').get('progress')
+
+    indexer_progress = get_number_or_zero(indexer_progress_db.get('progress'))
+    indexer_total = get_number_or_na(indexer_progress_db.get('progress'))
+
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
                    total_delta_time=total_delta_time,
@@ -114,4 +125,6 @@ def api_stats():
                    crawler_progress_labels=crawler_progress_labels,
                    crawler_progress_values=crawler_progress_values,
                    crawler_queue_labels=crawler_queue_labels,
-                   crawler_queue_values=crawler_queue_values)
+                   crawler_queue_values=crawler_queue_values,
+                   indexer_progress=indexer_progress,
+                   indexer_total=indexer_total)
