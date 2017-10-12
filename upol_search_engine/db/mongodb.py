@@ -492,7 +492,7 @@ def get_crawler_stats(db):
 
     stats['urls_count'] = db['Urls'].count()
     stats['files_count'] = db['Urls'].find({'file': True, 'invalid': False, 'alias': False}).count()
-    stats['ivalid_count'] = db['Urls'].find(
+    stats['invalid_count'] = db['Urls'].find(
         {'invalid': True, 'alias': False}).count()
     stats['aliases_count'] = db['Urls'].find({'alias': True}).count()
     stats['timeout_count'] = db['Urls'].find({'timeout.timeout': True}).count()
