@@ -83,6 +83,32 @@
         </div>
     </div>
 
+    <div class="row mt-5 mb-5">
+        <div class="col-12">
+            <h2>Stats</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div id="target_domain" class="big-number"></div>
+                    <div class="big-number-label">
+                        target domain
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="number_of_domains" class="big-number"></div>
+                    <div class="big-number-label">
+                        number of domains
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="number_of_servers" class="big-number"></div>
+                    <div class="big-number-label">
+                        number of servers
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -168,6 +194,7 @@
 
     function reload() {
         $.getJSON($SCRIPT_ROOT + '/api/stats', function(data) {
+            $("#target_domain").text(data.target_domain)
             $("#stage").text(data.stage)
             $("#stage_delta").text(data.stage_delta_time)
             $("#total_delta").text(data.total_delta_time)
@@ -175,6 +202,8 @@
             $("#pagerank_graph").text(data.pagerank_graph_deltatime)
             $("#pagerank_calculation").text(data.pagerank_calculation_deltatime)
             $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
+            $("#number_of_domains").text(data.number_of_domains)
+            $("#number_of_servers").text(data.number_of_servers)
             $("#indexer").text(data.indexer_progress + '/' + data.indexer_total)
             page_types.data.datasets[0].data = data.crawler_progress_values
             page_types.data.labels = data.crawler_progress_labels

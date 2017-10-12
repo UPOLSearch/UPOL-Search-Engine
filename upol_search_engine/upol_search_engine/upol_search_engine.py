@@ -50,6 +50,7 @@ def api_stats():
 
     stats = mongodb.get_latest_stats(mongodb_client)
 
+    target_domain = stats.get('limit_domain')
     result_db = stats.get('progress').get('result')
     stage_db = stats.get('progress').get('stage')
 
@@ -101,6 +102,8 @@ def api_stats():
     files = get_number_or_zero(crawler_progress_db.get('files_count'))
     aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
     pages = get_number_or_zero(crawler_progress_db.get('urls_count')) - timeout - invalid - files - aliases
+    number_of_domains = get_number_or_zero(crawler_progress_db.get('number_of_domains'))
+    number_of_servers = get_number_or_zero(crawler_progress_db.get('number_of_servers'))
 
     crawler_progress_values = [pages, aliases, files, invalid, timeout]
 
@@ -141,7 +144,8 @@ def api_stats():
         indexer_progress = get_number_or_zero(indexer_progress_db.get('progress'))
         indexer_total = get_number_or_na(indexer_progress_db.get('progress'))
 
-    return jsonify(stage=stage,
+    return jsonify(target_domain=target_domain,
+                   stage=stage,
                    stage_delta_time=stage_delta_time,
                    total_delta_time=total_delta_time,
                    next_time_start=next_time_start,
@@ -153,4 +157,6 @@ def api_stats():
                    indexer_total=indexer_total,
                    pagerank_graph_deltatime=pagerank_graph_deltatime,
                    pagerank_calculation_deltatime=pagerank_calculation_deltatime,
-                   pagerank_uploading_deltatime=pagerank_uploading_deltatime)
+                   pagerank_uploading_deltatime=pagerank_uploading_deltatime,
+                   number_of_domains=number_of_domains,
+                   number_of_servers=number_of_servers)

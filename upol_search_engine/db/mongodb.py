@@ -503,8 +503,18 @@ def get_crawler_stats(db):
         {'$and': [{'visited': False},
                   {'queued': False},
                   {'timeout': {'$exists': False}}]}).count()
+    stats['number_of_domains'] = get_number_of_domains(db)
+    stats['number_of_servers'] = get_number_of_servers(db)
 
     return stats
+
+
+def get_number_of_domains(db):
+    return len(db['Urls'].distinct('domain'))
+
+
+def get_number_of_servers(db):
+    return len(db['Urls'].distinct('ip'))
 
 
 def insert_engine_start(client, task_id, crawler_settings):
