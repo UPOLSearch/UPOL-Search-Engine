@@ -510,11 +510,11 @@ def get_crawler_stats(db):
 
 
 def get_number_of_domains(db):
-    return len(db['Urls'].distinct('domain'))
+    return len(db['Limiter'].distinct('domain'))
 
 
 def get_number_of_servers(db):
-    return len(db['Urls'].distinct('ip'))
+    return len(db['Limiter'].distinct('ip'))
 
 
 def insert_engine_start(client, task_id, crawler_settings):
