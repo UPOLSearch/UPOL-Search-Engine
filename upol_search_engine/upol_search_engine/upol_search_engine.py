@@ -94,16 +94,15 @@ def api_stats():
 
     crawler_progress_db = stats.get('crawler').get('progress')
 
-    crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout', 'Blocked']
+    crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout']
 
-    blocked = get_number_or_zero(crawler_progress_db.get('robots_blocked_count'))
     timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
     invalid = get_number_or_zero(crawler_progress_db.get('invalid_count'))
     files = get_number_or_zero(crawler_progress_db.get('files_count'))
     aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
-    pages = get_number_or_zero(crawler_progress_db.get('urls_count')) - blocked - timeout - invalid - files - aliases
+    pages = get_number_or_zero(crawler_progress_db.get('urls_count')) - timeout - invalid - files - aliases
 
-    crawler_progress_values = [pages, aliases, files, invalid, timeout, blocked]
+    crawler_progress_values = [pages, aliases, files, invalid, timeout]
 
     crawler_queue_labels = ['Visited', 'Queued', 'Not Queued']
 

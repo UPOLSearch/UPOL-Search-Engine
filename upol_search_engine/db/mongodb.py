@@ -45,6 +45,7 @@ def init(db):
     db['Urls'].create_index('invalid')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
+    db['Urls'].create_index('alias')
     db['Urls'].create_index('canonical_group')
     db['Limiter'].create_index('ip', unique=True)
     db['PageRank'].create_index('to_hash')
@@ -495,7 +496,6 @@ def get_crawler_stats(db):
         {'invalid': True, 'alias': False}).count()
     stats['aliases_count'] = db['Urls'].find({'alias': True}).count()
     stats['timeout_count'] = db['Urls'].find({'timeout.timeout': True}).count()
-    stats['robots_blocked_count'] = db['UrlRobotsBlocked'].count()
     stats['urls_visited'] = db['Urls'].find({'visited': True}).count()
     stats['urls_queued'] = db['Urls'].find(
         {'$and': [{'visited': False}, {'queued': True}]}).count()
