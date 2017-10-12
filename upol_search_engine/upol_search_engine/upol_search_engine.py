@@ -25,6 +25,11 @@ def api_stats():
 
         return '{:.0f}h {:.0f}m'.format(seconds // 3600, seconds % 3600 // 60)
 
+    def get_number_or_zero(number):
+        if number is None:
+            return 0
+        else:
+            return number
 
     mongodb_client = mongodb.create_client()
 
@@ -81,7 +86,22 @@ def api_stats():
     total_delta_time = timedelta_to_string(total_delta_time)
     # total_delta_time = str(total_delta_time)
 
+    crawler_progress_db = stats.get('crawler').get('progress')
+
+    crawler_progress_labels = ['Pages', 'Aliases','Files', 'Ignored', 'Timeout', 'Blocked']
+
+    blocked = get_number_or_zero(crawler_progress_db.get('robots_blocked_count'))
+    timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
+    invalid = get_number_or_zero(crawler_progress_db.get('invalid_count'))
+    files = get_number_or_zero(crawler_progress_db.get('files_count'))
+    aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
+    pages = get_number_or_zero(crawler_progress_db.get('urls_count')) - blocked - timeout - invalid - files - aliases
+
+    crawler_progress_values = [pages, aliases, files, ignored, timeout, blocked]
+
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
                    total_delta_time=total_delta_time,
-                   next_time_start=next_time_start)
+                   next_time_start=next_time_start,
+                   crawler_progress_labels=crawler_progress_labels,
+                   crawler_progress_values=crawler_progress_values)
