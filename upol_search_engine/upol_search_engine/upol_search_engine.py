@@ -99,9 +99,19 @@ def api_stats():
 
     crawler_progress_values = [pages, aliases, files, invalid, timeout, blocked]
 
+    crawler_queue_labels = ['Visited', 'Queued', 'Not Queued']
+
+    visited = get_number_or_zero(crawler_progress_db.get('urls_visited'))
+    queued = get_number_or_zero(crawler_progress_db.get('urls_queued'))
+    not_queued = get_number_or_zero(crawler_progress_db.get('urls_not_queued'))
+
+    crawler_queue_values = [visited, queued, not_queued]
+
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
                    total_delta_time=total_delta_time,
                    next_time_start=next_time_start,
                    crawler_progress_labels=crawler_progress_labels,
-                   crawler_progress_values=crawler_progress_values)
+                   crawler_progress_values=crawler_progress_values,
+                   crawler_queue_labels=crawler_queue_labels,
+                   crawler_queue_values=crawler_queue_values)
