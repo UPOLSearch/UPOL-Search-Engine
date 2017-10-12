@@ -13,19 +13,19 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="big-number">1h 5m</div>
+                    <div id="stage_delta" class="big-number">1h 5m</div>
                     <div class="big-number-label">
                         stage delta time
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="big-number">2h 5m</div>
+                    <div id="total_delta" class="big-number">2h 5m</div>
                     <div class="big-number-label">
                         total delta time
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="big-number">2h 5m</div>
+                    <div id="next_start" class="big-number">2h 5m</div>
                     <div class="big-number-label">
                         time to next start
                     </div>
@@ -90,6 +90,8 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 <script>
+    reload();
+
     $(document).ready(function() {
         setInterval("reload()",10000); // call every 10 seconds
     });
@@ -99,6 +101,9 @@
     function reload() {
         $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
             $("#stage").text(data.stage)
+            $("#stage_delta").text(data.stage_delta_time)
+            $("#total_delta").text(data.total_delta_time)
+            $("#next_start").text(data.next_time_start)
         });
     }
 
