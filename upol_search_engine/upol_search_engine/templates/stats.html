@@ -176,6 +176,7 @@
             $("#next_start").text(data.next_time_start)
             page_types.data.datasets[0].data = data.crawler_progress_values
             page_types.data.labels = data.crawler_progress_labels
+            page_types.update();
         });
     }
 </script>
