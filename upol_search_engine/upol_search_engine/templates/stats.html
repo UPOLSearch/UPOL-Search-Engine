@@ -91,13 +91,11 @@
 
 {% block scripts %}
 <script>
-    reload();
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
     $(document).ready(function() {
         setInterval("reload()",10000); // call every 10 seconds
     });
-
-    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
     var legend = {
         display: true,
@@ -186,5 +184,7 @@
             queue.update()
         });
     }
+
+    reload();
 </script>
 {% endblock %}
