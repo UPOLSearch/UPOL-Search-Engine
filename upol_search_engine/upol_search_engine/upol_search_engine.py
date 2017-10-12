@@ -113,6 +113,26 @@ def api_stats():
 
     crawler_queue_values = [visited, queued, not_queued]
 
+    pagerank_progress_db = stats.get('pagerank').get('progress')
+
+    if pagerank_progress_db is None:
+        pagerank_graph_deltatime = "N/A"
+        pagerank_calculation_deltatime = "N/A"
+        pagerank_uploading_deltatime = "N/A"
+    else:
+        pagerank_graph_starttime = return_time_or_none(pagerank_progress_db.get('building_graph'))
+        pagerank_calculation_starttime = return_time_or_none(pagerank_progress_db.get('calculation'))
+        pagerank_uploading_starttime = return_time_or_none(pagerank_progress_db.get('uploading'))
+
+        if pagerank_calculation_starttime is not None:
+            pagerank_graph_deltatime = timedelta_to_string(pagerank_calculation_starttime - pagerank_start_time_db)
+
+        if pagerank_uploading_starttime is not None:
+            pagerank_calculation_deltatime = timedelta_to_string(pagerank_uploading_starttime - pagerank_calculation_starttime)
+
+        if pagerank_end_time_db is not None:
+            pagerank_uploading_deltatime = timedelta_to_string(pagerank_end_time_db - pagerank_uploading_starttime)
+
     indexer_progress_db = stats.get('indexer').get('progress')
 
     if indexer_progress_db is None:
@@ -131,4 +151,7 @@ def api_stats():
                    crawler_queue_labels=crawler_queue_labels,
                    crawler_queue_values=crawler_queue_values,
                    indexer_progress=indexer_progress,
-                   indexer_total=indexer_total)
+                   indexer_total=indexer_total,
+                   pagerank_graph_deltatime=pagerank_graph_deltatime,
+                   pagerank_calculation_deltatime=pagerank_calculation_deltatime,
+                   pagerank_uploading_deltatime=pagerank_uploading_deltatime)
