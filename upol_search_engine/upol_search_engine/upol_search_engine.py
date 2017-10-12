@@ -88,7 +88,7 @@ def api_stats():
 
     crawler_progress_db = stats.get('crawler').get('progress')
 
-    crawler_progress_labels = ['Pages', 'Aliases','Files', 'Ignored', 'Timeout', 'Blocked']
+    crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout', 'Blocked']
 
     blocked = get_number_or_zero(crawler_progress_db.get('robots_blocked_count'))
     timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
@@ -97,7 +97,7 @@ def api_stats():
     aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
     pages = get_number_or_zero(crawler_progress_db.get('urls_count')) - blocked - timeout - invalid - files - aliases
 
-    crawler_progress_values = [pages, aliases, files, ignored, timeout, blocked]
+    crawler_progress_values = [pages, aliases, files, invalid, timeout, blocked]
 
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
