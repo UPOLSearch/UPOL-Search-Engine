@@ -115,8 +115,12 @@ def api_stats():
 
     indexer_progress_db = stats.get('indexer').get('progress')
 
-    indexer_progress = get_number_or_zero(indexer_progress_db.get('progress'))
-    indexer_total = get_number_or_na(indexer_progress_db.get('progress'))
+    if indexer_progress_db is None:
+        indexer_progress = 0
+        indexer_total = "N/A"
+    else:
+        indexer_progress = get_number_or_zero(indexer_progress_db.get('progress'))
+        indexer_total = get_number_or_na(indexer_progress_db.get('progress'))
 
     return jsonify(stage=stage,
                    stage_delta_time=stage_delta_time,
