@@ -180,7 +180,7 @@
             $("#indexer").text(data.indexer_progress + '/' + data.indexer_total)
             page_types.data.datasets[0].data = data.crawler_progress_values
             page_types.data.labels = data.crawler_progress_labels
-            queue.data.dataset[0].data = data.crawler_queue_values
+            queue.data.datasets[0].data = data.crawler_queue_values
             queue.data.labels = data.crawler_queue_labels
             page_types.update();
             queue.update()
