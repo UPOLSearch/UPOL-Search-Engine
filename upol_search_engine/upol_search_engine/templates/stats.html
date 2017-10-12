@@ -90,16 +90,18 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 <script>
-    // $(document).ready(function() {
-    //     setInterval("ajaxd()",10000); // call every 10 seconds
-    // });
+    $(document).ready(function() {
+        setInterval("reload()",10000); // call every 10 seconds
+    });
 
     // $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
+    function reload() {
+        $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
+            $("#stage").text(data.stage)
+        });
+    }
 
-    $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
-        $("#stage").text(data.stage)
-    });
 
 
 
