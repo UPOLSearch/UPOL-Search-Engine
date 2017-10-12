@@ -1,3 +1,5 @@
+from inspect import isclass
+
 from celery.exceptions import SoftTimeLimitExceeded
 from upol_search_engine.celery_app import app
 from upol_search_engine.db import mongodb
