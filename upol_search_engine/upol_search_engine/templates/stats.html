@@ -7,7 +7,7 @@
             <h2>Actual state</h2>
             <div class="row">
                 <div class="col-md-3">
-                    <div class="big-number">Crawling</div>
+                    <div id="stage" class="big-number">Crawling</div>
                     <div class="big-number-label">
                         stage
                     </div>
@@ -87,7 +87,22 @@
 
 
 {% include "footer.html" %}
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}">\x3C/script>')</script>
 <script>
+    // $(document).ready(function() {
+    //     setInterval("ajaxd()",10000); // call every 10 seconds
+    // });
+
+    // $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+
+    $.getJSON('http://158.194.80.3:5000/api/stats', function(data) {
+        $("#stage").text(data.stage)
+    });
+
+
+
     var legend = {
         display: true,
         position: 'bottom',
