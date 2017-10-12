@@ -7,25 +7,25 @@
             <h2>Actual state</h2>
             <div class="row">
                 <div class="col-md-3">
-                    <div id="stage" class="big-number">Crawling</div>
+                    <div id="stage" class="big-number"></div>
                     <div class="big-number-label">
                         stage
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div id="stage_delta" class="big-number">1h 5m</div>
+                    <div id="stage_delta" class="big-number"></div>
                     <div class="big-number-label">
                         stage delta time
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div id="total_delta" class="big-number">2h 5m</div>
+                    <div id="total_delta" class="big-number"></div>
                     <div class="big-number-label">
                         total delta time
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div id="next_start" class="big-number">2h 5m</div>
+                    <div id="next_start" class="big-number"></div>
                     <div class="big-number-label">
                         time to next start
                     </div>
@@ -51,19 +51,19 @@
             <h2>Pagerank</h2>
             <div class="row">
                 <div class="col-4">
-                    <div id="pagerank_graph" class="big-number">1h 5m</div>
+                    <div id="pagerank_graph" class="big-number"></div>
                     <div class="big-number-label">
                         graph
                     </div>
                 </div>
                 <div class="col-4">
-                    <div id="pagerank_calculation" class="big-number">1h 5m</div>
+                    <div id="pagerank_calculation" class="big-number"></div>
                     <div class="big-number-label">
                         calculation
                     </div>
                 </div>
                 <div class="col-4">
-                    <div id="pagerank_uploading" class="big-number">--</div>
+                    <div id="pagerank_uploading" class="big-number"></div>
                     <div class="big-number-label">
                         uploading
                     </div>
@@ -74,7 +74,7 @@
             <h2>Indexer</h2>
             <div class="row">
             <div class="col-12">
-                <div id="indexer" class="big-number">0/156</div>
+                <div id="indexer" class="big-number"></div>
                 <div class="big-number-label">
                     indexed (pages)
                 </div>
@@ -119,9 +119,9 @@
 
         data: {
 
-            labels: ['Pages', 'Files', 'Ignored', 'Timeout', 'Blocked'],
+            labels: [],
             datasets: [{
-                data: [40, 20, 20, 25, 25],
+                data: [],
                 backgroundColor: [
                     "#4A90E2",
                     "#F5A623",
@@ -152,9 +152,9 @@
     var queue = new Chart(progress, {
         type: 'doughnut',
         data: {
-            labels: ['Visited', 'Queued', 'Not queued'],
+            labels: [],
             datasets: [{
-                data: [10, 20, 30],
+                data: [],
                 backgroundColor: [
                     "#F5A623",
                     "#D0021B",
