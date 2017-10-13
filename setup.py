@@ -12,7 +12,12 @@ setup(name='UPOL-Search-Engine',
       url='https://github.com/UPOLSearch/UPOL-Search-Engine',
       packages=find_packages(),
       package_data={
-          'upol_search_engine': ['config-default.ini'],
+          'upol_search_engine': ['config-default.ini',
+                                 'upol_search_engine/templates/*',
+                                 'upol_search_engine/static/css/*',
+                                 'upol_search_engine/static/js/*',
+                                 'upol_search_engine/static/fonts/*',
+                                 'upol_search_engine/static/images/*'],
       },
       install_requires=[
           'beautifulsoup4',
@@ -25,7 +30,8 @@ setup(name='UPOL-Search-Engine',
           'w3lib',
           'langdetect',
           'networkx',
-          'psycopg2'
+          'psycopg2',
+          'flask'
       ],
       entry_points={
           'console_scripts': [

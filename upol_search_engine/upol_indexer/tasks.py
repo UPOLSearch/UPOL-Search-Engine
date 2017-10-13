@@ -1,8 +1,8 @@
 from upol_search_engine.celery_app import app
 
 
-@app.task(queue='search_engine', bind=True)
-def indexer_task(self, crawler_settings, indexer_settings):
+# @app.task(queue='search_engine_sub_tasks', bind=True)
+def indexer_task(crawler_settings, indexer_settings, task_id):
     from datetime import datetime
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
@@ -11,9 +11,9 @@ def indexer_task(self, crawler_settings, indexer_settings):
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
 
-    start_time = datetime.now()
+    # start_time = datetime.now()
 
-    self.update_state(state='STARTING', meta={'start': start_time})
+    # self.update_state(state='STARTING', meta={'start': start_time})
 
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database(
@@ -38,9 +38,12 @@ def indexer_task(self, crawler_settings, indexer_settings):
 
     batch_number = 0
 
+    total_pages = mongodb.get_count_of_not_indexed(mongodb_database)
+    progress_pages = 0
+
     while True:
-        self.update_state(state='RUNNING', meta={'start': start_time,
-                                                 'batch_number': batch_number})
+        # self.update_state(state='RUNNING', meta={'start': start_time,
+        #                                          'batch_number': batch_number})
 
         document_batch = mongodb.get_batch_for_indexer(mongodb_database,
                                                        mongodb_batch_size)
@@ -64,6 +67,11 @@ def indexer_task(self, crawler_settings, indexer_settings):
                                               indexed_rows,
                                               postgresql_table_name)
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
+
+            progress_pages = progress_pages + len(document_hashes)
+
+            mongodb.update_indexer_progress(
+                mongodb_client, task_id, progress_pages, total_pages)
         else:
             break
 
@@ -77,5 +85,5 @@ def indexer_task(self, crawler_settings, indexer_settings):
     postgresql_client.close()
     mongodb_client.close()
 
-    self.update_state(state='DONE', meta={'start': start_time,
-                                          'end': datetime.now()})
+    # self.update_state(state='DONE', meta={'start': start_time,
+    #                                       'end': datetime.now()})

@@ -12,9 +12,8 @@ def crawl_url_task(url, depth, crawler_settings):
     crawler.crawl_url(url, depth, crawler_settings)
 
 
-@app.task(queue='search_engine', bind=True)
-def feeder_task(self, crawler_settings, seed, batch_size,
-                delay_between_feeding):
+def feeder_task(crawler_settings, seed, batch_size,
+                delay_between_feeding, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.utils import urls
     from upol_search_engine.upol_crawler.core import feeder
@@ -22,7 +21,7 @@ def feeder_task(self, crawler_settings, seed, batch_size,
 
     start_time = datetime.now()
 
-    self.update_state(state='STARTING', meta={'start': start_time})
+    # self.update_state(state='STARTING', meta={'start': start_time})
 
     client = mongodb.create_client()
     database = mongodb.get_database(crawler_settings.get('limit_domain'), client)
@@ -43,31 +42,32 @@ def feeder_task(self, crawler_settings, seed, batch_size,
     # else:
     #     mongodb.reset_visited_for_fast_recrawl(database)
 
-    self.update_state(state='RUNNING', meta={'start': start_time})
+    # self.update_state(state='RUNNING', meta={'start': start_time})
 
     sleeping = False
     number_of_waiting = 0
     number_of_added_links = 0
-    stats = mongodb.get_crawler_stats(database)
+    # stats = mongodb.get_crawler_stats(database)
 
     while True:
         if sleeping is False:
-            self.update_state(state='RUNNING_FEEDING',
-                              meta={'start': start_time,
-                                    'added_links': number_of_added_links,
-                                    'stats': stats})
+            # self.update_state(state='RUNNING_FEEDING',
+                            #   meta={'start': start_time,
+                            #         'added_links': number_of_added_links,
+                            #         'stats': stats})
 
             number_of_added_links = feeder.feed_crawler(
                 database, crawler_settings, batch_size)
 
             sleeping = True
         else:
-            self.update_state(state='RUNNING_SLEEPING',
-                              meta={'start': start_time,
-                                    'added_links': number_of_added_links,
-                                    'stats': stats})
+            # self.update_state(state='RUNNING_SLEEPING',
+            #                   meta={'start': start_time,
+            #                         'added_links': number_of_added_links,
+            #                         'stats': stats})
 
-            stats = mongodb.get_crawler_stats(database)
+            # stats = mongodb.get_crawler_stats(database)
+            mongodb.update_crawler_progress(client, database, task_id)
 
             number_of_added_links = 0
 
@@ -80,14 +80,14 @@ def feeder_task(self, crawler_settings, seed, batch_size,
 
             sleeping = False
 
-    self.update_state(state='DONE', meta={'start': start_time,
-                                          'end': datetime.now()})
-
+    # self.update_state(state='DONE', meta={'start': start_time,
+    #                                       'end': datetime.now()})
+    mongodb.update_crawler_progress(client, database, task_id)
     client.close()
 
 
-@app.task(queue='search_engine', bind=True)
-def calculate_pagerank_task(self, crawler_settings):
+# @app.task(queue='search_engine_sub_tasks', bind=True)
+def calculate_pagerank_task(crawler_settings, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.upol_crawler.core import pagerank
 
@@ -95,24 +95,27 @@ def calculate_pagerank_task(self, crawler_settings):
 
     start_time = datetime.now()
 
-    self.update_state(state='STARTING', meta={'start': start_time})
+    # self.update_state(state='STARTING', meta={'start': start_time})
 
     client = mongodb.create_client()
     database = mongodb.get_database(crawler_settings.get('limit_domain'), client)
 
-    self.update_state(state='BUILDING_GRAPH', meta={'start': start_time})
+    # self.update_state(state='BUILDING_GRAPH', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'building_graph')
     graph = pagerank.build_graph(database)
 
-    self.update_state(state='CALCULATING_PAGERANK', meta={'start': start_time})
+    # self.update_state(state='CALCULATING_PAGERANK', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'calculation')
     graph_pagerank = pagerank.calculate_pagerank(graph, database)
 
-    self.update_state(state='INSERTING_PAGERANK', meta={'start': start_time})
+    # self.update_state(state='INSERTING_PAGERANK', meta={'start': start_time})
 
+    mongodb.update_pagerank_progress(client, task_id, 'uploading')
     pagerank.insert_pagerank_db(graph_pagerank, database)
 
-    self.update_state(state='DONE', meta={'start': start_time,
-                                          'end': datetime.now()})
+    # self.update_state(state='DONE', meta={'start': start_time,
+                                        #   'end': datetime.now()})
 
     client.close()
