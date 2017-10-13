@@ -32,13 +32,13 @@ def main_task(self):
         m.zurnal.upol.cz
         """
 
-        seed = """http://inf.upol.cz"""
+        seed = """http://upol.cz"""
 
-        crawler_settings = {'limit_domain': 'inf.upol.cz',
+        crawler_settings = {'limit_domain': 'upol.cz',
                             'max_depth': 10,
                             'connect_max_timeout': 3.05,
                             'read_max_timeout': 10,
-                            'frequency_per_server': 0.2,
+                            'frequency_per_server': 0.4,
                             'blacklist': blacklist}
 
         indexer_settings = {'batch_size': 300,
@@ -57,7 +57,7 @@ def main_task(self):
             crawler_settings=crawler_settings,
             seed=seed,
             batch_size=300,
-            delay_between_feeding=2,
+            delay_between_feeding=20,
             task_id=task_id)
 
         mongodb.insert_sub_task_finish(
