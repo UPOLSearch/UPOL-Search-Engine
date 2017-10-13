@@ -113,11 +113,7 @@
 
 {% include "footer.html" %} {% endblock %} {% block scripts %}
 <script>
-    var $SCRIPT_ROOT = {
-        {
-            request.script_root | tojson | safe
-        }
-    };
+    var $SCRIPT_ROOT = {{request.script_root | tojson | safe}};
 
     $(document).ready(function() {
         setInterval("reload()", 10000); // call every 10 seconds
