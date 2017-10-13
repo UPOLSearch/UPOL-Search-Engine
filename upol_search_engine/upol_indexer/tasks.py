@@ -39,6 +39,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     batch_number = 0
 
     total_pages = mongodb.get_count_of_not_indexed(mongodb_database)
+    progress_pages = 0
 
     while True:
         # self.update_state(state='RUNNING', meta={'start': start_time,
@@ -67,8 +68,10 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                               postgresql_table_name)
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
 
+            progress_pages = progress_pages + len(document_hashes)
+
             mongodb.update_indexer_progress(
-                mongodb_client, task_id, len(indexed_rows), total_pages)
+                mongodb_client, task_id, progress_pages, total_pages)
         else:
             break
 
