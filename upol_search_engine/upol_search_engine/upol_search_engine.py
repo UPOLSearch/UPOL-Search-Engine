@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, render_template
-from upol_search_engine.celery_app import next_start_each_n_seconds
+from upol_search_engine.celery_app import next_start_each_n_days
 from upol_search_engine.db import mongodb
 
 app = Flask(__name__)
