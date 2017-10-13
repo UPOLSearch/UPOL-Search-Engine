@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Flask, jsonify, render_template
+from upol_search_engine.celery_app import next_start_each_n_seconds
 from upol_search_engine.db import mongodb
 
 app = Flask(__name__)
@@ -89,7 +90,9 @@ def api_stats():
         indexer_start_time_db = return_time_or_none(stats.get('indexer').get('start'))
         indexer_end_time_db = return_time_or_none(stats.get('indexer').get('end'))
 
-        next_time_start = "N/A"
+        run_every_n_days = next_start_each_n_days()
+        time_of_next_start = start_time_db + timedelta(days=run_every_n_days)
+        next_time_start = timedelta_to_string(time_of_next_start - start_time_db)
 
         if indexer_start_time_db is None:
             if pagerank_end_time_db is None:

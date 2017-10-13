@@ -1,7 +1,20 @@
 from celery import Celery
-from celery.schedules import crontab
 from kombu import Exchange, Queue
 from upol_search_engine import settings
+
+
+def next_start_each_n_days():
+    days = settings.CONFIG.get('Settings', 'crawl_every_n_days')
+
+    return days
+
+
+def next_start_each_n_seconds():
+    days = settings.CONFIG.get('Settings', 'crawl_every_n_days')
+
+    seconds = days * 24 * 60 * 60
+
+    return seconds
 
 
 class Config(object):
@@ -32,7 +45,7 @@ class Config(object):
     beat_schedule = {
         'run-search-engine': {
             'task': 'upol_search_engine.tasks.main_task',
-            'schedule': 60 * 60 + 60 * 10,
+            'schedule': next_start_each_n_seconds(),
         }
     }
 
