@@ -608,7 +608,12 @@ def get_latest_stats(client):
         tz_aware=True,
         tzinfo=pytz.timezone('Europe/Prague')))
 
-    return aware_times.find().sort('$natural', pymongo.DESCENDING).limit(1)[0]
+    result = aware_times.find().sort('$natural', pymongo.DESCENDING).limit(1)
+
+    if result is None:
+        return None
+    else:
+        return result[0]
 
 
 def get_count_of_not_indexed(db):
