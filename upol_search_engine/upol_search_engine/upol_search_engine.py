@@ -133,6 +133,7 @@ def api_stats():
         pages = visited - timeout - invalid - files - aliases
         number_of_domains = get_number_or_zero(crawler_progress_db.get('number_of_domains'))
         number_of_servers = get_number_or_zero(crawler_progress_db.get('number_of_servers'))
+        number_of_urls = get_number_or_zero(crawler_progress_db.get('urls_count'))
 
         crawler_progress_values = [pages, aliases, files, invalid, timeout]
 
@@ -180,4 +181,5 @@ def api_stats():
                    pagerank_calculation_deltatime=pagerank_calculation_deltatime,
                    pagerank_uploading_deltatime=pagerank_uploading_deltatime,
                    number_of_domains=number_of_domains,
-                   number_of_servers=number_of_servers)
+                   number_of_servers=number_of_servers,
+                   number_of_urls=number_of_urls)

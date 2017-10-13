@@ -68,6 +68,12 @@
                         number of servers
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div id="number_of_urls" class="big-number"></div>
+                    <div class="big-number-label">
+                        number of urls
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -200,6 +206,7 @@
             $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
             $("#number_of_domains").text(data.number_of_domains)
             $("#number_of_servers").text(data.number_of_servers)
+            $("#number_of_urls").text(data.number_of_urls)
             $("#indexer").text(data.indexer_progress + '/' + data.indexer_total)
             page_types.data.datasets[0].data = data.crawler_progress_values
             page_types.data.labels = data.crawler_progress_labels
