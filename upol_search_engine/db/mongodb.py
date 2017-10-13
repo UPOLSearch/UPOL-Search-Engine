@@ -610,7 +610,7 @@ def get_latest_stats(client):
 
     result = aware_times.find().sort('$natural', pymongo.DESCENDING).limit(1)
 
-    if result is None:
+    if len(result) == 0:
         return None
     else:
         return result[0]
