@@ -94,16 +94,17 @@ def api_stats():
         time_of_next_start = start_time_db + timedelta(days=run_every_n_days)
         next_time_start = timedelta_to_string(time_of_next_start - start_time_db)
 
-        if indexer_start_time_db is None:
-            if pagerank_end_time_db is None:
-                if crawler_start_time_db is None:
-                    stage_delta_time = "N/A"
-                else:
-                    stage_delta_time = timedelta_to_string(time - crawler_start_time_db)
-            else:
-                stage_delta_time = timedelta_to_string(time - pagerank_start_time_db)
+        if start_time_db is None:
+            stage_delta_time = "N/A"
         else:
-            stage_delta_time = timedelta_to_string(time - indexer_start_time_db)
+            if crawler_end_time_db is None:
+                stage_delta_time = timedelta_to_string(time - crawler_start_time_db)
+            else:
+                if pagerank_end_time_db is None:
+                    stage_delta_time = timedelta_to_string(time - pagerank_start_time_db)
+                else:
+                    if indexer_end_time_db is None:
+                        stage_delta_time = timedelta_to_string(time - indexer_start_time_db)
 
         if end_time_db is None:
             total_delta_time = time - start_time_db
@@ -151,17 +152,23 @@ def api_stats():
             if pagerank_calculation_starttime is not None:
                 pagerank_graph_deltatime = timedelta_to_string(pagerank_calculation_starttime - pagerank_start_time_db)
             else:
-                pagerank_graph_deltatime = "N/A"
+                pagerank_graph_deltatime = timedelta_to_string(time - pagerank_start_time_db)
 
             if pagerank_uploading_starttime is not None:
                 pagerank_calculation_deltatime = timedelta_to_string(pagerank_uploading_starttime - pagerank_calculation_starttime)
             else:
-                pagerank_calculation_deltatime = "N/A"
+                if pagerank_calculation_starttime is None:
+                    pagerank_calculation_deltatime = "N/A"
+                else:
+                    pagerank_calculation_deltatime = timedelta_to_string(time - pagerank_calculation_starttime)
 
             if pagerank_end_time_db is not None:
                 pagerank_uploading_deltatime = timedelta_to_string(pagerank_end_time_db - pagerank_uploading_starttime)
             else:
-                pagerank_uploading_deltatime = "N/A"
+                if pagerank_uploading_starttime is None:
+                    pagerank_uploading_deltatime = "N/A"
+                else:
+                    pagerank_uploading_deltatime = timedelta_to_string(time - pagerank_uploading_starttime)
 
         indexer_progress_db = stats.get('indexer').get('progress')
 
