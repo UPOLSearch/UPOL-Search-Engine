@@ -150,12 +150,18 @@ def api_stats():
 
             if pagerank_calculation_starttime is not None:
                 pagerank_graph_deltatime = timedelta_to_string(pagerank_calculation_starttime - pagerank_start_time_db)
+            else:
+                pagerank_graph_deltatime = "N/A"
 
             if pagerank_uploading_starttime is not None:
                 pagerank_calculation_deltatime = timedelta_to_string(pagerank_uploading_starttime - pagerank_calculation_starttime)
+            else:
+                pagerank_calculation_deltatime = "N/A"
 
             if pagerank_end_time_db is not None:
                 pagerank_uploading_deltatime = timedelta_to_string(pagerank_end_time_db - pagerank_uploading_starttime)
+            else:
+                pagerank_uploading_deltatime = "N/A"
 
         indexer_progress_db = stats.get('indexer').get('progress')
 
