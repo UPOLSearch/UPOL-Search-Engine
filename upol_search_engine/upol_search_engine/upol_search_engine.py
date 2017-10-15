@@ -38,6 +38,9 @@ def api_stats():
         else:
             return number
 
+    def thousands_separator(number):
+        return '{:,}'.format(number).replace(',', ' ')
+
     mongodb_client = mongodb.create_client()
 
     stages = {'finished': 'Scheduled',
@@ -134,7 +137,7 @@ def api_stats():
         pages = visited - timeout - invalid - files - aliases
         number_of_domains = get_number_or_zero(crawler_progress_db.get('number_of_domains'))
         number_of_servers = get_number_or_zero(crawler_progress_db.get('number_of_servers'))
-        number_of_urls = get_number_or_zero(crawler_progress_db.get('urls_count'))
+        number_of_urls = thousands_separator(get_number_or_zero(crawler_progress_db.get('urls_count')))
 
         crawler_progress_values = [pages, aliases, files, invalid, timeout]
 
@@ -176,8 +179,8 @@ def api_stats():
             indexer_progress = 0
             indexer_total = "N/A"
         else:
-            indexer_progress = get_number_or_zero(indexer_progress_db.get('progress'))
-            indexer_total = get_number_or_na(indexer_progress_db.get('progress'))
+            indexer_progress = thousands_separator(get_number_or_zero(indexer_progress_db.get('progress')))
+            indexer_total = thousands_separator(get_number_or_na(indexer_progress_db.get('progress')))
 
     return jsonify(target_domain=target_domain,
                    stage=stage,
