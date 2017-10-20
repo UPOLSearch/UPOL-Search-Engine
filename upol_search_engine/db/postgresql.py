@@ -35,6 +35,32 @@ def create_function(postgresql_client, postgresql_cursor):
         $$ LANGUAGE plpgsql;""")
 
 
+def reset_and_init_languages(postgresql_client, postgresql_cursor):
+    sql_for_execute = []
+    sql_for_execute.append(sql.SQL('CREATE EXTENSION unaccent;'))
+    sql_for_execute.append(sql.SQL('DROP TEXT SEARCH CONFIGURATION IF EXISTS public.czech;'))
+    sql_for_execute.append(sql.SQL('CREATE TEXT SEARCH CONFIGURATION public.czech ( COPY = pg_catalog.simple ) ;'))
+
+    sql_for_execute.append(sql.SQL('DROP TEXT SEARCH DICTIONARY IF EXISTS czech_ispell;'))
+    sql_for_execute.append(sql.SQL("""CREATE TEXT SEARCH DICTIONARY czech_ispell (
+                                   TEMPLATE  = ispell,
+                                   DictFile  = cs_cz,
+                                   AffFile   = cs_cz,
+                                   StopWords = czech
+                                   );"""))
+
+    sql_for_execute.append(
+        sql.SQL('ALTER TEXT SEARCH CONFIGURATION czech ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part WITH unaccent, czech_synonym, czech_ispell, simple;'))
+
+    # CREATE TEXT SEARCH DICTIONARY czech_synonym (
+    #     TEMPLATE = synonym,
+    #     SYNONYMS = czech
+    # );
+
+    for s in sql_for_execute:
+        postgresql_cursor.execute(s)
+
+
 def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_cursor.execute("DROP TABLE IF EXISTS {0};".format(table_name))
 

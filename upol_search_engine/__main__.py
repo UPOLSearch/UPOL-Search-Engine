@@ -6,11 +6,16 @@ from upol_search_engine import tasks
 from upol_search_engine.db import postgresql
 
 
-def setup_database():
+def setup_database(arg):
     postgresql_client = postgresql.create_client()
     postgresql_cursor = postgresql_client.cursor()
 
-    postgresql.create_function(postgresql_client, postgresql_cursor)
+    if arg == 'functions':
+        postgresql.create_function(
+            postgresql_client, postgresql_cursor)
+    elif arg == 'languages':
+        postgresql.reset_and_init_languages(
+            postgresql_client, postgresql_cursor)
 
     postgresql_client.commit()
     postgresql_cursor.close()
@@ -20,8 +25,8 @@ def setup_database():
 def main():
     argv = sys.argv[1:]
     if len(argv) > 0:
-        if argv[0] == 'setup':
-            setup_database()
+        if argv[1] == 'setup':
+            setup_database(argv[2])
             return
 
     search_engine = tasks.main_task.delay()
