@@ -1,13 +1,55 @@
+import re
+import urllib.parse
+from os.path import splitext
+
 from bs4 import BeautifulSoup
+from lxml import etree
+
 from upol_search_engine.utils import urls
 
 
+def remove_tags_from_string(string):
+    text = etree.fromstring(string, etree.HTMLParser())
+    parsed = ' '.join(text.xpath("//text()"))
+
+    return parsed
+
+
+def delete_all_tags_from_soup(soup, tag):
+    tags = soup.find_all(tag)
+
+    for t in tags:
+        t.replaceWith('')
+
+    return soup
+
+
+def remove_multiple_newlines_and_spaces(string):
+    string = string.replace('\n', ' ')
+    string = re.sub(' +', ' ', string)
+
+    return string.strip()
+
+
+def replace_new_line_and_spaces_by_dot(string):
+    string = re.sub('\n +', '·', string)
+    string = re.sub(' +', ' ', string)
+    string = re.sub('·+', ' · ', string)
+    string = string.replace('\n', '')
+    string = string.strip('· ')
+    string = string.strip(' ')
+
+    return string
+
+
 def extract_title(soup):
-    if soup.title is not None:
-        title = soup.title.string
+    title = soup.find('title')
+
+    if title is not None:
         soup.find('title').replaceWith('')
+        title = title.text
     else:
-        title = 'No Title'
+        title = None
 
     return title
 
@@ -34,33 +76,91 @@ def extract_description(soup):
     return description
 
 
+def extract_important_headlines(soup):
+    important_headline = ['h1', 'h2']
+
+    headlines = soup.find_all(important_headline)
+
+    result = ""
+
+    for headline in headlines:
+        result += headline.prettify()
+
+    if result != "":
+        return remove_multiple_newlines_and_spaces(
+            remove_tags_from_string(result))
+    else:
+        return result
+
+
+def extract_body_text(soup):
+    body = soup.find('body')
+
+    if body is not None:
+        body = delete_all_tags_from_soup(body, 'style')
+        body = delete_all_tags_from_soup(body, 'form')
+        body_text = remove_tags_from_string(body.prettify())
+        body_text = replace_new_line_and_spaces_by_dot(body_text)
+    else:
+        body_text = ""
+
+    return body_text
+
+
+def extract_words_from_url(url):
+    """Return the filename extension from url, or ''."""
+    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+
+    root, ext = splitext(path)
+    path = path.replace(ext, '')
+
+    netloc = netloc.replace('www.', '')
+    netloc = netloc.replace(netloc.split('.')[-1], '')
+
+    url = netloc + path + qs + anchor
+
+    words = re.compile(r"[/:\.?=&]+", re.UNICODE).split(url)
+
+    return ' '.join(words)
+
+
 def prepare_one_document_for_index(document):
     content = document.get('page').get('content').get('binary')
     url_hash = document.get('representative')
     url = document.get('page').get('url')
+    url_decoded = urls.decode(url)
     url_length = len(url)
     is_file = document.get('page').get('file')
     depth = document.get('page').get('depth')
     pagerank = document.get('page').get('pagerank')
     language = document.get('page').get('language')
 
-    soup = BeautifulSoup(content, 'lxml')
+    soup = BeautifulSoup(content, 'html5lib')
 
     for script in soup('script'):
         script.extract()
 
     title = extract_title(soup)
+
+    if title is None:
+        return None
+
     description = extract_description(soup)
     keywords = extract_keywords(soup)
+    important_headlines = extract_important_headlines(soup)
+    body_text = extract_body_text(soup)
+    url_words = extract_words_from_url(url_decoded)
 
     row = (url_hash,
            url,
-           urls.decode(url),
+           url_decoded,
+           url_words,
            title,
            language,
            keywords,
            description,
-           str(soup),
+           important_headlines,
+           body_text,
            depth,
            is_file,
            pagerank,

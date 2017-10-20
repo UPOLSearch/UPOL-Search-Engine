@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import sql
+
 from upol_search_engine import settings
 
 
@@ -24,8 +25,11 @@ def create_function(postgresql_client, postgresql_cursor):
           new.search_czech_index :=
             setweight(to_tsvector('czech', coalesce(new.description, '')), 'B') ||
             setweight(to_tsvector('czech', coalesce(new.keywords, '')), 'A') ||
-            setweight(to_tsvector('czech', coalesce(new.content, '')), 'B')||
-            setweight(to_tsvector('czech', coalesce(new.title, '')), 'A');
+            setweight(to_tsvector('czech', coalesce(new.important_headlines, '')), 'B') ||
+            setweight(to_tsvector('czech', coalesce(new.content, '')), 'C') ||
+            setweight(to_tsvector('czech', coalesce(new.title, '')), 'A') ||
+            setweight(to_tsvector('czech', coalesce(new.url_words, '')), 'A')
+            ;
           return new;
         end
         $$ LANGUAGE plpgsql;""")
@@ -38,10 +42,12 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
         """CREATE TABLE {0} (hash varchar PRIMARY KEY,
         url text,
         url_decoded text,
+        url_words text,
         title text,
         language text,
         keywords text,
         description text,
+        important_headlines text,
         content text,
         depth integer,
         is_file boolean,
@@ -77,7 +83,7 @@ def change_table_to_production(postgresql_client, postgresql_cursor,
 
 def insert_rows_into_index(psql_client, psql_cursor, indexed_rows, table_name):
     dataText = ','.join(
-        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
+        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
 
     response = psql_cursor.execute(
         'INSERT INTO {0} VALUES {1} ON CONFLICT DO NOTHING;'.format(table_name, dataText))
