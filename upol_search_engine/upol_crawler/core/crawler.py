@@ -2,6 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 from celery.utils.log import get_task_logger
+
 from upol_search_engine import settings
 from upol_search_engine.db import mongodb
 from upol_search_engine.upol_crawler.core import (limiter, link_extractor,
@@ -121,7 +122,7 @@ def _handle_response(database, url, original_url, redirected,
                 log.info('Done (file) [{0}]: {1}'.format(response.reason, url))
         else:
             # Handle normal page
-            soup = BeautifulSoup(response.content, 'lxml')
+            soup = BeautifulSoup(response.content, 'html5lib')
             no_index = link_extractor.has_noindex(soup)
             validated_urls_on_page = link_extractor.validated_page_urls(
                 soup, url, regex, blacklist)
