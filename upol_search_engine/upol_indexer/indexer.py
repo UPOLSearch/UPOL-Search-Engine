@@ -107,21 +107,31 @@ def extract_body_text(soup):
     return body_text
 
 
-def extract_words_from_url(url):
-    """Return the filename extension from url, or ''."""
-    scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(url)
+def extract_words_from_url(url, limit_domain):
+    words = []
+    parsed = urllib.parse.urlparse(url)
 
-    root, ext = splitext(path)
-    path = path.replace(ext, '')
-
+    netloc = parsed.netloc.lower()
     netloc = netloc.replace('www.', '')
-    netloc = netloc.replace(netloc.split('.')[-1], '')
+    netloc = netloc.replace(limit_domain, '')
+    netloc = netloc.strip('.')
+    words.extend(re.split(r'-|_|\.|\(|\)|:', netloc))
 
-    url = netloc + path + qs + anchor
+    path = parsed.path.lower()
+    path = re.sub(r'(index|page|help)\.[a-z]+', '', path)
+    path = re.sub(r'\.(php|html?|aspx)', '', path)
+    words.extend(re.split(r'/+|-|_|\.|\(|\)|:', path))
 
-    words = re.compile(r"[/:\.?=&]+", re.UNICODE).split(url)
+    query = urllib.parse.parse_qsl(parsed.query)
 
-    return ' '.join(words)
+    for key, value in query:
+        words.extend(extract_words_from_url(value, limit_domain))
+
+    blacklist = ['mailto', 'home', 'en', 'cs', 'de']
+
+    words = [x for x in words if x not in blacklist]
+
+    return list(filter(None, words))
 
 
 def prepare_one_document_for_index(document):
@@ -149,7 +159,7 @@ def prepare_one_document_for_index(document):
     keywords = extract_keywords(soup)
     important_headlines = extract_important_headlines(soup)
     body_text = extract_body_text(soup)
-    url_words = extract_words_from_url(url_decoded)
+    url_words = ' '.join(extract_words_from_url(url_decoded))
 
     row = (url_hash,
            url,
