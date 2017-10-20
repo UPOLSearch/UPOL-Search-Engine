@@ -134,7 +134,7 @@ def extract_words_from_url(url, limit_domain):
     return list(filter(None, words))
 
 
-def prepare_one_document_for_index(document):
+def prepare_one_document_for_index(document, limit_domain):
     content = document.get('page').get('content').get('binary')
     url_hash = document.get('representative')
     url = document.get('page').get('url')
@@ -159,7 +159,7 @@ def prepare_one_document_for_index(document):
     keywords = extract_keywords(soup)
     important_headlines = extract_important_headlines(soup)
     body_text = extract_body_text(soup)
-    url_words = ' '.join(extract_words_from_url(url_decoded))
+    url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
 
     row = (url_hash,
            url,

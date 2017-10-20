@@ -56,7 +56,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         document_hashes = []
 
         for document in document_batch:
-            row = indexer.prepare_one_document_for_index(document)
+            row = indexer.prepare_one_document_for_index(
+                document, crawler_settings.get('limit_domain'))
             if row is not None:
                 indexed_rows.append(row)
                 document_hashes.append(document.get('representative'))
