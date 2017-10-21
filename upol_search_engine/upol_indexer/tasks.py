@@ -11,10 +11,6 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
 
-    # start_time = datetime.now()
-
-    # self.update_state(state='STARTING', meta={'start': start_time})
-
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database(
         crawler_settings.get('limit_domain'), mongodb_client)
@@ -42,9 +38,6 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     progress_pages = 0
 
     while True:
-        # self.update_state(state='RUNNING', meta={'start': start_time,
-        #                                          'batch_number': batch_number})
-
         document_batch = mongodb.get_batch_for_indexer(mongodb_database,
                                                        mongodb_batch_size)
 
@@ -70,12 +63,12 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                               indexed_rows,
                                               postgresql_table_name)
 
-        mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
+        if len(document_hashes) > 0:
+            mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
+            progress_pages = progress_pages + len(document_hashes)
 
-        progress_pages = progress_pages + len(document_hashes)
-
-        mongodb.update_indexer_progress(
-            mongodb_client, task_id, progress_pages, total_pages)
+            mongodb.update_indexer_progress(
+                mongodb_client, task_id, progress_pages, total_pages)
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
@@ -86,6 +79,3 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     postgresql_cursor.close()
     postgresql_client.close()
     mongodb_client.close()
-
-    # self.update_state(state='DONE', meta={'start': start_time,
-    #                                       'end': datetime.now()})
