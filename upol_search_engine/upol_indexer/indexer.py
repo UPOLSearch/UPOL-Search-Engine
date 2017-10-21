@@ -15,15 +15,6 @@ def remove_tags_from_string(string):
     return parsed
 
 
-def delete_all_tags_from_soup(soup, tag):
-    tags = soup.find_all(tag)
-
-    for t in tags:
-        t.replaceWith('')
-
-    return soup
-
-
 def remove_multiple_newlines_and_spaces(string):
     string = string.replace('\n', ' ')
     string = re.sub(' +', ' ', string)
@@ -95,10 +86,18 @@ def extract_important_headlines(soup):
 
 def extract_body_text(soup):
     body = soup.find('body')
+    tags_for_remove = ['style',
+                       'form',
+                       'input',
+                       'label',
+                       'textarea',
+                       'select',
+                       'button',
+                       'output']
 
     if body is not None:
-        body = delete_all_tags_from_soup(body, 'style')
-        body = delete_all_tags_from_soup(body, 'form')
+        for tag in soup(tags_for_remove):
+            tag.extract()
         body_text = remove_tags_from_string(body.prettify())
         body_text = replace_new_line_and_spaces_by_dot(body_text)
     else:
@@ -159,10 +158,14 @@ def prepare_one_document_for_index(document, limit_domain):
     if title is None:
         return None
 
+    body_text = extract_body_text(soup)
+
+    if len(body_text) < 500:
+        return None
+
     description = extract_description(soup)
     keywords = extract_keywords(soup)
     important_headlines = extract_important_headlines(soup)
-    body_text = extract_body_text(soup)
     url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
 
     row = (url_hash,

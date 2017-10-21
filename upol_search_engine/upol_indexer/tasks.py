@@ -48,7 +48,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         document_batch = mongodb.get_batch_for_indexer(mongodb_database,
                                                        mongodb_batch_size)
 
-        if document_batch is None:
+        if len(list(document_batch) == 0:
             break
 
         batch_number += 1
@@ -58,9 +58,12 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         for document in document_batch:
             row = indexer.prepare_one_document_for_index(
                 document, crawler_settings.get('limit_domain'))
+
+            document_hashes.append(document.get('representative'))
+
             if row is not None:
                 indexed_rows.append(row)
-                document_hashes.append(document.get('representative'))
+
 
         if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
@@ -73,8 +76,6 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
             mongodb.update_indexer_progress(
                 mongodb_client, task_id, progress_pages, total_pages)
-        else:
-            break
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
