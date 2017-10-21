@@ -64,18 +64,18 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
             if row is not None:
                 indexed_rows.append(row)
 
-
         if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
                                               postgresql_cursor,
                                               indexed_rows,
                                               postgresql_table_name)
-            mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
 
-            progress_pages = progress_pages + len(document_hashes)
+        mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
 
-            mongodb.update_indexer_progress(
-                mongodb_client, task_id, progress_pages, total_pages)
+        progress_pages = progress_pages + len(document_hashes)
+
+        mongodb.update_indexer_progress(
+            mongodb_client, task_id, progress_pages, total_pages)
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
