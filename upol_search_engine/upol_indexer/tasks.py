@@ -44,6 +44,9 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         if len(list(document_batch)) == 0:
             break
 
+        print(document_batch)
+        print(len(list(document_batch)))
+
         batch_number += 1
         indexed_rows = []
         document_hashes = []
@@ -58,12 +61,14 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                 indexed_rows.append(row)
 
         if len(indexed_rows) > 0:
+            print("inserting psql")
             postgresql.insert_rows_into_index(postgresql_client,
                                               postgresql_cursor,
                                               indexed_rows,
                                               postgresql_table_name)
 
         if len(document_hashes) > 0:
+            print("inserting mongo")
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
             progress_pages = progress_pages + len(document_hashes)
 
