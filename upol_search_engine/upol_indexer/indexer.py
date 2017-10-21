@@ -113,7 +113,11 @@ def extract_words_from_url(url, limit_domain):
 
     netloc = parsed.netloc.lower()
     netloc = netloc.replace('www.', '')
-    netloc = netloc.replace(limit_domain, '')
+    netloc_old, netloc = netloc, netloc.replace(limit_domain, '')
+    if netloc == '':
+        netloc = netloc_old.replace(limit_domain.split('.')[-1], '')
+
+    netloc = netloc.strip('.')
     netloc = netloc.strip('.')
     words.extend(re.split(r'-|_|\.|\(|\)|:', netloc))
 
