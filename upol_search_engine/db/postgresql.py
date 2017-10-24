@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2 import sql
-
 from upol_search_engine import settings
 
 
@@ -22,13 +21,19 @@ def create_function(postgresql_client, postgresql_cursor):
     postgresql_cursor.execute(
         """CREATE FUNCTION documents_search_trigger() RETURNS trigger AS $$
         begin
-          new.search_czech_index :=
+          new.search_index :=
             setweight(to_tsvector('czech', coalesce(new.description, '')), 'B') ||
             setweight(to_tsvector('czech', coalesce(new.keywords, '')), 'A') ||
             setweight(to_tsvector('czech', coalesce(new.important_headlines, '')), 'B') ||
             setweight(to_tsvector('czech', coalesce(new.content, '')), 'C') ||
             setweight(to_tsvector('czech', coalesce(new.title, '')), 'A') ||
-            setweight(to_tsvector('czech', coalesce(new.url_words, '')), 'A')
+            setweight(to_tsvector('czech', coalesce(new.url_words, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(new.description, '')), 'B') ||
+            setweight(to_tsvector('english', coalesce(new.keywords, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(new.important_headlines, '')), 'B') ||
+            setweight(to_tsvector('english', coalesce(new.content, '')), 'C') ||
+            setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+            setweight(to_tsvector('english', coalesce(new.url_words, '')), 'A')
             ;
           return new;
         end
@@ -38,6 +43,7 @@ def create_function(postgresql_client, postgresql_cursor):
 def reset_and_init_languages(postgresql_client, postgresql_cursor):
     sql_for_execute = []
     sql_for_execute.append(sql.SQL('CREATE EXTENSION unaccent;'))
+
     sql_for_execute.append(sql.SQL('DROP TEXT SEARCH CONFIGURATION IF EXISTS public.czech;'))
     sql_for_execute.append(sql.SQL('CREATE TEXT SEARCH CONFIGURATION public.czech ( COPY = pg_catalog.simple ) ;'))
 
@@ -50,12 +56,22 @@ def reset_and_init_languages(postgresql_client, postgresql_cursor):
                                    );"""))
 
     sql_for_execute.append(
-        sql.SQL('ALTER TEXT SEARCH CONFIGURATION czech ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part WITH unaccent, czech_synonym, czech_ispell, simple;'))
+        sql.SQL('ALTER TEXT SEARCH CONFIGURATION czech ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part WITH unaccent, czech_ispell, simple;'))
 
-    # CREATE TEXT SEARCH DICTIONARY czech_synonym (
-    #     TEMPLATE = synonym,
-    #     SYNONYMS = czech
-    # );
+
+    sql_for_execute.append(sql.SQL('DROP TEXT SEARCH CONFIGURATION IF EXISTS public.english;'))
+    sql_for_execute.append(sql.SQL('CREATE TEXT SEARCH CONFIGURATION public.english ( COPY = pg_catalog.simple ) ;'))
+
+    sql_for_execute.append(sql.SQL('DROP TEXT SEARCH DICTIONARY IF EXISTS english_ispell;'))
+    sql_for_execute.append(sql.SQL("""CREATE TEXT SEARCH DICTIONARY english_ispell (
+                                   TEMPLATE  = ispell,
+                                   DictFile  = en_us,
+                                   AffFile   = en_us,
+                                   StopWords = english
+                                   );"""))
+
+    sql_for_execute.append(
+        sql.SQL('ALTER TEXT SEARCH CONFIGURATION english ALTER MAPPING FOR asciiword, asciihword, hword_asciipart, word, hword, hword_part WITH unaccent, english_ispell, english_stem;'))
 
     for s in sql_for_execute:
         postgresql_cursor.execute(s)
@@ -79,7 +95,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
         is_file boolean,
         pagerank double precision,
         url_length integer,
-        search_czech_index tsvector);""".format(table_name))
+        search_index tsvector);""".format(table_name))
 
     postgresql_cursor.execute(
         """CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON {0} FOR EACH ROW EXECUTE PROCEDURE documents_search_trigger();""".format(table_name))
