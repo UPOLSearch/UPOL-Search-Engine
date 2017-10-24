@@ -67,7 +67,6 @@ def api_stats():
         pagerank_graph_deltatime = "N/A"
         pagerank_calculation_deltatime = "N/A"
         pagerank_uploading_deltatime = "N/A"
-        indexer_total = "N/A"
         indexer_progress = "N/A"
         number_of_domains = "N/A"
         number_of_servers = "N/A"
@@ -116,7 +115,6 @@ def api_stats():
             stage_delta_time = "N/A"
 
         total_delta_time = timedelta_to_string(total_delta_time)
-        # total_delta_time = str(total_delta_time)
 
         crawler_progress_db = stats.get('crawler').get('progress')
 
@@ -177,10 +175,8 @@ def api_stats():
 
         if indexer_progress_db is None:
             indexer_progress = 0
-            indexer_total = "N/A"
         else:
             indexer_progress = thousands_separator(get_number_or_zero(indexer_progress_db.get('progress')))
-            indexer_total = thousands_separator(get_number_or_na(indexer_progress_db.get('progress')))
 
     return jsonify(target_domain=target_domain,
                    stage=stage,
@@ -192,7 +188,6 @@ def api_stats():
                    crawler_queue_labels=crawler_queue_labels,
                    crawler_queue_values=crawler_queue_values,
                    indexer_progress=indexer_progress,
-                   indexer_total=indexer_total,
                    pagerank_graph_deltatime=pagerank_graph_deltatime,
                    pagerank_calculation_deltatime=pagerank_calculation_deltatime,
                    pagerank_uploading_deltatime=pagerank_uploading_deltatime,
