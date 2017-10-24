@@ -42,6 +42,7 @@ def create_function(postgresql_client, postgresql_cursor):
 
 def reset_and_init_languages(postgresql_client, postgresql_cursor):
     sql_for_execute = []
+    sql_for_execute.append(sql.SQL('DROP EXTENSION IF EXISTS unaccent;'))
     sql_for_execute.append(sql.SQL('CREATE EXTENSION unaccent;'))
 
     sql_for_execute.append(sql.SQL('DROP TEXT SEARCH CONFIGURATION IF EXISTS public.czech;'))
