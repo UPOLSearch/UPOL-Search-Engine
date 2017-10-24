@@ -11,9 +11,11 @@ def setup_database(arg):
     postgresql_cursor = postgresql_client.cursor()
 
     if arg == 'functions':
+        print("Reseting and creating psql functions.")
         postgresql.create_function(
             postgresql_client, postgresql_cursor)
     elif arg == 'languages':
+        print("Reseting and creating psql languages.")
         postgresql.reset_and_init_languages(
             postgresql_client, postgresql_cursor)
 
