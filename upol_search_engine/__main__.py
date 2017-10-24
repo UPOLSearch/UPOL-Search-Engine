@@ -27,7 +27,7 @@ def main():
     if len(argv) > 0:
         if argv[1] == 'setup':
             setup_database(argv[2])
-            return
+        return
 
     search_engine = tasks.main_task.delay()
 
