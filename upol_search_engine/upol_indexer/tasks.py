@@ -41,7 +41,9 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         document_batch = mongodb.get_batch_for_indexer(mongodb_database,
                                                        mongodb_batch_size)
 
-        if len(list(document_batch)) == 0:
+        document_batch = list(document_batch)
+
+        if len(document_batch) == 0:
             break
 
         batch_number += 1

@@ -11,9 +11,11 @@ def setup_database(arg):
     postgresql_cursor = postgresql_client.cursor()
 
     if arg == 'functions':
+        print("Reseting and creating psql functions.")
         postgresql.create_function(
             postgresql_client, postgresql_cursor)
     elif arg == 'languages':
+        print("Reseting and creating psql languages.")
         postgresql.reset_and_init_languages(
             postgresql_client, postgresql_cursor)
 
@@ -25,9 +27,9 @@ def setup_database(arg):
 def main():
     argv = sys.argv[1:]
     if len(argv) > 0:
-        if argv[1] == 'setup':
-            setup_database(argv[2])
-            return
+        if argv[0] == 'setup':
+            setup_database(argv[1])
+        return
 
     search_engine = tasks.main_task.delay()
 
