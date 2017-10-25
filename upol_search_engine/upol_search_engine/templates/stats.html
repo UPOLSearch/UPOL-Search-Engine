@@ -195,26 +195,45 @@
     });
 
     function reload() {
-        $.getJSON($SCRIPT_ROOT + '/api/stats', function(data) {
-            $("#target_domain").text(data.target_domain)
-            $("#stage").text(data.stage)
-            $("#stage_delta").text(data.stage_delta_time)
-            $("#total_delta").text(data.total_delta_time)
-            $("#next_start").text(data.next_time_start)
-            $("#pagerank_graph").text(data.pagerank_graph_deltatime)
-            $("#pagerank_calculation").text(data.pagerank_calculation_deltatime)
-            $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
-            $("#number_of_domains").text(data.number_of_domains)
-            $("#number_of_servers").text(data.number_of_servers)
-            $("#number_of_urls").text(data.number_of_urls)
-            $("#indexer").text(data.indexer_progress)
-            page_types.data.datasets[0].data = data.crawler_progress_values
-            page_types.data.labels = data.crawler_progress_labels
-            queue.data.datasets[0].data = data.crawler_queue_values
-            queue.data.labels = data.crawler_queue_labels
-            page_types.update();
-            queue.update()
-        });
+        // $.getJSON($SCRIPT_ROOT + '/api/stats', function(data) {
+        //     $("#target_domain").text(data.target_domain)
+        //     $("#stage").text(data.stage)
+        //     $("#stage_delta").text(data.stage_delta_time)
+        //     $("#total_delta").text(data.total_delta_time)
+        //     $("#next_start").text(data.next_time_start)
+        //     $("#pagerank_graph").text(data.pagerank_graph_deltatime)
+        //     $("#pagerank_calculation").text(data.pagerank_calculation_deltatime)
+        //     $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
+        //     $("#number_of_domains").text(data.number_of_domains)
+        //     $("#number_of_servers").text(data.number_of_servers)
+        //     $("#number_of_urls").text(data.number_of_urls)
+        //     $("#indexer").text(data.indexer_progress)
+        //     page_types.data.datasets[0].data = data.crawler_progress_values
+        //     page_types.data.labels = data.crawler_progress_labels
+        //     queue.data.datasets[0].data = data.crawler_queue_values
+        //     queue.data.labels = data.crawler_queue_labels
+        //     page_types.update();
+        //     queue.update()
+        // });
+
+        $("#target_domain").text('upol.cz')
+        $("#stage").text('Crawling')
+        $("#stage_delta").text('2h 52m')
+        $("#total_delta").text('2h 52m')
+        $("#next_start").text('75h 25m')
+        $("#pagerank_graph").text('52m')
+        $("#pagerank_calculation").text('1h 2m')
+        $("#pagerank_uploading").text('20m')
+        $("#number_of_domains").text(240)
+        $("#number_of_servers").text(240)
+        $("#number_of_urls").text('401 133')
+        $("#indexer").text('58 123')
+        page_types.data.datasets[0].data = [69000, 5000, 20000, 70000, 30000];
+        page_types.data.labels = ['Pages', 'Aliases', 'Files', 'Invalid', 'Timeout'];
+        queue.data.datasets[0].data = [10000, 40000, 421300]
+        queue.data.labels = ['Not queued', 'Queued', 'Visited']
+        page_types.update();
+        queue.update()
     }
 
     reload();

@@ -1,22 +1,72 @@
 // out: ./style.css, sourcemap: false, compress: true
+@up-original: #006bab;
+@main-color: #177DBB;
+@dark-gray: #4A4A4A;
+@light-gray: #F6F6F6;
+
 
 body {
-    border-top: 5px #006BAB solid;
+    border-top: 5px @up-original solid;
+    background-color: @light-gray;
 }
 
 nav .navbar-brand {
     /*font-size: 1rem;*/
     line-height: 50px;
+
+    span.name {
+        margin-left: 8px;
+        color: @dark-gray;
+        font-size: 1.1rem;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: @dark-gray;
+    // font-weight: bold;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+.jumbotron {
+    padding: 7rem 2rem;
+    color: @dark-gray;
+    h1 {
+        // text-transform: uppercase;
+        font-weight: 500;
+    }
+}
+
+.card {
+    border-radius: 0;
+    .card-body {
+        .card-title {
+            margin-bottom: .90rem;
+        }
+    }
+}
+
+.btn {
+    text-transform: uppercase;
+    border: 0;
+    font-size: .8rem;
+    line-height: 1.5;
+    padding: .5rem .95rem;
+    font-weight: 500;
 }
 
 .btn-primary {
-    background-color: #006BAB;
-    border-color: #206188;
+    background-color: @main-color;
 }
 
 .btn-primary:hover {
-    background-color: #0476BB;
-    border-color: #226B97;
+    background-color: lighten(@main-color, 5%);
 }
 
 .big-number {
@@ -32,16 +82,6 @@ nav .navbar-brand {
     color: gray;
 }
 
-.footer {
-    margin-top: 100px;
-    color: #D1D1D1;
-
-    a {
-        color: #D1D1D1;
-        text-decoration: underline;
-    }
-
-    a:hover {
-        color: gray;
-    }
+.h2 {
+    margin-top: 2rem;
 }

@@ -8,6 +8,11 @@ app = Flask(__name__)
 
 
 @app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/crawler')
 def stats():
     return render_template('stats.html')
 
@@ -99,14 +104,17 @@ def api_stats():
         if start_time_db is None:
             stage_delta_time = "N/A"
         else:
-            if crawler_end_time_db is None:
-                stage_delta_time = timedelta_to_string(time - crawler_start_time_db)
+            if crawler_start_time_db is None:
+                stage_delta_time = timedelta_to_string(time - start_time_db)
             else:
-                if pagerank_end_time_db is None:
-                    stage_delta_time = timedelta_to_string(time - pagerank_start_time_db)
+                if crawler_end_time_db is None:
+                    stage_delta_time = timedelta_to_string(time - crawler_start_time_db)
                 else:
-                    if indexer_end_time_db is None:
-                        stage_delta_time = timedelta_to_string(time - indexer_start_time_db)
+                    if pagerank_end_time_db is None:
+                        stage_delta_time = timedelta_to_string(time - pagerank_start_time_db)
+                    else:
+                        if indexer_end_time_db is None:
+                            stage_delta_time = timedelta_to_string(time - indexer_start_time_db)
 
         if end_time_db is None:
             total_delta_time = time - start_time_db
