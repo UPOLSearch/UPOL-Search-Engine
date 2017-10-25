@@ -75,6 +75,7 @@ def api_stats():
         indexer_progress = "N/A"
         number_of_domains = "N/A"
         number_of_servers = "N/A"
+        number_of_urls = "N/A"
     else:
         target_domain = stats.get('limit_domain')
         result_db = stats.get('progress').get('result')
@@ -124,28 +125,37 @@ def api_stats():
 
         total_delta_time = timedelta_to_string(total_delta_time)
 
-        crawler_progress_db = stats.get('crawler').get('progress')
+        if crawler_start_time_db is None:
+            crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
+            crawler_queue_values = [0, 0, 0]
+            crawler_progress_labels = ['Pages', 'Aliases', 'Files', 'Invalid', 'Timeout']
+            crawler_progress_values = [0, 0, 0, 0, 0]
+            number_of_domains = "N/A"
+            number_of_servers = "N/A"
+            number_of_urls = "N/A"
+        else:
+            crawler_progress_db = stats.get('crawler').get('progress')
 
-        crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
+            crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
 
-        visited = get_number_or_zero(crawler_progress_db.get('urls_visited'))
-        queued = get_number_or_zero(crawler_progress_db.get('urls_queued'))
-        not_queued = get_number_or_zero(crawler_progress_db.get('urls_not_queued'))
+            visited = get_number_or_zero(crawler_progress_db.get('urls_visited'))
+            queued = get_number_or_zero(crawler_progress_db.get('urls_queued'))
+            not_queued = get_number_or_zero(crawler_progress_db.get('urls_not_queued'))
 
-        crawler_queue_values = [not_queued, queued, visited]
+            crawler_queue_values = [not_queued, queued, visited]
 
-        crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout']
+            crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout']
 
-        timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
-        invalid = get_number_or_zero(crawler_progress_db.get('invalid_count'))
-        files = get_number_or_zero(crawler_progress_db.get('files_count'))
-        aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
-        pages = visited - timeout - invalid - files - aliases
-        number_of_domains = get_number_or_zero(crawler_progress_db.get('number_of_domains'))
-        number_of_servers = get_number_or_zero(crawler_progress_db.get('number_of_servers'))
-        number_of_urls = thousands_separator(get_number_or_zero(crawler_progress_db.get('urls_count')))
+            timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
+            invalid = get_number_or_zero(crawler_progress_db.get('invalid_count'))
+            files = get_number_or_zero(crawler_progress_db.get('files_count'))
+            aliases = get_number_or_zero(crawler_progress_db.get('aliases_count'))
+            pages = visited - timeout - invalid - files - aliases
+            number_of_domains = get_number_or_zero(crawler_progress_db.get('number_of_domains'))
+            number_of_servers = get_number_or_zero(crawler_progress_db.get('number_of_servers'))
+            number_of_urls = thousands_separator(get_number_or_zero(crawler_progress_db.get('urls_count')))
 
-        crawler_progress_values = [pages, aliases, files, invalid, timeout]
+            crawler_progress_values = [pages, aliases, files, invalid, timeout]
 
         pagerank_progress_db = stats.get('pagerank').get('progress')
 
