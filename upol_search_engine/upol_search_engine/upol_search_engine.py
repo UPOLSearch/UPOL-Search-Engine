@@ -70,6 +70,7 @@ def api_stats():
         indexer_progress = "N/A"
         number_of_domains = "N/A"
         number_of_servers = "N/A"
+        number_of_urls = "N/A"
     else:
         target_domain = stats.get('limit_domain')
         result_db = stats.get('progress').get('result')
@@ -124,6 +125,9 @@ def api_stats():
             crawler_queue_values = [0, 0, 0]
             crawler_progress_labels = ['Pages', 'Aliases', 'Files', 'Invalid', 'Timeout']
             crawler_progress_values = [0, 0, 0, 0, 0]
+            number_of_domains = "N/A"
+            number_of_servers = "N/A"
+            number_of_urls = "N/A"
         else:
             crawler_progress_db = stats.get('crawler').get('progress')
 
