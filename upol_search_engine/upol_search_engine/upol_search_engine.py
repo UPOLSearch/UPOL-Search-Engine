@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, send_from_directory
 from upol_search_engine.celery_app import next_start_each_n_days
 from upol_search_engine.db import mongodb
 
@@ -15,6 +15,11 @@ def home():
 @app.route('/crawler')
 def stats():
     return render_template('stats.html')
+
+
+@app.route('/images/<path:path>')
+def send_images(path):
+    return send_from_directory('static/images', path)
 
 
 @app.route('/api/stats')
