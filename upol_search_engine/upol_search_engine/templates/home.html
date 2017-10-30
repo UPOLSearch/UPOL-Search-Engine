@@ -1,50 +1,108 @@
 {% extends "base.html" %} {% block body %} {% include "nav.html" %}
 <div class="jumbotron jumbotron-fluid text-center">
     <div class="container">
-        <h1>Statistika vyhledavače</h1>
-        <p class="lead">Na této stránce naleznete aktální průběh sběru dat a statistiky vyhledávání ve vyhledávači UPSearch.</p>
-    <a class="btn btn-primary" href="asdasda">Sběr dat</a> <a class="btn btn-primary" href="#">Vyhledávání</a>
+        <h1>UPSearch</h1>
+        <p class="lead">Základní informace o prvním fulltextovém vyhledávači Univerzity Palackého v Olomouci.</p>
+        <div class="row">
+            <div class="col-lg-6 search">
+                <form method="GET" action="." role="search" class="mt-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Hledaný výraz..." name="search">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">Hledat</button>
+                    </span>
+                </div>
+            </form>
+            </div>
+        </div>
+
+
+        </div>
     </div>
 </div>
-<div class="container">
+<div class="container margin-overlap">
     <div class="row">
-        <div class="card-deck">
-  <div class="card">
+        <div class="col-lg-4">
+  <div class="card mb-5">
     <div class="card-body">
-      <h2 class="card-title mt-2 mb-3">Co je UPSearch?</h2>
+      <h2 class="card-title mt-1 mb-4">Co je UPSearch?</h2>
       <p>
-          Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam in lorem sit amet leo accumsan lacinia.
+          UPsearch je <strong>internetový fulltextový vyhledávač</strong> jako například Google, nebo Seznam. S tím rozdílem, že UPsearch operuje pouze nad adresami s doménou upol.cz.
       </p>
-      <h3 class="mt-4 mb-2">Testovaci nadpis</h3>
-      <p>
-          Mauris suscipit, ligula sit amet pharetra semper, nibh ante cursus purus, vel sagittis velit mauris vel metus. Aliquam erat volutpat. Nulla quis diam. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia
-          non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
-      </p>
+      <h3 class="mt-4 mb-3">Hlavní výhody</h3>
+      <ul>
+          <li>
+              <p>Přímá optimalizace pro univerzitní síť.</p>
+          </li>
+          <li>
+              <p>Monitorování univerzitní sítě, které může vést k jejímu zlepšení.</p>
+          </li>
+          <li>
+              <p>Možnost integrace do ostatních univerzirních systémů.</p>
+          </li>
+          <li>
+              <p>Univerzita ma přímou kontrolu nad vyhledávačem a jeho funkcemi.</p>
+          </li>
+          <li>
+              <p>UPSearch je open-source.</p>
+          </li>
+      </ul>
     </div>
   </div>
-  <div class="card">
+  </div>
+  <div class="col-lg-4">
+  <div class="card mb-5">
     <div class="card-body">
-      <h2 class="card-title mt-2 mb-3">Sběr dat?</h2>
+      <h2 class="card-title mt-1 mb-4">Zpracování dat</h2>
       <p>
-          Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam in lorem sit amet leo accumsan lacinia. Mauris suscipit, ligula sit amet pharetra semper, nibh ante cursus purus, vel sagittis velit mauris vel metus. Aliquam erat volutpat.
+          UPsearch zpracovává data univerzitní sítě v několika krocích. Zpracovávána data jsou <strong>ukládána na interní server univerzity</strong> a nedochází k jejich předání třetím stranám.
       </p>
-      <h3 class="mt-4 mb-2">Testovaci nadpis</h3>
-      <p>
-          Nulla quis diam. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Cras elementum. Nulla non lectus sed
-          nisl molestie malesuada. Aenean vel massa quis mauris vehicula lacinia. Proin in tellus sit amet nibh dignissim sagittis.
-      </p>
+      <h3 class="mt-4 mb-3">Crawlování</h3>
+      <ul>
+          <li>
+              <p>Robot projde a stáhne veškeré relevatní stránky unverzitní sítě.</p>
+          </li>
+          <li>
+              <p>Crawler je navržen tak, aby univerzitní síť vytěžoval minimálně</p>
+          </li>
+          <li>
+              <p>Po dokončení skenování dochází k výpočtu ohodnocení stránek, známeho jako PageRank.</p>
+          </li>
+      </ul>
+      <h3 class="mt-4 mb-3">Indexace</h3>
+      <ul>
+          <li>
+              <p>Již stažená data UPsearch zpracuje a postaví index, který využívá samotný vyhledávač.</p>
+          </li>
+      </ul>
+      <h3 class="mt-4 mb-3">Vyhledávání</h3>
+      <ul>
+          <li>
+              <p>Každý požadavek na vyhledávání je ukládán a používán k vylepšení kvality vyhledávače.</p>
+          </li>
+      </ul>
     </div>
   </div>
-  <div class="card">
+  </div>
+  <div class="col-lg-4">
+  <div class="card mb-5">
     <div class="card-body">
-      <h2 class="card-title mt-2 mb-3">Jak můžu pomoci?</h2>
+      <h2 class="card-title mt-1 mb-4">Jak mohu pomoci?</h2>
       <p>
-          Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam in lorem sit amet leo accumsan lacinia. Mauris suscipit, ligula sit amet pharetra semper, nibh ante cursus purus, vel sagittis velit mauris vel metus. Aliquam erat volutpat.
+          UPsearch je stále ve stavu vývoje. Pokud jste nenalezli Vámi hledanou stránku, můžete mě kontaktovat na kontaktním e-mailu v patičce webu.
+      </p>
+      <p>
+          Pro ideální otestování vyhledávače je nutné jej použvat. Informuje prosím ostatní o existenci tohoto vyhledávače.
+      </p>
+      <h3 class="mt-4 mb-3">Open-source</h3>
+      <p>
+          Cílem je poskytnout <strong>maximální transparentnost systému</strong>. Veškeré zdrojové kódy vyhledávače jsou veřejně dostupné na <a href="https://github.com/UPOLSearch">Github</a>.
       </p>
     </div>
-  </div>
+</div>
 </div>
 
     </div>
 </div>
-{% include "footer.html" %} {% endblock %} {% block scripts %} {% endblock %}
+{% include "footer.html" %} {% endblock %} {% block scripts %}
+{% endblock %}

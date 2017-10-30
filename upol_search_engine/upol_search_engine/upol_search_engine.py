@@ -48,11 +48,11 @@ def api_stats():
 
     mongodb_client = mongodb.create_client()
 
-    stages = {'finished': 'Scheduled',
-              'killed': 'Failed',
-              'loading': 'Loading',
-              'crawler': 'Crawling',
-              'indexer': 'Indexing',
+    stages = {'finished': 'Naplánováno',
+              'killed': 'Selhalo',
+              'loading': 'Načítání',
+              'crawler': 'Skenování',
+              'indexer': 'Indexování',
               'pagerank': 'Pagerank'}
 
     time = datetime.now()
@@ -65,9 +65,9 @@ def api_stats():
         stage_delta_time = "N/A"
         total_delta_time = "N/A"
         stage = stages.get('finished')
-        crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
+        crawler_queue_labels = ['Mimo frontu', 'Ve frontě', 'Navštíveno']
         crawler_queue_values = [0, 0, 0]
-        crawler_progress_labels = ['Pages', 'Aliases', 'Files', 'Invalid', 'Timeout']
+        crawler_progress_labels = ['Stránka', 'Alias', 'Soubor', 'Nevalidní', 'Časový limit']
         crawler_progress_values = [0, 0, 0, 0, 0]
         pagerank_graph_deltatime = "N/A"
         pagerank_calculation_deltatime = "N/A"
@@ -126,9 +126,9 @@ def api_stats():
         total_delta_time = timedelta_to_string(total_delta_time)
 
         if crawler_start_time_db is None:
-            crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
+            crawler_queue_labels = ['Mimo frontu', 'Ve frontě', 'Navštíveno']
             crawler_queue_values = [0, 0, 0]
-            crawler_progress_labels = ['Pages', 'Aliases', 'Files', 'Invalid', 'Timeout']
+            crawler_progress_labels = ['Stránka', 'Alias', 'Soubor', 'Nevalidní', 'Časový limit']
             crawler_progress_values = [0, 0, 0, 0, 0]
             number_of_domains = "N/A"
             number_of_servers = "N/A"
@@ -136,7 +136,7 @@ def api_stats():
         else:
             crawler_progress_db = stats.get('crawler').get('progress')
 
-            crawler_queue_labels = ['Not Queued', 'Queued', 'Visited']
+            crawler_queue_labels = ['Mimo frontu', 'Ve frontě', 'Navštíveno']
 
             visited = get_number_or_zero(crawler_progress_db.get('urls_visited'))
             queued = get_number_or_zero(crawler_progress_db.get('urls_queued'))
@@ -144,7 +144,7 @@ def api_stats():
 
             crawler_queue_values = [not_queued, queued, visited]
 
-            crawler_progress_labels = ['Pages', 'Aliases','Files', 'Invalid', 'Timeout']
+            crawler_progress_labels = ['Stránka', 'Alias', 'Soubor', 'Nevalidní', 'Časový limit']
 
             timeout = get_number_or_zero(crawler_progress_db.get('timeout_count'))
             invalid = get_number_or_zero(crawler_progress_db.get('invalid_count'))

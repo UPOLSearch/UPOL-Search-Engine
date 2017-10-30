@@ -1,5 +1,5 @@
-<nav class="navbar navbar-light bg-light navbar-expand-md justify-content-between">
-    <div class="container justify-content-between">
+<nav class="navbar navbar-light fixed-top navbar-expand-md">
+    <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('home') }}">
         <img src="{{ url_for('static', filename='images/upol-search-logo.png') }}" width="35" height="35" alt="">
         <span class="name"><strong>UPSearch</strong><span>Info</span></span>
@@ -12,17 +12,22 @@
 
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('stats') }}">Sběr dat</a>
+                    <a class="nav-link" href="{{ url_for('home') }}">Informace o projektu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('stats') }}">Zpracování dat</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Vyhledávání</a>
                 </li>
             </ul>
+
             <ul class="navbar-nav text-md-right">
                 <li class="nav-item">
                     <a class="nav-link" href="#">Přihlášení</a>
                 </li>
             </ul>
+
         </div>
-    </div>
+</div>
 </nav>
