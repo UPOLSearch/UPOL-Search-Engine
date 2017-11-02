@@ -209,7 +209,7 @@
         });
 
         function reload() {
-            $.getJSON({{ url_for('api.datamining') }}, function(data) {
+            $.getJSON('{{ url_for('api.datamining') }}', function(data) {
                 $("#target_domain").text(data.target_domain)
                 $("#stage").text(data.stage)
                 $("#stage_delta").text(data.stage_delta_time)
