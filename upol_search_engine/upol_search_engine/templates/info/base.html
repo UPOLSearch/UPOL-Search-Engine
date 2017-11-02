@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+{% include "info/head.html" %}
+
+<body>
+    {% include "info/nav.html" %}
+    {% block body %}{% endblock %}
+    {% include "info/footer.html" %}
+    {% include "info/scripts.html" %}
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

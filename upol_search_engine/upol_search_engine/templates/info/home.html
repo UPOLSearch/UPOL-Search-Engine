@@ -1,11 +1,11 @@
-{% extends "base.html" %} {% block body %} {% include "nav.html" %}
+{% extends "info/base.html" %} {% block body %}
 <div class="jumbotron jumbotron-fluid text-center">
     <div class="container">
         <h1>UPSearch</h1>
         <p class="lead">Základní informace o prvním fulltextovém vyhledávači Univerzity Palackého v Olomouci.</p>
         <div class="row">
             <div class="col-lg-6 search">
-                <form method="GET" action="." role="search" class="mt-4">
+                <form method="GET" action="{{ url_for('search.home') }}" role="search" class="mt-4">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Hledaný výraz..." name="search">
                     <span class="input-group-btn">
@@ -15,8 +15,6 @@
             </form>
             </div>
         </div>
-
-
         </div>
     </div>
 </div>
@@ -27,7 +25,7 @@
     <div class="card-body">
       <h2 class="card-title mt-1 mb-4">Co je UPSearch?</h2>
       <p>
-          UPsearch je <strong>internetový fulltextový vyhledávač</strong> jako například Google, nebo Seznam. S tím rozdílem, že UPsearch operuje pouze nad adresami s doménou upol.cz.
+          UPsearch je <strong>internetový fulltextový vyhledávač</strong> jako je například Google, nebo Seznam. S tím rozdílem, že UPsearch operuje pouze nad adresami z domény upol.cz.
       </p>
       <h3 class="mt-4 mb-3">Hlavní výhody</h3>
       <ul>
@@ -55,15 +53,15 @@
     <div class="card-body">
       <h2 class="card-title mt-1 mb-4">Zpracování dat</h2>
       <p>
-          UPsearch zpracovává data univerzitní sítě v několika krocích. Zpracovávána data jsou <strong>ukládána na interní server univerzity</strong> a nedochází k jejich předání třetím stranám.
+          UPsearch zpracovává data univerzitní sítě v několika krocích. Zpracovávaná data jsou <strong>ukládána na interní server univerzity</strong> a nedochází k jejich předání třetím stranám.
       </p>
       <h3 class="mt-4 mb-3">Crawlování</h3>
       <ul>
           <li>
-              <p>Robot projde a stáhne veškeré relevatní stránky unverzitní sítě.</p>
+              <p>Robot navštíví a stáhne veškeré relevatní stránky unverzitní sítě.</p>
           </li>
           <li>
-              <p>Crawler je navržen tak, aby univerzitní síť vytěžoval minimálně</p>
+              <p>Robot je navržen tak, aby univerzitní síť vytěžoval minimálně.</p>
           </li>
           <li>
               <p>Po dokončení skenování dochází k výpočtu ohodnocení stránek, známeho jako PageRank.</p>
@@ -92,7 +90,7 @@
           UPsearch je stále ve stavu vývoje. Pokud jste nenalezli Vámi hledanou stránku, můžete mě kontaktovat na kontaktním e-mailu v patičce webu.
       </p>
       <p>
-          Pro ideální otestování vyhledávače je nutné jej použvat. Informuje prosím ostatní o existenci tohoto vyhledávače.
+          Pro ideální otestování vyhledávače je nutné jej používat. Informujte prosím ostatní o existenci tohoto vyhledávače.
       </p>
       <h3 class="mt-4 mb-3">Open-source</h3>
       <p>
@@ -104,5 +102,5 @@
 
     </div>
 </div>
-{% include "footer.html" %} {% endblock %} {% block scripts %}
+{% endblock %} {% block scripts %}
 {% endblock %}

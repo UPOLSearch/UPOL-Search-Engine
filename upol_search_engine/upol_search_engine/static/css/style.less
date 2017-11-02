@@ -3,21 +3,44 @@
 @main-color: #177DBB;
 @dark-gray: #4A4A4A;
 @light-gray: #eee;
+@gray: #797979;
+@green: #006621;
+
+
+html, body {
+  height: 100%;
+}
+
+#wrap {
+  min-height: 100%;
+}
+
+#main {
+  overflow:auto;
+  padding-bottom:150px; /* this needs to be bigger than footer height*/
+}
+
 
 html {
     font-size: 16px;
-
 }
 
 body {
     font-family: 'Roboto', sans-serif;
-
     background-color: @light-gray;
     letter-spacing: normal !important;
 }
 
+.blue-border {
+    border-top: 5px @up-original solid;
+}
+
+body.white{
+    background-color: white;
+}
+
 .container-fluid {
-    max-width: 1470px;
+    max-width: 1270px;
 }
 
 .margin-overlap {
@@ -32,20 +55,31 @@ a:hover {
     color: lighten(@up-original, 5%);
 }
 
+.counter {
+    color: @gray;
+    margin-top: 20px;
+}
 
 nav {
-    // border-top: 5px @up-original solid;
-    background-color: transparent;
-.navbar-brand {
-    /*font-size: 1rem;*/
-    line-height: 40px;
+    .navbar-brand {
+        /*font-size: 1rem;*/
+        line-height: 40px;
 
-    span.name {
-        margin-left: 8px;
-        color: @dark-gray;
-        font-size: 1.1rem;
+        span.name {
+            margin-left: 8px;
+            color: @dark-gray;
+            font-size: 1.1rem;
+        }
     }
 }
+
+nav.shadow {
+    background-color: transparent;
+    border-top: 5px transparent solid;
+}
+
+nav.bg-light {
+    background-color: @light-gray;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -67,7 +101,7 @@ h3 {
     padding-bottom: 12rem;
     color: @dark-gray;
     background-color: @light-gray;
-    background-image: url('/images/background.png');
+    background-image: url('/static/images/background.png');
     background-position: center top;
     background-repeat: repeat-x;
     background-attachment: fixed;
@@ -78,6 +112,9 @@ h3 {
     .search{
         margin:auto;
     }
+}
+
+.search {
     .input-group {
         height:45px;
 
@@ -85,6 +122,11 @@ h3 {
             padding: .8rem 1.5rem;
         }
     }
+}
+
+.logo {
+    margin-top: 100px;
+    margin-bottom: 50px;
 }
 
 .jumbotron.small {
@@ -163,8 +205,71 @@ h3 {
 }
 
 .footer {
-    margin-top: 2rem;
     color: lighten(@dark-gray, 20%);
+    height: 120px;
+}
+
+.footer-fixed {
+    position: relative;
+    margin-top: -140px; /* negative value of footer height */
+    height: 120px;
+    clear:both;
+    padding-top:20px;
+}
+
+.search-results {
+    padding-top: 30px;
+
+    .performance {
+        color: @gray;
+    }
+
+    h3 {
+        margin-bottom: 0px;
+        display: inline;
+    }
+
+    .language {
+        margin-left: 10px;
+        font-size: 0.85rem;
+        color: @gray;
+    }
+
+    .url {
+        color: @green;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.90rem;
+    }
+
+    .preview {
+        color: @dark-gray;
+        font-size: 0.90rem;
+        max-width: 700px;
+    }
+
+    .debug {
+        color: #D1D1D1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.95rem;
+    }
+
+    .result {
+        margin-bottom: 20px;
+    }
+
+    .pagination {
+        margin-top: 50px;
+        margin-bottom: 170px;
+
+        .page-item a {
+            color: @up-original;
+        }
+    }
+
 }
 
 @media
@@ -176,13 +281,13 @@ only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
 
     .jumbotron {
-        background-image: url('/images/background@2x.png');
+        background-image: url('/static/images/background@2x.png');
 background-size: 1600px 1000px;
     }
 }
 
 @media only screen and (max-width: 667px) {
-    .navbar {
+    .navbar.shadow {
         background-color: white;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
     }
@@ -192,5 +297,8 @@ background-size: 1600px 1000px;
 }
 
 @media only screen and (min-width: 1000px) {
+    #space {
+        width:70%;
+    }
 
 }

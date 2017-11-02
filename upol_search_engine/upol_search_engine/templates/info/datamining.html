@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block body %} {% include "nav.html" %}
+{% extends "info/base.html" %} {% block body %}
 <div class="jumbotron jumbotron-fluid text-center">
     <div class="container">
         <h1>Zpracování dat</h1>
@@ -133,10 +133,8 @@
     </div>
 
 
-    {% include "footer.html" %} {% endblock %} {% block scripts %}
+    {% endblock %} {% block scripts %}
     <script>
-        var $SCRIPT_ROOT = {{request.script_root | tojson | safe}};
-
         $(document).ready(function() {
             setInterval("reload()", 10000); // call every 10 seconds
         });
@@ -211,7 +209,7 @@
         });
 
         function reload() {
-            $.getJSON($SCRIPT_ROOT + '/api/stats', function(data) {
+            $.getJSON({{ url_for('api.datamining') }}, function(data) {
                 $("#target_domain").text(data.target_domain)
                 $("#stage").text(data.stage)
                 $("#stage_delta").text(data.stage_delta_time)

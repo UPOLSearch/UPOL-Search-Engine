@@ -12,11 +12,13 @@ $(document).ready(function(){
     var scroll = $(window).scrollTop();
       if (scroll > 54) {
         $(".navbar").css("background" , "white");
-        $(".navbar").css("box-shadow", "0 2px 2px 0 rgba(0, 0, 0, 0.12)")
+        $(".navbar").css("box-shadow", "0 2px 2px 0 rgba(0, 0, 0, 0.12)");
+        $(".navbar").css("border-top", "5px #006bab solid");
       }
       else{
           $(".navbar").css("background" , "transparent");
-          $(".navbar").css("box-shadow", "None")
+          $(".navbar").css("box-shadow", "None");
+          $(".navbar").css("border-top", "5px transparent solid");
       }
   })
 })

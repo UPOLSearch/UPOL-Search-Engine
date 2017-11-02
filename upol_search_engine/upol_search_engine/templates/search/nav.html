@@ -1,0 +1,20 @@
+<nav class="navbar navbar-light bg-light navbar-expand-md">
+    <div class="container justify-content-md-start justify-content-center">
+        <a class="navbar-brand" href="{{ url_for('search.home') }}">
+        <img src="{{ url_for('static', filename='images/upol-search-logo.png') }}" width="35" height="35" alt="">
+        <span class="name d-none d-sm-inline"><strong>UPSearch</strong></span>
+    </a>
+    <form method="GET" action="." class="mx-2 my-auto d-inline w-100" role="search">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Hledaný výraz..." aria-label="Hledaný výraz..." value="{{search}}" name="search">
+            <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">Hledat</button>
+            </span>
+        </div>
+    </form>
+    <div id="space">
+
+    </div>
+
+    </div>
+</nav>
