@@ -104,7 +104,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_cursor.execute(
         "ALTER TABLE {0} ENABLE TRIGGER tsvectorupdate;".format(table_name))
 
-    postgresql_cursor.execute("CREATE INDEX search_idx ON {0} USING gin(search_index);")
+    postgresql_cursor.execute("CREATE INDEX search_idx ON {0} USING gin(search_index);".format(table_name))
 
     postgresql_client.commit()
 
