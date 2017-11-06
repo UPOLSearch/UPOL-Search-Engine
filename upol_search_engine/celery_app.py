@@ -1,3 +1,5 @@
+import datetime
+
 from celery import Celery
 from kombu import Exchange, Queue
 from upol_search_engine import settings
@@ -45,7 +47,7 @@ class Config(object):
     beat_schedule = {
         'run-search-engine': {
             'task': 'upol_search_engine.tasks.main_task',
-            'schedule': next_start_each_n_seconds(),
+            'schedule': datetime.timedelta(days=next_start_each_n_days())
         }
     }
 
