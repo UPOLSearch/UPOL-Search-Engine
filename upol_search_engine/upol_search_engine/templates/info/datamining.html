@@ -1,0 +1,251 @@
+{% extends "info/base.html" %} {% block body %}
+<div class="jumbotron jumbotron-fluid text-center">
+    <div class="container">
+        <h1>Zpracování dat</h1>
+        <p class="lead">Živé monitorování zpracování dat.</p>
+    </div>
+</div>
+<div class="container margin-overlap text-center text-sm-left">
+
+    <div class="card">
+        <div class="card-body">
+            <h2>Aktuální fáze</h2>
+            <div class="row">
+                <div class="col-xl-3 col-md-6">
+                    <div id="stage" class="big-number"></div>
+                    <div class="big-number-label">
+                        fáze
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="stage_delta" class="big-number"></div>
+                    <div class="big-number-label">
+                        délka aktuální fáze
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="total_delta" class="big-number"></div>
+                    <div class="big-number-label">
+                        celková délka
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="next_start" class="big-number"></div>
+                    <div class="big-number-label">
+                        čas do dalšího skenování
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-body">
+            <h2>Skenování</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="page_types" height="200px"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="progress" height="200px"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-5">
+        <div class="card-body">
+            <h2>Statistika</h2>
+            <div class="row">
+                <div class="col-xl-3 col-sm-6">
+                    <div id="target_domain" class="big-number"></div>
+                    <div class="big-number-label">
+                        cílová doména
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="number_of_domains" class="big-number"></div>
+                    <div class="big-number-label">
+                        počet domén
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="number_of_servers" class="big-number"></div>
+                    <div class="big-number-label">
+                        počet serverů
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div id="number_of_urls" class="big-number"></div>
+                    <div class="big-number-label">
+                        počet adres
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2>Pagerank</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div id="pagerank_graph" class="big-number"></div>
+                            <div class="big-number-label">
+                                stavění grafu
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="pagerank_calculation" class="big-number"></div>
+                            <div class="big-number-label">
+                                výpočet
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="pagerank_uploading" class="big-number"></div>
+                            <div class="big-number-label">
+                                zapsání
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2>Indexování</h2>
+                    <div class="row">
+                        <div class="col-12">
+                            <div id="indexer" class="big-number"></div>
+                            <div class="big-number-label">
+                                indexováno (stránek)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% endblock %} {% block scripts %}
+    <script>
+        $(document).ready(function() {
+            setInterval("reload()", 30000); // call every 10 seconds
+        });
+
+        var legend = {
+            display: true,
+            position: 'bottom',
+        };
+        var layout = {
+            padding: {
+                left: 0,
+                right: 0,
+                top: 40,
+                bottom: 40
+            }
+        };
+
+        var page_types = document.getElementById('page_types').getContext('2d');
+
+        var page_types = new Chart(page_types, {
+            type: 'bar',
+
+            data: {
+
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        "#4A90E2",
+                        "#F5A623",
+                        "#D0021B",
+                        "#50E3C2",
+                        "#9013FE",
+                    ],
+                }],
+            },
+
+            options: {
+                legend: {
+                    display: false
+                },
+                layout: layout,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+
+        var progress = document.getElementById('progress').getContext('2d');
+        var queue = new Chart(progress, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        "#F5A623",
+                        "#D0021B",
+                        "#50E3C2"
+                    ],
+                }],
+            },
+            options: {
+                legend: legend,
+                layout: layout,
+            }
+        });
+
+        function reload() {
+            $.getJSON('{{ url_for('api.datamining') }}', function(data) {
+                $("#target_domain").text(data.target_domain)
+                $("#stage").text(data.stage)
+                $("#stage_delta").text(data.stage_delta_time)
+                $("#total_delta").text(data.total_delta_time)
+                $("#next_start").text(data.next_time_start)
+                $("#pagerank_graph").text(data.pagerank_graph_deltatime)
+                $("#pagerank_calculation").text(data.pagerank_calculation_deltatime)
+                $("#pagerank_uploading").text(data.pagerank_uploading_deltatime)
+                $("#number_of_domains").text(data.number_of_domains)
+                $("#number_of_servers").text(data.number_of_servers)
+                $("#number_of_urls").text(data.number_of_urls)
+                $("#indexer").text(data.indexer_progress)
+                page_types.data.datasets[0].data = data.crawler_progress_values
+                page_types.data.labels = data.crawler_progress_labels
+                queue.data.datasets[0].data = data.crawler_queue_values
+                queue.data.labels = data.crawler_queue_labels
+                page_types.update();
+                queue.update()
+            });
+
+            // $("#target_domain").text('upol.cz')
+            // $("#stage").text('Skenování')
+            // $("#stage_delta").text('2h 52m')
+            // $("#total_delta").text('2h 52m')
+            // $("#next_start").text('75h 25m')
+            // $("#pagerank_graph").text('52m')
+            // $("#pagerank_calculation").text('1h 2m')
+            // $("#pagerank_uploading").text('20m')
+            // $("#number_of_domains").text(240)
+            // $("#number_of_servers").text(240)
+            // $("#number_of_urls").text('401 133')
+            // $("#indexer").text('58 123')
+            // page_types.data.datasets[0].data = [69000, 5000, 20000, 70000, 30000];
+            // page_types.data.labels = ['Stránka', 'Alias', 'Soubor', 'Nevalidní', 'Časový limit'];
+            // queue.data.datasets[0].data = [10000, 40000, 421300]
+            // queue.data.labels = ['Mimo frontu', 'Ve frontě', 'Navštíveno']
+            // page_types.update();
+            // queue.update()
+        }
+
+        reload();
+    </script>
+    {% endblock %}

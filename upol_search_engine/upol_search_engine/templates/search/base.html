@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+{% include "search/head.html" %}
+
+<body class="white blue-border">
+    <div id="wrap">
+    {% block nav %}
+    {% include "search/nav.html" %}
+    {% endblock %}
+    {% block body %}{% endblock %}
+    </div>
+    {% block footer %}{% include "search/footer.html" %}{% endblock %}
+
+    {% include "search/scripts.html" %}
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>
