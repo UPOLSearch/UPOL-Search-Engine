@@ -67,8 +67,9 @@ def home():
                 index_table=sql.Identifier(TABLE_NAME),
                 language_settings=sql.Literal(language_settings))
 
-            tasks.process_search_query.delay(search, search_language)
-
+            if page == 1:
+                tasks.process_search_query.delay(search, search_language)
+                
             psql_cursor.execute(sql_outside_query_filled)
 
             output = psql_cursor.fetchall()
