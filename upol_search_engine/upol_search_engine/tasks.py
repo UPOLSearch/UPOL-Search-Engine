@@ -1,5 +1,4 @@
 from upol_search_engine.celery_app import app
-from upol_search_engine.db import mongodb, postgresql
 
 
 def get_words_from_psql_vector(vector):
@@ -14,6 +13,8 @@ def get_words_from_psql_vector(vector):
 
 @app.task(queue='search')
 def process_search_query(query, language):
+    from upol_search_engine.db import mongodb, postgresql
+    
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database('stats', mongodb_client)
 
