@@ -619,9 +619,12 @@ def get_latest_stats(client):
 def insert_or_iterate_search_words(db, words):
     for word in words:
         try:
-            db['SearchWordsStats'].update({'word': word}, {'$inc': {'count': 1}})
+            db['SearchWordsStats'].insert({'word': word, 'count': 0})
         except Exception as e:
-            db['SearchWordsStats'].insert({'word': word, 'count': 1})
+            pass
+
+        db['SearchWordsStats'].update({'word': word}, {'$inc': {'count': 1}})
+
 
 
 def insert_search_query(db, query, language):

@@ -14,7 +14,7 @@ def get_words_from_psql_vector(vector):
 @app.task(queue='search')
 def process_search_query(query, language):
     from upol_search_engine.db import mongodb, postgresql
-    
+
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database('stats', mongodb_client)
 
@@ -23,6 +23,7 @@ def process_search_query(query, language):
 
     ts_vector = postgresql.get_ts_vector_from_text(
         postgresql_cursor, language, query)
+
     words = get_words_from_psql_vector(ts_vector)
 
     mongodb.insert_or_iterate_search_words(mongodb_database, words)
