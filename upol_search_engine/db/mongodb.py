@@ -618,11 +618,9 @@ def get_latest_stats(client):
 
 def insert_or_iterate_search_words(db, words):
     for word in words:
-        result = db['SearchWordsStats'].find_one({'word': word})
-
-        if result is not None:
+        try:
             db['SearchWordsStats'].update({'word': word}, {'$inc': {'count': 1}})
-        else:
+        except Exception as e:
             db['SearchWordsStats'].insert({'word': word, 'count': 1})
 
 
