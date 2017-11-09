@@ -151,4 +151,4 @@ def get_ts_vector_from_text(psql_cursor, language, text):
             sql.Literal(language), sql.Literal(text))
     )
 
-    return psql_cursor.fetchone()[0][0]
+    return psql_cursor.fetchone()[0]
