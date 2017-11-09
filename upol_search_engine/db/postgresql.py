@@ -143,3 +143,12 @@ def test_if_table_exists(psql_cursor, table_name):
         'SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=\'{0}\');'.format(table_name))
 
     return bool(psql_cursor.fetchone()[0])
+
+
+def get_ts_vector_from_text(psql_cursor, language, text):
+    psql_cursor.execute(
+        sql.SQL("SELECT to_tsvector({}, {});").format(
+            sql.Literal(language), sql.Literal(text))
+    )
+
+    return psql_cursor.fetchone()[0][0]

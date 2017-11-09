@@ -616,6 +616,21 @@ def get_latest_stats(client):
         return result[0]
 
 
+def insert_or_iterate_search_words(db, words):
+    for word in words:
+        result = db['SearchWordsStats'].find_one({'word': word})
+
+        if result is not None:
+            db['SearchWordsStats'].update({'word': word}, {'$inc': {'count': 1}})
+        else:
+            db['SearchWordsStats'].insert({'word': word, 'count': 1})
+
+
+def insert_search_query(db, query, language):
+    db['SearchStats'].insert(
+        {'query': query, 'language': language, 'date': str(datetime.utcnow())})
+
+
 def get_count_of_not_indexed(db):
     count = db['Urls'].find({
         'page.visited': True,

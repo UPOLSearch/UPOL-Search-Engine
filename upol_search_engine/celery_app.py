@@ -34,11 +34,17 @@ class Config(object):
             exchange=Exchange('search_engine'),
             routing_key='search_engine'
         ),
+        Queue(
+            'search',
+            exchange=Exchange('search'),
+            routing_key='search'
+        ),
     )
 
     enable_utc = False
     timezone = 'Europe/Prague'
     include = ['upol_search_engine.upol_crawler.tasks',
+               'upol_search_engine.upol_search_engine.tasks',
                'upol_search_engine.tasks']
 
     log_file = settings.CONFIG.get('Settings', 'log_dir')
