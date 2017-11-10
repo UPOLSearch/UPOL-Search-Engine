@@ -39,8 +39,10 @@ def home():
 
             start_time = datetime.datetime.now()
 
-            if search_language == 'en':
+            if search_language is in ['en', 'no', 'es', 'sv', 'da']:
                 language_settings = 'english'
+            elif search_language is in ['hr', 'sk', 'sl', 'so', 'hu']:
+                language_settings = 'czech'
             else:
                 language_settings = 'czech'
 
