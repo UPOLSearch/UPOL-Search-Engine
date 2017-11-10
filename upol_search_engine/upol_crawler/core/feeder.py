@@ -14,7 +14,7 @@ def load_seed(seed, database, regex, max_depth, blacklist):
 
     # Insert loaded urls into database
     for url in seed_urls:
-        # url = urls.clean(url)
+        url = urls.clean(url)
         if validator.validate(url, regex, blacklist):
             insert_result = mongodb.insert_url(database,
                                           url,
