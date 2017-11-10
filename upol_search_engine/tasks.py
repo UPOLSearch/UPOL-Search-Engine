@@ -16,19 +16,30 @@ def main_task(self):
     try:
         # Later load these settings from DB
 
+        # blacklist = """
+        # portal.upol.cz
+        # stag.upol.cz
+        # library.upol.cz
+        # adfs.upol.cz
+        # portalbeta.upol.cz
+        # idp.upol.cz
+        # famaplus.upol.cz
+        # es.upol.cz
+        # smlouvy.upol.cz
+        # menza.upol.cz
+        # edis.upol.cz
+        # courseware.upol.cz
+        # m.zurnal.upol.cz
+        # """
+
         blacklist = """
-        portal.upol.cz
-        stag.upol.cz
         library.upol.cz
         adfs.upol.cz
         portalbeta.upol.cz
         idp.upol.cz
         famaplus.upol.cz
         es.upol.cz
-        smlouvy.upol.cz
         menza.upol.cz
-        edis.upol.cz
-        courseware.upol.cz
         m.zurnal.upol.cz
         """
 
