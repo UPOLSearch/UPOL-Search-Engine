@@ -16,32 +16,32 @@ def main_task(self):
     try:
         # Later load these settings from DB
 
-        # blacklist = """
-        # portal.upol.cz
-        # stag.upol.cz
-        # library.upol.cz
-        # adfs.upol.cz
-        # portalbeta.upol.cz
-        # idp.upol.cz
-        # famaplus.upol.cz
-        # es.upol.cz
-        # smlouvy.upol.cz
-        # menza.upol.cz
-        # edis.upol.cz
-        # courseware.upol.cz
-        # m.zurnal.upol.cz
-        # """
-
         blacklist = """
+        portal.upol.cz
+        stag.upol.cz
         library.upol.cz
         adfs.upol.cz
         portalbeta.upol.cz
         idp.upol.cz
         famaplus.upol.cz
         es.upol.cz
+        smlouvy.upol.cz
         menza.upol.cz
+        edis.upol.cz
+        courseware.upol.cz
         m.zurnal.upol.cz
         """
+
+        # blacklist = """
+        # library.upol.cz
+        # adfs.upol.cz
+        # portalbeta.upol.cz
+        # idp.upol.cz
+        # famaplus.upol.cz
+        # es.upol.cz
+        # menza.upol.cz
+        # m.zurnal.upol.cz
+        # """
 
         seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
 
