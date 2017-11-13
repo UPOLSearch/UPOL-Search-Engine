@@ -33,7 +33,8 @@ setup(name='UPOL-Search-Engine',
           'networkx',
           'psycopg2',
           'flask',
-          'html5lib'
+          'html5lib',
+          'jsonschema'
       ],
       entry_points={
           'console_scripts': [
