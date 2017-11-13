@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request
 from langdetect import detect
 from psycopg2 import sql
 from upol_search_engine import settings, upol_search_engine
+from upol_search_engine.upol_search_engine import tasks
 
 mod = Blueprint('search', __name__, url_prefix='/')
 
@@ -38,8 +39,10 @@ def home():
 
             start_time = datetime.datetime.now()
 
-            if search_language == 'en':
+            if search_language in ['en', 'no', 'es', 'sv', 'da']:
                 language_settings = 'english'
+            elif search_language in ['hr', 'sk', 'sl', 'so', 'hu']:
+                language_settings = 'czech'
             else:
                 language_settings = 'czech'
 
@@ -65,6 +68,9 @@ def home():
                 inside_query=sql_inside_query_filled,
                 index_table=sql.Identifier(TABLE_NAME),
                 language_settings=sql.Literal(language_settings))
+
+            if page == 1:
+                tasks.process_search_query.delay(search, language_settings)
 
             psql_cursor.execute(sql_outside_query_filled)
 

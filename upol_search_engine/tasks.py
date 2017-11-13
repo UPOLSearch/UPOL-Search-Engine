@@ -32,7 +32,18 @@ def main_task(self):
         m.zurnal.upol.cz
         """
 
-        seed = """http://upol.cz"""
+        # blacklist = """
+        # library.upol.cz
+        # adfs.upol.cz
+        # portalbeta.upol.cz
+        # idp.upol.cz
+        # famaplus.upol.cz
+        # es.upol.cz
+        # menza.upol.cz
+        # m.zurnal.upol.cz
+        # """
+
+        seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
 
         crawler_settings = {'limit_domain': 'upol.cz',
                             'max_depth': 10,
