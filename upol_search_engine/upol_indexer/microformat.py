@@ -2,7 +2,7 @@ import json
 
 from jsonschema import ValidationError, validate
 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 
 schema = {
     "type": "object",
@@ -61,7 +61,8 @@ microformat = {
 
 
 def find_microformat_on_page(soup):
-    tag = soup.find('script', {'id': 'upolsearch', 'type': 'application/ld+json'})
+    tag = soup.find('script',
+                    {'id': 'upolsearch', 'type': 'application/ld+json'})
 
     json_microformat = tag.next
 
