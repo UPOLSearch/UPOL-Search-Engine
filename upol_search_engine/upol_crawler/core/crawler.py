@@ -2,7 +2,6 @@
 import requests
 from bs4 import BeautifulSoup
 from celery.utils.log import get_task_logger
-
 from upol_search_engine import settings
 from upol_search_engine.db import mongodb
 from upol_search_engine.upol_crawler.core import (limiter, link_extractor,
@@ -46,7 +45,8 @@ def get_page(url, connect_max_timeout, read_max_timeout):
 
 
 def _handle_response(database, url, original_url, redirected,
-                     response, depth, max_depth, limit_domain, blacklist):
+                     response, depth, max_depth, limit_domain, blacklist,
+                     ignore_blacklist=False):
     try:
         url_document = mongodb.get_url(database, url)
         regex = urls.generate_regex(limit_domain)
@@ -58,6 +58,9 @@ def _handle_response(database, url, original_url, redirected,
             # Check if redirected url is valid
             is_valid_redirect, reason = validator.validate(url, regex,
                                                            blacklist)
+
+            if (is_valid_redirect is False) and (reason == 'UrlIsBlacklisted') and ignore_blacklist:
+                is_valid_redirect = True
 
             if is_valid_redirect:
                 mongodb.set_alias_visited_url(database, original_url)
@@ -161,7 +164,7 @@ def _handle_response(database, url, original_url, redirected,
         raise
 
 
-def crawl_url(url, depth, crawler_settings):
+def crawl_url(url, depth, crawler_settings, ignore_blacklist=False):
     try:
         client = mongodb.create_client()
         database = mongodb.get_database(crawler_settings.get('limit_domain'),
@@ -205,6 +208,7 @@ def crawl_url(url, depth, crawler_settings):
                          crawler_settings.get('max_depth'),
                          crawler_settings.get('limit_domain'),
                          blacklist.generate_blacklist(
-                             crawler_settings.get('blacklist')))
+                             crawler_settings.get('blacklist')),
+                         ignore_blacklist)
 
     client.close()
