@@ -30,6 +30,7 @@ def main_task(self):
         edis.upol.cz
         courseware.upol.cz
         m.zurnal.upol.cz
+        stagservices.upol.cz
         """
 
         # blacklist = """
