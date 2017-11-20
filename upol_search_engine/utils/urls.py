@@ -90,7 +90,7 @@ def load_urls_from_file(filepath):
             # Ignore all white characters
             url = line.strip()
             # Take url only if is not commented
-            if not line.startswith("#"):
+            if not line.startswith("#") and (url != '') and (url is not None):
                 urls.add(url)
 
     return urls
@@ -107,7 +107,7 @@ def load_urls_from_text(text):
         # Ignore all white characters
         url = line.strip()
         # Take url only if is not commented
-        if not line.startswith("#"):
+        if not line.startswith("#") and (url != '') and (url is not None):
             urls.add(url)
 
     return urls
