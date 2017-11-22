@@ -5,11 +5,10 @@ from upol_search_engine.upol_crawler import tasks as crawler_tasks
 from upol_search_engine.upol_indexer import tasks as indexer_tasks
 
 
-# Time limit, soft 1.8day, hard 2days
 @app.task(queue='search_engine',
           bind=True,
-          time_limit=172800,
-          soft_time_limit=164160)
+          time_limit=216000,
+          soft_time_limit=240000)
 def main_task(self):
     """Main task of the project"""
 
