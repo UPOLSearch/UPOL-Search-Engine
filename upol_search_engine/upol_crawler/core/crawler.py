@@ -72,6 +72,10 @@ def _handle_response(database, url, original_url, redirected,
                         canonical_group = url_document.get('canonical_group')
                         mongodb.set_canonical_group_to_alias(database, original_url,
                                                              canonical_group)
+
+                        log.info('Already visited redirect: {0} (original: {1})'.format(
+                            url, original_url))
+
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
@@ -158,6 +162,7 @@ def _handle_response(database, url, original_url, redirected,
 
             log.info('Done [{0}]: {1}'.format(response.reason, url))
 
+            return
     except Exception as e:
         mongodb.delete_url(database, url)
         log.exception('Exception: {0}'.format(url))
