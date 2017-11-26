@@ -15,41 +15,40 @@ def main_task(self):
     try:
         # Later load these settings from DB
 
-        blacklist = """
-        portal.upol.cz
-        stag.upol.cz
-        library.upol.cz
-        adfs.upol.cz
-        portalbeta.upol.cz
-        idp.upol.cz
-        famaplus.upol.cz
-        es.upol.cz
-        smlouvy.upol.cz
-        menza.upol.cz
-        edis.upol.cz
-        courseware.upol.cz
-        m.zurnal.upol.cz
-        stagservices.upol.cz
-        """
-
         # blacklist = """
+        # portal.upol.cz
+        # stag.upol.cz
         # library.upol.cz
         # adfs.upol.cz
         # portalbeta.upol.cz
         # idp.upol.cz
         # famaplus.upol.cz
         # es.upol.cz
+        # smlouvy.upol.cz
         # menza.upol.cz
+        # edis.upol.cz
+        # courseware.upol.cz
         # m.zurnal.upol.cz
+        # stagservices.upol.cz
         # """
 
-        seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
+        blacklist = ""
 
-        crawler_settings = {'limit_domain': 'upol.cz',
+        # seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
+        seed = "http://trnecka.inf.upol.cz"
+
+        # crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
+        #                     'max_depth': 10,
+        #                     'connect_max_timeout': 3.05,
+        #                     'read_max_timeout': 10,
+        #                     'frequency_per_server': 0.4,
+        #                     'blacklist': blacklist}
+
+        crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
                             'max_depth': 10,
                             'connect_max_timeout': 3.05,
                             'read_max_timeout': 10,
-                            'frequency_per_server': 0.4,
+                            'frequency_per_server': 0.2,
                             'blacklist': blacklist}
 
         indexer_settings = {'batch_size': 300,
@@ -64,11 +63,18 @@ def main_task(self):
 
         mongodb.insert_sub_task_start(mongodb_client, task_id, "crawler")
 
+        # crawler_tasks.feeder_task(
+        #     crawler_settings=crawler_settings,
+        #     seed=seed,
+        #     batch_size=300,
+        #     delay_between_feeding=20,
+        #     task_id=task_id)
+
         crawler_tasks.feeder_task(
             crawler_settings=crawler_settings,
             seed=seed,
             batch_size=300,
-            delay_between_feeding=20,
+            delay_between_feeding=4,
             task_id=task_id)
 
         mongodb.insert_sub_task_finish(
