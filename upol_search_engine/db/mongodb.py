@@ -42,6 +42,7 @@ def init(db):
     db['Urls'].create_index('indexed')
     db['Urls'].create_index('noindex')
     db['Urls'].create_index('file')
+    db['Urls'].create_index('file_type')
     db['Urls'].create_index('invalid')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
@@ -265,6 +266,16 @@ def _format_response_header(response, url_addition):
 def set_visited_file_url(db, url, response, original_url=None):
     """Save file into database and set is as visited"""
 
+    filename = urls.get_filename(url)
+    content_type = response.headers.get('Content-Type')
+
+    if 'application/pdf' in content_type:
+        file_type = 'pdf'
+    elif 'text/plain' in content_type:
+        file_type = 'txt'
+    else:
+        file_type = None
+
     url_hash = urls.hash(url)
 
     is_redirect, is_permanent_redirect = _determine_type_of_redirect(response)
@@ -282,6 +293,8 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['indexed'] = False
     url_addition['noindex'] = False
     url_addition['file'] = True
+    url_addition['file_type'] = file_type
+    url_addition['filename'] = filename
 
     url_addition['progress.last_visited'] = str(datetime.utcnow())
 
@@ -657,7 +670,39 @@ def get_batch_for_indexer(db, size):
         {'$match': {
             'page.visited': True,
             'page.noindex': False,
-            'page.file': False,  # Just for now
+            'page.file': False,
+            'page.invalid': False,
+            'page.response.status_code': 200,
+            'page.indexed': False
+        }},
+        {'$project': {'representative': 1,
+                      'page.url': 1,
+                      'page.depth': 1,
+                      'page.language': 1,
+                      'page.content.binary': 1,
+                      'page.pagerank': 1}},
+        {'$limit': size}
+    ]
+
+    url_batch = db['CanonicalGroups'].aggregate(
+        pipeline, allowDiskUse=True)
+
+    return url_batch
+
+
+def get_batch_of_files_for_indexer(db, size):
+    pipeline = [
+        {'$lookup': {
+            'from': 'Urls',
+            'localField': 'representative',
+            'foreignField': '_id',
+            'as': 'page'
+        }},
+        {'$unwind': '$page'},
+        {'$match': {
+            'page.visited': True,
+            'page.noindex': False,
+            'page.file': True,
             'page.invalid': False,
             'page.response.status_code': 200,
             'page.indexed': False
@@ -666,7 +711,8 @@ def get_batch_for_indexer(db, size):
                       'page.url': 1,
                       'page.depth': 1,
                       'page.file': 1,
-                      'page.language': 1,
+                      'page.file_type': 1,
+                      'page.file_name': 1,
                       'page.content.binary': 1,
                       'page.pagerank': 1}},
         {'$limit': size}

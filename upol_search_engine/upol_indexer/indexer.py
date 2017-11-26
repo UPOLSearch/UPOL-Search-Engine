@@ -1,11 +1,41 @@
 import re
 import urllib.parse
-from os.path import splitext
+from io import BytesIO, StringIO
 
+import PyPDF2
 from bs4 import BeautifulSoup
+from langdetect import detect
 from lxml import etree
-
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage
 from upol_search_engine.utils import urls
+
+
+def extract_content_from_pdf(file_bytes):
+    pdf_file = BytesIO(file_bytes)
+
+    pagenums = set()
+
+    info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
+
+    output = StringIO()
+    manager = PDFResourceManager()
+    converter = TextConverter(manager, output, laparams=LAParams())
+    interpreter = PDFPageInterpreter(manager, converter)
+    pages = PDFPage.get_pages(pdf_file, pagenums)
+
+    for page in pages:
+        interpreter.process_page(page)
+
+    converter.close()
+    text = output.getvalue()
+
+    text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i')
+    output.close
+
+    return text, info.get('/Title')
 
 
 def remove_tags_from_string(string):
@@ -143,7 +173,8 @@ def prepare_one_document_for_index(document, limit_domain):
     url = document.get('page').get('url')
     url_decoded = urls.decode(url)
     url_length = len(url)
-    is_file = document.get('page').get('file')
+    is_file = False
+    file_type = ""
     depth = document.get('page').get('depth')
     pagerank = document.get('page').get('pagerank')
     language = document.get('page').get('language')
@@ -180,7 +211,88 @@ def prepare_one_document_for_index(document, limit_domain):
            body_text,
            depth,
            is_file,
+           file_type,
            pagerank,
            url_length)
+
+    return row
+
+
+def prepare_one_file_for_index(document, limit_domain):
+    import gridfs
+    from upol_search_engine.db import mongodb
+
+    mongodb_client = mongodb.create_client()
+    mongodb_database = mongodb.get_database(limit_domain,
+                                            mongodb_client)
+    fs = gridfs.GridFS(mongodb_database)
+    out = fs.get(document.get('page').get('content').get('binary'))
+    content = out.read()
+
+    mongodb_client.close()
+
+    url_hash = document.get('representative')
+    url = document.get('page').get('url')
+    url_decoded = urls.decode(url)
+    url_length = len(url)
+    is_file = True
+    file_type = document.get('page').get('file_type')
+    filename = document.get('page').get('filename')
+    depth = document.get('page').get('depth')
+    pagerank = document.get('page').get('pagerank')
+
+    body_text, title = extract_content_from_pdf(content)
+
+    if (body_text is None) or (len(body_text) < 500):
+        return None
+
+    language = detect(body_text)
+
+    if (title is None) or (title is ""):
+        title = filename
+
+    description = " "
+    keywords = " "
+    important_headlines = " "
+    url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
+
+    row = (url_hash,
+           url,
+           url_decoded,
+           url_words,
+           title,
+           language,
+           keywords,
+           description,
+           important_headlines,
+           body_text,
+           depth,
+           is_file,
+           file_type,
+           pagerank,
+           url_length)
+
+
+    from celery.utils.log import get_task_logger
+    log = get_task_logger(__name__)
+    if row is None:
+        log.error(url_hash)
+        log.error(url)
+        log.error(url_decoded)
+        log.error(url_words)
+        log.error(title)
+        log.error(language)
+        log.error(keywords)
+        log.error(description)
+        log.error(important_headlines)
+        log.error(depth)
+        log.error(is_file)
+        log.error(file_type)
+        log.error(pagerank)
+        log.error(url_length)
+    r_list = list(row)
+    for i in range(len(r_list)):
+        if '\x00' in r_list[i]:
+            log.error("00 in ")
 
     return row

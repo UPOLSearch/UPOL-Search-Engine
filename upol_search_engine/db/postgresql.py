@@ -94,6 +94,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
         content text,
         depth integer,
         is_file boolean,
+        file_type text,
         pagerank double precision,
         url_length integer,
         search_index tsvector);""".format(table_name))
@@ -130,7 +131,7 @@ def change_table_to_production(postgresql_client, postgresql_cursor,
 
 def insert_rows_into_index(psql_client, psql_cursor, indexed_rows, table_name):
     dataText = ','.join(
-        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
+        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
 
     response = psql_cursor.execute(
         'INSERT INTO {0} VALUES {1} ON CONFLICT DO NOTHING;'.format(table_name, dataText))

@@ -33,7 +33,9 @@ setup(name='UPOL-Search-Engine',
           'networkx',
           'psycopg2',
           'flask',
-          'html5lib'
+          'html5lib',
+          'PyPDF2',
+          'pdfminer.six'
       ],
       entry_points={
           'console_scripts': [
