@@ -1,7 +1,7 @@
 import datetime
 
 from flask import Blueprint, render_template, request
-from langdetect import detect
+from langdetect import detect, lang_detect_exception
 from psycopg2 import sql
 from upol_search_engine import settings, upol_search_engine
 from upol_search_engine.upol_search_engine import tasks
@@ -30,7 +30,13 @@ def home():
             return render_template('search/home.html', index_size=index_size)
         else:
             page = request.args.get('page')
-            search_language = detect(search)
+
+            try:
+                search_language = detect(search)
+            except lang_detect_exception.LangDetectException as e:
+                # Fallback language
+                search_language = 'cs'
+
 
             if page is None:
                 page = 1
@@ -41,7 +47,7 @@ def home():
 
             if search_language in ['en', 'no', 'es', 'sv', 'da']:
                 language_settings = 'english'
-            elif search_language in ['hr', 'sk', 'sl', 'so', 'hu']:
+            elif search_language in ['cs', 'hr', 'sk', 'sl', 'so', 'hu']:
                 language_settings = 'czech'
             else:
                 language_settings = 'czech'
