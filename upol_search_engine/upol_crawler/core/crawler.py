@@ -53,7 +53,7 @@ def _handle_response(database, url, original_url, redirected,
 
         # Redirect handling
         if original_url != url:
-            log.info('Redirect: {0} (original: {1})'.format(original_url, url))
+            log.info('Redirect: {1} (original: {0})'.format(original_url, url))
 
             # Check if redirected url is valid
             is_valid_redirect, reason = validator.validate(url, regex,
@@ -71,7 +71,7 @@ def _handle_response(database, url, original_url, redirected,
                     if url_document.get('visited') and not url_document.get('alias'):
                         canonical_group = url_document.get('canonical_group')
                         mongodb.set_canonical_group_to_alias(database, original_url,
-                                                        canonical_group)
+                                                             canonical_group)
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
