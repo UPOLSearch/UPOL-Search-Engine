@@ -165,7 +165,7 @@ def _handle_response(database, url, original_url, redirected,
             return
     except Exception as e:
         mongodb.delete_url(database, url)
-        log.exception('Exception: {0}'.format(url))
+        log.exception('Exception: {0} {1}'.format(url, e))
         raise
 
 
