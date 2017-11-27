@@ -14,7 +14,7 @@ log = get_task_logger(__name__)
 
 def get_response(url, connect_max_timeout, read_max_timeout):
     """Request url and check if content-type is valid"""
-    headers = {'user-agent': settings.CONFIG.get('Info', 'user_agent')}
+    headers = {'user-agent': settings.user_agent}
     response = requests.get(url,
                             headers=headers,
                             verify=False,

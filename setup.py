@@ -33,7 +33,8 @@ setup(name='UPOL-Search-Engine',
           'networkx',
           'psycopg2',
           'flask',
-          'html5lib'
+          'html5lib',
+          'backports.pbkdf2'
       ],
       entry_points={
           'console_scripts': [
