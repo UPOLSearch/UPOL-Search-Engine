@@ -13,7 +13,7 @@ def is_crawler_allowed(url):
 
     lock.acquire()
     allowed = cache.allowed(url,
-                            settings.CONFIG.get('Info', 'user_agent'))
+                            settings.user_agent)
     lock.release()
 
     return allowed

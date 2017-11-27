@@ -15,6 +15,10 @@ def create_client():
     client = pymongo.MongoClient(
         settings.CONFIG.get('Settings', 'mongo_db_server'),
         settings.CONFIG.getint('Settings', 'mongo_db_port'),
+        user=settings.CONFIG.get('Settings', 'mongo_db_user'),
+        password=settings.CONFIG.get('Settings', 'mongo_db_password'),
+        authSource='admin',
+        authMechanism='SCRAM-SHA-1',
         maxPoolSize=None)
 
     return client

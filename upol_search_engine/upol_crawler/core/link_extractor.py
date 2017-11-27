@@ -190,7 +190,7 @@ def validated_page_urls(soup, url, regex, blacklist):
             valid_urls.add(link_url)
         else:
             if reason == 'UrlRobotsBlocked':
-                log.exception('Robots blocked: {0} (on url: {1})'.format(
+                log.exception('Robots blocked: {1} (on url: {0})'.format(
                     url, link_url))
 
     return valid_urls

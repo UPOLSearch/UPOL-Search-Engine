@@ -3,7 +3,7 @@
 from setuptools import find_packages, setup
 
 setup(name='UPOL-Search-Engine',
-      version='0.6-dev',
+      version='0.7-dev',
       description='UPOL Search engine is search engine for upol.cz domain, \
       topic of Master thesis on Department of Computer Science UPOL',
       author='Tomas Mikula',
@@ -33,7 +33,8 @@ setup(name='UPOL-Search-Engine',
           'networkx',
           'psycopg2',
           'flask',
-          'html5lib'
+          'html5lib',
+          'backports.pbkdf2'
       ],
       entry_points={
           'console_scripts': [

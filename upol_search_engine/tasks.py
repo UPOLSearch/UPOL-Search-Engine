@@ -5,11 +5,10 @@ from upol_search_engine.upol_crawler import tasks as crawler_tasks
 from upol_search_engine.upol_indexer import tasks as indexer_tasks
 
 
-# Time limit, soft 1.8day, hard 2days
 @app.task(queue='search_engine',
           bind=True,
-          time_limit=172800,
-          soft_time_limit=164160)
+          time_limit=216000,
+          soft_time_limit=240000)
 def main_task(self):
     """Main task of the project"""
 
@@ -30,6 +29,7 @@ def main_task(self):
         edis.upol.cz
         courseware.upol.cz
         m.zurnal.upol.cz
+        stagservices.upol.cz
         """
 
         # blacklist = """
@@ -43,7 +43,7 @@ def main_task(self):
         # m.zurnal.upol.cz
         # """
 
-        seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
+        seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz \n http://vychodil.inf.upol.cz/kmi/pp1/ \n http://vychodil.inf.upol.cz/"
 
         crawler_settings = {'limit_domain': 'upol.cz',
                             'max_depth': 10,

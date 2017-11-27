@@ -2,7 +2,6 @@
 import requests
 from bs4 import BeautifulSoup
 from celery.utils.log import get_task_logger
-
 from upol_search_engine import settings
 from upol_search_engine.db import mongodb
 from upol_search_engine.upol_crawler.core import (limiter, link_extractor,
@@ -15,7 +14,7 @@ log = get_task_logger(__name__)
 
 def get_response(url, connect_max_timeout, read_max_timeout):
     """Request url and check if content-type is valid"""
-    headers = {'user-agent': settings.CONFIG.get('Info', 'user_agent')}
+    headers = {'user-agent': settings.user_agent}
     response = requests.get(url,
                             headers=headers,
                             verify=False,
@@ -46,18 +45,22 @@ def get_page(url, connect_max_timeout, read_max_timeout):
 
 
 def _handle_response(database, url, original_url, redirected,
-                     response, depth, max_depth, limit_domain, blacklist):
+                     response, depth, max_depth, limit_domain, blacklist,
+                     ignore_blacklist=False):
     try:
         url_document = mongodb.get_url(database, url)
         regex = urls.generate_regex(limit_domain)
 
         # Redirect handling
         if original_url != url:
-            log.info('Redirect: {0} (original: {1})'.format(original_url, url))
+            log.info('Redirect: {1} (original: {0})'.format(original_url, url))
 
             # Check if redirected url is valid
             is_valid_redirect, reason = validator.validate(url, regex,
                                                            blacklist)
+
+            if (is_valid_redirect is False) and (reason == 'UrlIsBlacklisted') and ignore_blacklist:
+                is_valid_redirect = True
 
             if is_valid_redirect:
                 mongodb.set_alias_visited_url(database, original_url)
@@ -68,7 +71,11 @@ def _handle_response(database, url, original_url, redirected,
                     if url_document.get('visited') and not url_document.get('alias'):
                         canonical_group = url_document.get('canonical_group')
                         mongodb.set_canonical_group_to_alias(database, original_url,
-                                                        canonical_group)
+                                                             canonical_group)
+
+                        log.info('Already visited redirect: {0} (original: {1})'.format(
+                            url, original_url))
+
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
@@ -155,13 +162,14 @@ def _handle_response(database, url, original_url, redirected,
 
             log.info('Done [{0}]: {1}'.format(response.reason, url))
 
+            return
     except Exception as e:
         mongodb.delete_url(database, url)
-        log.exception('Exception: {0}'.format(url))
+        log.exception('Exception: {0} {1}'.format(url, e))
         raise
 
 
-def crawl_url(url, depth, crawler_settings):
+def crawl_url(url, depth, crawler_settings, ignore_blacklist=False):
     try:
         client = mongodb.create_client()
         database = mongodb.get_database(crawler_settings.get('limit_domain'),
@@ -205,6 +213,7 @@ def crawl_url(url, depth, crawler_settings):
                          crawler_settings.get('max_depth'),
                          crawler_settings.get('limit_domain'),
                          blacklist.generate_blacklist(
-                             crawler_settings.get('blacklist')))
+                             crawler_settings.get('blacklist')),
+                         ignore_blacklist)
 
     client.close()

@@ -6,10 +6,10 @@ from upol_search_engine.celery_app import app
           queue='crawler',
           ignore_result=True,
           task_compression='zlib')
-def crawl_url_task(url, depth, crawler_settings):
+def crawl_url_task(url, depth, crawler_settings, ignore_blacklist=False):
     from upol_search_engine.upol_crawler.core import crawler
 
-    crawler.crawl_url(url, depth, crawler_settings)
+    crawler.crawl_url(url, depth, crawler_settings, ignore_blacklist)
 
 
 def feeder_task(crawler_settings, seed, batch_size,
@@ -17,6 +17,7 @@ def feeder_task(crawler_settings, seed, batch_size,
     from upol_search_engine.db import mongodb
     from upol_search_engine.utils import urls
     from upol_search_engine.upol_crawler.core import feeder
+    from upol_search_engine.upol_crawler.tools.blacklist import generate_blacklist
     from datetime import datetime
 
     start_time = datetime.now()
@@ -43,6 +44,14 @@ def feeder_task(crawler_settings, seed, batch_size,
     #     mongodb.reset_visited_for_fast_recrawl(database)
 
     # self.update_state(state='RUNNING', meta={'start': start_time})
+
+    blacklist = generate_blacklist(crawler_settings.get('blacklist'))
+
+    for blacklisted_domain in blacklist:
+        crawl_url_task.delay('http://' + blacklisted_domain,
+                             crawler_settings.get('max_depth'),
+                             crawler_settings,
+                             ignore_blacklist=True)
 
     sleeping = False
     number_of_waiting = 0

@@ -67,7 +67,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
         if len(document_hashes) > 0:
             mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
-            progress_pages = progress_pages + len(document_hashes)
+            progress_pages = progress_pages + len(indexed_rows)
 
             mongodb.update_indexer_progress(
                 mongodb_client, task_id, progress_pages, total_pages)
