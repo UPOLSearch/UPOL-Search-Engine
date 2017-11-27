@@ -14,7 +14,7 @@ log = get_task_logger(__name__)
 
 def get_response(url, connect_max_timeout, read_max_timeout):
     """Request url and check if content-type is valid"""
-    headers = {'user-agent': settings.CONFIG.get('Info', 'user_agent')}
+    headers = {'user-agent': settings.user_agent}
     response = requests.get(url,
                             headers=headers,
                             verify=False,
@@ -53,7 +53,7 @@ def _handle_response(database, url, original_url, redirected,
 
         # Redirect handling
         if original_url != url:
-            log.info('Redirect: {0} (original: {1})'.format(original_url, url))
+            log.info('Redirect: {1} (original: {0})'.format(original_url, url))
 
             # Check if redirected url is valid
             is_valid_redirect, reason = validator.validate(url, regex,
@@ -71,7 +71,11 @@ def _handle_response(database, url, original_url, redirected,
                     if url_document.get('visited') and not url_document.get('alias'):
                         canonical_group = url_document.get('canonical_group')
                         mongodb.set_canonical_group_to_alias(database, original_url,
-                                                        canonical_group)
+                                                             canonical_group)
+
+                        log.info('Already visited redirect: {0} (original: {1})'.format(
+                            url, original_url))
+
                         return
                 else:
                     if not urls.is_same_domain(url, original_url):
@@ -158,9 +162,10 @@ def _handle_response(database, url, original_url, redirected,
 
             log.info('Done [{0}]: {1}'.format(response.reason, url))
 
+            return
     except Exception as e:
         mongodb.delete_url(database, url)
-        log.exception('Exception: {0}'.format(url))
+        log.exception('Exception: {0} {1}'.format(url, e))
         raise
 
 

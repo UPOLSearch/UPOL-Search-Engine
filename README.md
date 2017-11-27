@@ -41,4 +41,3 @@ Celkový user-agent
 ```
 Mozilla/5.0 (compatible; UPOL-Crawler/[version]; +https://github.com/UPOLSearch/UPOL-Search-Engine)
 ```
-# test

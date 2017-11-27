@@ -35,7 +35,8 @@ setup(name='UPOL-Search-Engine',
           'flask',
           'html5lib',
           'PyPDF2',
-          'pdfminer.six'
+          'pdfminer.six',
+          'backports.pbkdf2'
       ],
       entry_points={
           'console_scripts': [
