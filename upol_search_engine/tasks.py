@@ -35,7 +35,7 @@ def main_task(self):
         blacklist = ""
 
         # seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz"
-        seed = "http://trnecka.inf.upol.cz"
+        seed = "http://inf.upol.cz"
 
         # crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
         #                     'max_depth': 10,
@@ -44,7 +44,7 @@ def main_task(self):
         #                     'frequency_per_server': 0.4,
         #                     'blacklist': blacklist}
 
-        crawler_settings = {'limit_domain': 'trnecka.inf.upol.cz',
+        crawler_settings = {'limit_domain': 'inf.upol.cz',
                             'max_depth': 10,
                             'connect_max_timeout': 3.05,
                             'read_max_timeout': 10,
