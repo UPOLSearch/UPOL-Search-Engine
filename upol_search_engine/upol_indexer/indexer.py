@@ -10,6 +10,7 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from PyPDF2 import utils
 from upol_search_engine.utils import urls
 
 
@@ -18,7 +19,10 @@ def extract_content_from_pdf(file_bytes):
 
     pagenums = set()
 
-    info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
+    try:
+        info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
+    except utils.PdfReadError as e:
+        info = {'/Title': ""}
 
     output = StringIO()
     manager = PDFResourceManager()
@@ -32,7 +36,7 @@ def extract_content_from_pdf(file_bytes):
     converter.close()
 
     text = output.getvalue()
-    
+
     if text is not None:
         text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
 
