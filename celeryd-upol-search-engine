@@ -5,7 +5,7 @@
 CELERYD_NODES=8
 
 # Absolute or relative path to the 'celery' command:
-CELERY_BIN="/home/upol-search-engine/upol-search-engine/bin/celery"
+CELERY_BIN="/home/upol-search-engine/venv/bin/celery"
 
 # App instance to use
 CELERY_APP="upol_search_engine.celery_app"
