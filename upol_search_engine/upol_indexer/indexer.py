@@ -30,12 +30,19 @@ def extract_content_from_pdf(file_bytes):
         interpreter.process_page(page)
 
     converter.close()
-    text = output.getvalue()
 
-    text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i')
+    text = output.getvalue()
+    
+    if text is not None:
+        text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
+
+    title = info.get('/Title')
+
+    if title is not None:
+        title = title.replace('\x00', '')
     output.close
 
-    return text, info.get('/Title')
+    return text, title
 
 
 def remove_tags_from_string(string):
@@ -271,28 +278,5 @@ def prepare_one_file_for_index(document, limit_domain):
            file_type,
            pagerank,
            url_length)
-
-
-    from celery.utils.log import get_task_logger
-    log = get_task_logger(__name__)
-    if row is None:
-        log.error(url_hash)
-        log.error(url)
-        log.error(url_decoded)
-        log.error(url_words)
-        log.error(title)
-        log.error(language)
-        log.error(keywords)
-        log.error(description)
-        log.error(important_headlines)
-        log.error(depth)
-        log.error(is_file)
-        log.error(file_type)
-        log.error(pagerank)
-        log.error(url_length)
-    r_list = list(row)
-    for i in range(len(r_list)):
-        if '\x00' in r_list[i]:
-            log.error("00 in ")
 
     return row
