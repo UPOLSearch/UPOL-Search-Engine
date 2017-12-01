@@ -42,8 +42,12 @@ def extract_content_from_pdf(file_bytes):
 
     title = info.get('/Title')
 
-    if title is not None:
-        title = title.replace('\x00', '')
+    if type(title) is str:
+        if title is not None:
+            title = title.replace('\x00', '')
+    else:
+        title = ""
+        
     output.close
 
     return text, title
