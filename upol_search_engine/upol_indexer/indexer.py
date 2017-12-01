@@ -8,6 +8,7 @@ from langdetect import detect
 from lxml import etree
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFTextExtractionNotAllowed
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from PyPDF2 import utils
@@ -24,18 +25,21 @@ def extract_content_from_pdf(file_bytes):
     except utils.PdfReadError as e:
         info = {'/Title': ""}
 
-    output = StringIO()
-    manager = PDFResourceManager()
-    converter = TextConverter(manager, output, laparams=LAParams())
-    interpreter = PDFPageInterpreter(manager, converter)
-    pages = PDFPage.get_pages(pdf_file, pagenums)
+    try:
+        output = StringIO()
+        manager = PDFResourceManager()
+        converter = TextConverter(manager, output, laparams=LAParams())
+        interpreter = PDFPageInterpreter(manager, converter)
+        pages = PDFPage.get_pages(pdf_file, pagenums)
 
-    for page in pages:
-        interpreter.process_page(page)
+        for page in pages:
+            interpreter.process_page(page)
 
-    converter.close()
+        converter.close()
 
-    text = output.getvalue()
+        text = output.getvalue()
+    except PDFTextExtractionNotAllowed as e:
+        return "", ""
 
     if text is not None:
         text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
@@ -47,7 +51,7 @@ def extract_content_from_pdf(file_bytes):
             title = title.replace('\x00', '')
     else:
         title = ""
-        
+
     output.close
 
     return text, title
