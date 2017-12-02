@@ -11,6 +11,7 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFTextExtractionNotAllowed
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from pdfminer.psparser import PSSyntaxError
 from PyPDF2 import utils
 from upol_search_engine.utils import urls
 
@@ -39,6 +40,8 @@ def extract_content_from_pdf(file_bytes):
 
         text = output.getvalue()
     except PDFTextExtractionNotAllowed as e:
+        return "", ""
+    except PSSyntaxError as e:
         return "", ""
 
     if text is not None:
