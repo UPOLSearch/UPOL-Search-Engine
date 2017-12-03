@@ -40,11 +40,7 @@ def extract_content_from_pdf(file_bytes):
         converter.close()
 
         text = output.getvalue()
-    except PDFTextExtractionNotAllowed as e:
-        return "", ""
-    except PSSyntaxError as e:
-        return "", ""
-    except PDFException as e:
+    except Exception as e:
         return "", ""
 
     if text is not None:
