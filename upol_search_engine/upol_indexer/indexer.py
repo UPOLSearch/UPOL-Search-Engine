@@ -270,7 +270,8 @@ def prepare_one_file_for_index(document, limit_domain):
     if (body_text == "") or (body_text is None) or (len(body_text) < 500):
         return None
 
-    language = detect(body_text)
+    # language = detect(body_text)
+    language = 'cs'
 
     if (title is None) or (title == ""):
         title = filename
