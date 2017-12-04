@@ -267,17 +267,17 @@ def prepare_one_file_for_index(document, limit_domain):
 
     body_text, title = extract_content_from_pdf(content)
 
-    if (body_text is None) or (len(body_text) < 500):
+    if (body_text == "") or (body_text is None) or (len(body_text) < 500):
         return None
 
     language = detect(body_text)
 
-    if (title is None) or (title is ""):
+    if (title is None) or (title == ""):
         title = filename
 
-    description = " "
-    keywords = " "
-    important_headlines = " "
+    description = ""
+    keywords = ""
+    important_headlines = ""
     url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
 
     row = (url_hash,

@@ -716,7 +716,7 @@ def get_batch_of_files_for_indexer(db, size):
                       'page.depth': 1,
                       'page.file': 1,
                       'page.file_type': 1,
-                      'page.file_name': 1,
+                      'page.filename': 1,
                       'page.content.binary': 1,
                       'page.pagerank': 1}},
         {'$limit': size}
