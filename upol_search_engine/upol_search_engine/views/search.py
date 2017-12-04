@@ -53,7 +53,7 @@ def home():
                 language_settings = 'czech'
 
             sql_outside_query = sql.SQL(
-                "SELECT d.url, d.url_decoded, d.title, d.depth, d.pagerank, d.url_length, d.language, d.is_file, d.file_type, ts_headline({language_settings}, d.content, plainto_tsquery({language_settings}, {query}), {headline_settings}) FROM ({inside_query}) AS ids INNER JOIN {index_table} d ON d.hash = ids.hash;")
+                "SELECT d.url, d.url_decoded, d.title, d.depth, d.pagerank, d.url_length, d.language, d.file_type, ts_headline({language_settings}, d.content, plainto_tsquery({language_settings}, {query}), {headline_settings}) FROM ({inside_query}) AS ids INNER JOIN {index_table} d ON d.hash = ids.hash;")
 
             sql_inside_query = sql.SQL(
                 "SELECT hash, pagerank FROM {index_table}, plainto_tsquery({language_settings}, {query}) AS q WHERE search_index @@ q ORDER BY LOG(ts_rank_cd(search_index, q, (1 | 16))) * 0.6 + LOG(pagerank) * 0.4 DESC OFFSET {offset} LIMIT {limit}")

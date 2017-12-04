@@ -7,11 +7,13 @@
                 {% for row in output %}
                     <div class="result">
                         <span><h3><a href='{{row[0]}}'>{{row[2]}}</a></h3><span class="small-gray">[{{row[6]}}]</span>
-                        <span class="small-gray">[{{row[8]}}]</span>
+                        {% if row[7] %}
+                            <span class="small-gray">[{{row[7]}}]</span>
+                        {% endif %}
                         </span>
                         <div class="url">{{row[1]}}</div>
                         <div class="preview">
-                            {{ row[9]|safe }}
+                            {{ row[8]|safe }}
                         </div>
                         <div class="debug">Depth: {{10 - row[3]}} | Pagerank: {{row[4]}}</div>
 
