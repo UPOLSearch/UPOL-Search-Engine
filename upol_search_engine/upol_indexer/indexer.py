@@ -4,7 +4,6 @@ from os.path import splitext
 
 from bs4 import BeautifulSoup
 from lxml import etree
-
 from upol_search_engine.utils import urls
 
 
@@ -95,11 +94,22 @@ def extract_body_text(soup):
                        'button',
                        'output']
 
+    classes_for_remove = ['hidden',
+                          'hide']
+
     if body is not None:
         for tag in soup(tags_for_remove):
             tag.extract()
+
+        for tag in soup.find_all(True, {'class': classes_for_remove}):
+            tag.decompose()
+
+        for hidden in soup.find_all(style=re.compile(r'display:\s*none')):
+            hidden.decompose()
+
         body_text = remove_tags_from_string(body.prettify())
         body_text = replace_new_line_and_spaces_by_dot(body_text)
+
     else:
         body_text = ""
 
