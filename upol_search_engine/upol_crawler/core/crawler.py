@@ -212,8 +212,7 @@ def crawl_url(url, depth, crawler_settings, ignore_blacklist=False):
                          depth,
                          crawler_settings.get('max_depth'),
                          crawler_settings.get('limit_domain'),
-                         blacklist.generate_blacklist(
-                             crawler_settings.get('blacklist')),
+                         crawler_settings.get('blacklist'),
                          ignore_blacklist)
 
     client.close()

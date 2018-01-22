@@ -17,7 +17,6 @@ def feeder_task(crawler_settings, seed, batch_size,
     from upol_search_engine.db import mongodb
     from upol_search_engine.utils import urls
     from upol_search_engine.upol_crawler.core import feeder
-    from upol_search_engine.upol_crawler.tools.blacklist import generate_blacklist
     from datetime import datetime
 
     start_time = datetime.now()
@@ -45,7 +44,7 @@ def feeder_task(crawler_settings, seed, batch_size,
 
     # self.update_state(state='RUNNING', meta={'start': start_time})
 
-    blacklist = generate_blacklist(crawler_settings.get('blacklist'))
+    blacklist = crawler_settings.get('blacklist')
 
     for blacklisted_domain in blacklist:
         crawl_url_task.delay('http://' + blacklisted_domain,
