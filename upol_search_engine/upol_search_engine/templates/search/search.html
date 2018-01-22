@@ -1,7 +1,7 @@
 {% extends "search/base.html" %}
 {% block body %}
-    <div class="container search-results">
-        <div class="col-md-12">
+    <div class="container">
+        <div class="col-md-12 search-results">
             <p class="performance"><small>Požadavek zpracován za {{ time }} s</small></p>
             {% if output %}
                 {% for row in output %}
