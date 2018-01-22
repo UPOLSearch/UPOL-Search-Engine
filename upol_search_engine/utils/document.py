@@ -52,6 +52,6 @@ def extract_document_text_for_hash(soup):
     if body_text is None or body_text == "":
         document_text = soup.text.encode()
     else:
-        document_text = remove_tags_from_string().encode()
+        document_text = remove_tags_from_string(body_text).encode()
 
     return document_text
