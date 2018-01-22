@@ -4,7 +4,6 @@ from flask import Blueprint, render_template, request
 from langdetect import detect, lang_detect_exception
 from psycopg2 import sql
 from upol_search_engine import settings, upol_search_engine
-from upol_search_engine.upol_search_engine import tasks
 
 mod = Blueprint('search', __name__, url_prefix='/')
 
@@ -74,9 +73,6 @@ def home():
                 inside_query=sql_inside_query_filled,
                 index_table=sql.Identifier(TABLE_NAME),
                 language_settings=sql.Literal(language_settings))
-
-            if page == 1:
-                tasks.process_search_query.delay(search, language_settings)
 
             psql_cursor.execute(sql_outside_query_filled)
 
