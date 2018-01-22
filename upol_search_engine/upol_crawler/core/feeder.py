@@ -10,7 +10,7 @@ def load_seed(seed, database, regex, max_depth, blacklist):
     """Load urls seed from file"""
     number_of_url = 0
 
-    seed_urls = load_seed_from_text(seed)
+    seed_urls = seed
 
     # Insert loaded urls into database
     for url in seed_urls:
