@@ -13,10 +13,10 @@ from upol_search_engine.utils import document, urls
 
 def create_client():
     client = pymongo.MongoClient(
-        settings.CONFIG.get('Settings', 'mongo_db_server'),
-        settings.CONFIG.getint('Settings', 'mongo_db_port'),
-        username=settings.CONFIG.get('Settings', 'mongo_db_user'),
-        password=settings.CONFIG.get('Settings', 'mongo_db_password'),
+        settings.CONFIG.get('General', 'mongo_db_server'),
+        settings.CONFIG.getint('General', 'mongo_db_port'),
+        username=settings.CONFIG.get('General', 'mongo_db_user'),
+        password=settings.CONFIG.get('General', 'mongo_db_password'),
         authSource='admin',
         authMechanism='SCRAM-SHA-1',
         maxPoolSize=None)

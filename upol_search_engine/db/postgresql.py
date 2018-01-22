@@ -5,11 +5,11 @@ from upol_search_engine import settings
 
 def create_client():
     postgresql_client = psycopg2.connect(
-        dbname=settings.CONFIG.get('Settings', 'postgresql_db_name'),
-        user=settings.CONFIG.get('Settings', 'postgresql_db_user'),
-        password=settings.CONFIG.get('Settings', 'postgresql_db_password'),
-        host=settings.CONFIG.get('Settings', 'postgresql_db_server'),
-        port=settings.CONFIG.get('Settings', 'postgresql_db_port'))
+        dbname=settings.CONFIG.get('General', 'postgresql_db_name'),
+        user=settings.CONFIG.get('General', 'postgresql_db_user'),
+        password=settings.CONFIG.get('General', 'postgresql_db_password'),
+        host=settings.CONFIG.get('General', 'postgresql_db_server'),
+        port=settings.CONFIG.get('General', 'postgresql_db_port'))
 
     return postgresql_client
 

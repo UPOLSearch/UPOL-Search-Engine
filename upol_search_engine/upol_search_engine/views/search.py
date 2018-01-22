@@ -11,7 +11,7 @@ mod = Blueprint('search', __name__, url_prefix='/')
 
 @mod.route('/',  methods=['GET', 'POST'])
 def home():
-    TABLE_NAME = settings.CONFIG.get('Settings', 'postgresql_table_name')
+    TABLE_NAME = settings.CONFIG.get('General', 'postgresql_table_name')
 
     if request.method == 'GET':
         search = request.args.get('search')

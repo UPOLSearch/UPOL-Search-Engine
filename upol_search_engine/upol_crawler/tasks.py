@@ -2,7 +2,7 @@ from upol_search_engine import settings
 from upol_search_engine.celery_app import app
 
 
-@app.task(rate_limit=settings.CONFIG.get('Settings', 'crawl_task_frequency'),
+@app.task(rate_limit=settings.CONFIG.get('Crawler', 'crawl_task_frequency'),
           queue='crawler',
           ignore_result=True,
           task_compression='zlib')

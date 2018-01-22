@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.register_blueprint(search.mod)
 app.register_blueprint(info.mod)
 app.register_blueprint(api.mod)
-app.config['ANALYTICS_ID'] = settings.CONFIG.get('Settings', 'analytics_id')
+app.config['ANALYTICS_ID'] = settings.CONFIG.get('General', 'analytics_id')
 
 def get_db():
     """
