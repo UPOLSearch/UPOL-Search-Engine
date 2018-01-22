@@ -220,26 +220,41 @@ h3 {
 .search-results {
     padding-top: 30px;
 
+    .truncate-ellipsis {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .truncate-ellipsis > * {
+        display: table-cell;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .performance {
         color: @gray;
+        margin-bottom: 30px;
     }
 
     h3 {
         margin-bottom: 0px;
-        display: inline;
+        // display: inline;
     }
 
+    .block {
+        margin-left: 31px;
+    }
     .language {
-        margin-left: 10px;
+        margin-right: 9px;
         font-size: 0.85rem;
-        color: @gray;
+        font-weight: normal;
+        color: lighten(@gray, 30%);
     }
 
     .url {
         color: @green;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
         font-size: 0.90rem;
     }
 
@@ -254,7 +269,7 @@ h3 {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        font-size: 0.95rem;
+        font-size: 0.75rem;
     }
 
     .result {
