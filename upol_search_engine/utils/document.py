@@ -49,7 +49,7 @@ def extract_document_text_for_hash(soup):
 
     body_text = body.text
 
-    if body_text is None or body_text = "":
+    if body_text is None or body_text == "":
         document_text = soup.text.encode()
     else:
         document_text = remove_tags_from_string().encode()
