@@ -93,7 +93,7 @@ def load_urls_from_file(filepath):
             if not line.startswith("#") and (url != '') and (url is not None):
                 urls.add(url)
 
-    return urls
+    return list(urls)
 
 
 def load_urls_from_text(text):
