@@ -47,6 +47,11 @@ def extract_document_text_for_hash(soup):
     for hidden in soup.find_all(style=re.compile(r'display:\s*none')):
         hidden.decompose()
 
-    document_text = remove_tags_from_string(body.text).encode()
+    body_text = body.text
+
+    if body_text is None or body_text = "":
+        document_text = soup.text.encode()
+    else:
+        document_text = remove_tags_from_string().encode()
 
     return document_text
