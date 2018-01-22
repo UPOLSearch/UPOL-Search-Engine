@@ -8,7 +8,7 @@ from bson.codec_options import CodecOptions
 from bson.objectid import ObjectId
 from langdetect import detect
 from upol_search_engine import settings
-from upol_search_engine.utils import urls
+from upol_search_engine.utils import document, urls
 
 
 def create_client():
@@ -276,7 +276,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition = {}
 
     # Pairing url with canonical group id
-    content_hash = urls.hash_document(response.content)
+    content_hash = document.hash_document(response.content)
     url_addition['canonical_group'] = get_or_create_canonical_group(
         db,
         content_hash)
@@ -343,7 +343,8 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     except Exception as e:
         url_addition['language'] = None
 
-    text_hash = urls.hash_document(soup.text.encode())
+    text_hash = document.hash_document(
+        document.extract_document_text_for_hash(soup))
     url_addition['canonical_group'] = get_or_create_canonical_group(db,
                                                                     text_hash)
 

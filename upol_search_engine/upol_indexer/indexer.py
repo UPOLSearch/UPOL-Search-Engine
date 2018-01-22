@@ -1,17 +1,8 @@
 import re
 import urllib.parse
-from os.path import splitext
 
 from bs4 import BeautifulSoup
-from lxml import etree
-from upol_search_engine.utils import urls
-
-
-def remove_tags_from_string(string):
-    text = etree.fromstring(string, etree.HTMLParser())
-    parsed = ' '.join(text.xpath("//text()"))
-
-    return parsed
+from upol_search_engine.utils import document, urls
 
 
 def remove_multiple_newlines_and_spaces(string):
@@ -78,42 +69,9 @@ def extract_important_headlines(soup):
 
     if result != "":
         return remove_multiple_newlines_and_spaces(
-            remove_tags_from_string(result))
+            document.remove_tags_from_string(result))
     else:
         return result
-
-
-def extract_body_text(soup):
-    body = soup.find('body')
-    tags_for_remove = ['style',
-                       'form',
-                       'input',
-                       'label',
-                       'textarea',
-                       'select',
-                       'button',
-                       'output']
-
-    classes_for_remove = ['hidden',
-                          'hide']
-
-    if body is not None:
-        for tag in soup(tags_for_remove):
-            tag.extract()
-
-        for tag in soup.find_all(True, {'class': classes_for_remove}):
-            tag.decompose()
-
-        for hidden in soup.find_all(style=re.compile(r'display:\s*none')):
-            hidden.decompose()
-
-        body_text = remove_tags_from_string(body.prettify())
-        body_text = replace_new_line_and_spaces_by_dot(body_text)
-
-    else:
-        body_text = ""
-
-    return body_text
 
 
 def extract_words_from_url(url, limit_domain):
@@ -145,6 +103,40 @@ def extract_words_from_url(url, limit_domain):
     words = [x for x in words if x not in blacklist]
 
     return list(filter(None, words))
+
+
+def extract_body_text(soup):
+    body = soup.find('body')
+    tags_for_remove = ['style',
+                       'form',
+                       'input',
+                       'label',
+                       'textarea',
+                       'select',
+                       'button',
+                       'output',
+                       'script']
+
+    classes_for_remove = ['hidden',
+                          'hide']
+
+    if body is not None:
+        for tag in soup(tags_for_remove):
+            tag.extract()
+
+        for tag in soup.find_all(True, {'class': classes_for_remove}):
+            tag.decompose()
+
+        for hidden in soup.find_all(style=re.compile(r'display:\s*none')):
+            hidden.decompose()
+
+        body_text = document.remove_tags_from_string(body.prettify())
+        body_text = replace_new_line_and_spaces_by_dot(body_text)
+
+    else:
+        body_text = ""
+
+    return body_text
 
 
 def prepare_one_document_for_index(document, limit_domain):
