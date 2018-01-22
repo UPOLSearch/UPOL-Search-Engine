@@ -63,7 +63,7 @@ def main_task(self):
             crawler_settings=crawler_settings,
             seed=seed,
             batch_size=settings.CONFIG.getint('Crawler', 'batch_size'),
-            delay_between_feeding=settings.CONFIG.getint('Indexer', 'delay_between_feeding'),
+            delay_between_feeding=settings.CONFIG.getint('Crawler', 'delay_between_feeding'),
             task_id=task_id)
 
         mongodb.insert_sub_task_finish(
