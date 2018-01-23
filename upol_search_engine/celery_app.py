@@ -6,13 +6,13 @@ from upol_search_engine import settings
 
 
 def next_start_each_n_days():
-    days = settings.CONFIG.getint('Crawler', 'crawl_every_n_days')
+    days = settings.CONFIG.getfloat('Crawler', 'crawl_every_n_days')
 
     return days
 
 
 def next_start_each_n_seconds():
-    days = settings.CONFIG.getint('Crawler', 'crawl_every_n_days')
+    days = settings.CONFIG.getfloat('Crawler', 'crawl_every_n_days')
 
     seconds = days * 24 * 60 * 60
 
