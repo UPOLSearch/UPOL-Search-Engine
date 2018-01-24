@@ -372,10 +372,10 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
                                             {'$set': url_addition})
 
     # If there was redirect, set the canonical group to the orginal alias url
-    if original_url is not None:
-        set_canonical_group_to_alias(db,
-                                     original_url,
-                                     url_addition['canonical_group'])
+    # if original_url is not None:
+    #     set_canonical_group_to_alias(db,
+    #                                  original_url,
+    #                                  url_addition['canonical_group'])
 
     # If insertion was successful update representative of canonical group
     if result is not None:
