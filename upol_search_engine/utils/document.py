@@ -28,8 +28,10 @@ def extract_document_text_for_hash(soup):
                        'output',
                        'script']
 
+    # stat-block is removed because of phpBB duplicity
     classes_for_remove = ['hidden',
-                          'hide']
+                          'hide',
+                          'stat-block']
 
     if body is None:
         body = soup.find('html')
