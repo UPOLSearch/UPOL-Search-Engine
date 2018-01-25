@@ -24,14 +24,22 @@
                     </div>
                 {% endfor %}
             {% else %}
-            <div class="not-found text-center">
-
-
-            <img src="{{ url_for('static', filename='images/not-found.png') }}" alt="Nic nenalezeno" width="200px" class="img-responsive center-block">
+            <div class="not-found">
                 <p>
-                    Pro hledavný výraz nebyly nalezeny žádné výsledky :(
+                    Omlouváme se, pro hledavný výraz <b>{{search}}</b> nebyly nalezeny žádné výsledky.
                 </p>
-                </div>
+                <ul>
+                    <li>
+                        Zkuste hledaný pojem zjednodušit.
+                    </li>
+                    <li>
+                        Může trvat až týden, než začne vyhledávač nové stránky registrovat.
+                    </li>
+                    <li>
+                        Pokud víte, že stránka s hledaným pojmem existuje a vyhledávač ji nenašel, informujte nás na adrese mail@tomasmikula.cz
+                    </li>
+                </ul>
+            </div>
             {% endif %}
 
             {% if output %}
