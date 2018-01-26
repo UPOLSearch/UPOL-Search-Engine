@@ -36,7 +36,6 @@ def home():
                 # Fallback language
                 search_language = 'cs'
 
-
             if page is None:
                 page = 1
             else:
@@ -61,7 +60,7 @@ def home():
                 index_table=sql.Identifier(TABLE_NAME),
                 query=sql.Literal(search),
                 offset=sql.Literal(((page - 1) * 10)),
-                limit=sql.Literal(((page - 1) * 10) + 10),
+                limit=sql.Literal(10),
                 language_settings=sql.Literal(language_settings))
 
             sql_outside_query_filled = sql_outside_query.format(
