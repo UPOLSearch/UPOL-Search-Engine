@@ -33,6 +33,9 @@ def extract_document_text_for_hash(soup):
                           'hide',
                           'stat-block']
 
+    # c2526 for zurnal duplicity
+    ids_for_remove = ['c2526']
+
     if body is None:
         body = soup.find('html')
 
@@ -44,6 +47,9 @@ def extract_document_text_for_hash(soup):
         tag.extract()
 
     for tag in soup.find_all(True, {'class': classes_for_remove}):
+        tag.decompose()
+
+    for tag in soup.find_all(True, {'id': ids_for_remove}):
         tag.decompose()
 
     for hidden in soup.find_all(style=re.compile(r'display:\s*none')):
