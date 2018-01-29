@@ -1,9 +1,4 @@
-from upol_search_engine.celery_app import app
-
-
-# @app.task(queue='search_engine_sub_tasks', bind=True)
 def indexer_task(crawler_settings, indexer_settings, task_id):
-    from datetime import datetime
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
     from upol_search_engine.upol_indexer import indexer

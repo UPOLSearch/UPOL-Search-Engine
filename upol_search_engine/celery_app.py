@@ -11,14 +11,6 @@ def next_start_each_n_days():
     return days
 
 
-def next_start_each_n_seconds():
-    days = settings.CONFIG.getfloat('Crawler', 'crawl_every_n_days')
-
-    seconds = days * 24 * 60 * 60
-
-    return seconds
-
-
 class Config(object):
     broker_url = 'amqp://guest:guest@localhost:5672//'
     result_backend = 'amqp://guest:guest@localhost:5672//'

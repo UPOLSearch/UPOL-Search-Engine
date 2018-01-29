@@ -12,6 +12,7 @@ app.register_blueprint(info.mod)
 app.register_blueprint(api.mod)
 app.config['ANALYTICS_ID'] = settings.CONFIG.get('General', 'analytics_id')
 
+
 def get_db():
     """
     Opens a new database connection
