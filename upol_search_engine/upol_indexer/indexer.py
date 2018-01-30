@@ -45,7 +45,7 @@ def extract_content_from_pdf(file_bytes):
 
         text = output.getvalue()
     except Exception as e:
-        return "", ""
+        return ""
 
     if text is not None:
         text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
