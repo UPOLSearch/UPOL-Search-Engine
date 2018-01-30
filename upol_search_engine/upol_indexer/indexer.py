@@ -140,15 +140,16 @@ def extract_body_text(soup):
 
 
 def prepare_one_document_for_index(document, limit_domain):
-    content = document.get('page').get('content').get('binary')
-    url_hash = document.get('representative')
-    url = document.get('page').get('url')
+    content = document.get('content').get('binary')
+    content_hash = document.get('content').get('hashes').get('text')
+    url_hash = document.get('_id')
+    url = document.get('url')
     url_decoded = urls.decode(url)
     url_length = len(url)
-    is_file = document.get('page').get('file')
-    depth = document.get('page').get('depth')
-    pagerank = document.get('page').get('pagerank')
-    language = document.get('page').get('language')
+    is_file = document.get('file')
+    depth = document.get('depth')
+    pagerank = document.get('pagerank')
+    language = document.get('language')
 
     soup = BeautifulSoup(content, 'html5lib')
 
@@ -180,6 +181,7 @@ def prepare_one_document_for_index(document, limit_domain):
            description,
            important_headlines,
            body_text,
+           content_hash,
            depth,
            is_file,
            pagerank,
