@@ -31,21 +31,18 @@ def extract_content_from_pdf(file_bytes):
     # except utils.PdfReadError as e:
     #     info = {'/Title': ""}
 
-    try:
-        output = StringIO()
-        manager = PDFResourceManager()
-        converter = TextConverter(manager, output, laparams=LAParams())
-        interpreter = PDFPageInterpreter(manager, converter)
-        pages = PDFPage.get_pages(pdf_file, pagenums)
+    output = StringIO()
+    manager = PDFResourceManager()
+    converter = TextConverter(manager, output, laparams=LAParams())
+    interpreter = PDFPageInterpreter(manager, converter)
+    pages = PDFPage.get_pages(pdf_file, pagenums)
 
-        for page in pages:
-            interpreter.process_page(page)
+    for page in pages:
+        interpreter.process_page(page)
 
-        converter.close()
+    converter.close()
 
-        text = output.getvalue()
-    except Exception as e:
-        return ""
+    text = output.getvalue()
 
     if text is not None:
         text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
