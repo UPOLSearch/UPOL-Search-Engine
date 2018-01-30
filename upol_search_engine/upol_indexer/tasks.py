@@ -91,14 +91,20 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
     indexed_rows = []
     copied_rows = []
 
-    for document in batch:
-        url_hash = document.get('_id')
-        content_hash = document.get('content').get('hashes').get('text')
+    does_production_exists = postgresql.test_if_table_exists(
+        postgresql_cursor, postgresql_table_name_production)
 
-        production_document = postgresql.get_document_by_hash(postgresql_client,
-                                                              postgresql_cursor,
-                                                              url_hash,
-                                                              table_name)
+    for document in batch:
+        if does_production_exists:
+            url_hash = document.get('_id')
+            content_hash = document.get('content').get('hashes').get('text')
+
+            production_document = postgresql.get_document_by_hash(postgresql_client,
+                                                                  postgresql_cursor,
+                                                                  url_hash,
+                                                                  postgresql_table_name_production)
+        else:
+            production_document = None
 
         if (production_document is None) or (production_document[10] != content_hash):
             row = indexer.prepare_one_document_for_index(
