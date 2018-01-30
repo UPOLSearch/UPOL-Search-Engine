@@ -8,9 +8,7 @@ from upol_search_engine.utils import urls
 
 
 @app.task(queue='search_engine',
-          bind=True,
-          time_limit=216000,
-          soft_time_limit=240000)
+          bind=True)
 def main_task(self):
     """Main task of the project"""
 
