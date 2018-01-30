@@ -26,10 +26,10 @@ def extract_content_from_pdf(file_bytes):
 
     pagenums = set()
 
-    try:
-        info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
-    except utils.PdfReadError as e:
-        info = {'/Title': ""}
+    # try:
+    #     info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
+    # except utils.PdfReadError as e:
+    #     info = {'/Title': ""}
 
     try:
         output = StringIO()
@@ -50,20 +50,9 @@ def extract_content_from_pdf(file_bytes):
     if text is not None:
         text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
 
-    if info is not None:
-        title = info.get('/Title')
-    else:
-        title = ""
-
-    if type(title) is str:
-        if title is not None:
-            title = title.replace('\x00', '')
-    else:
-        title = ""
-
     output.close
 
-    return text, title
+    return text
 
 
 def remove_multiple_newlines_and_spaces(string):
@@ -277,7 +266,7 @@ def prepare_one_file_for_index(document, limit_domain):
     depth = document.get('depth')
     pagerank = document.get('pagerank')
 
-    body_text, title = extract_content_from_pdf(content)
+    body_text = extract_content_from_pdf(content)
 
     # Reduce size of body_text for database
     while utf8len(body_text) > 900000:
@@ -290,8 +279,7 @@ def prepare_one_file_for_index(document, limit_domain):
     # language = detect(body_text)
     language = 'cs'
 
-    if (title is None) or (title == ""):
-        title = filename
+    title = filename
 
     description = ""
     keywords = ""
