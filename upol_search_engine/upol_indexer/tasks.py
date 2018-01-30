@@ -95,8 +95,8 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         url_hash = document.get('_id')
         content_hash = document.get('content').get('hashes').get('text')
 
-        production_document = postgresql.get_document_by_hash(psql_client,
-                                                              psql_cursor,
+        production_document = postgresql.get_document_by_hash(postgresql_client,
+                                                              postgresql_cursor,
                                                               url_hash,
                                                               table_name)
 
