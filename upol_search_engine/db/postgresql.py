@@ -92,6 +92,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
         description text,
         important_headlines text,
         content text,
+        content_hash varchar,
         depth integer,
         is_file boolean,
         pagerank double precision,
@@ -109,6 +110,13 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
     postgresql_cursor.execute("CREATE INDEX search_idx ON {0} USING gin(search_index);".format(table_name))
 
     postgresql_client.commit()
+
+
+def get_document_by_hash(psql_client, psql_cursor, url_hash, table_name):
+    psql_cursor.execute(sql.SQL("SELECT * FROM {} WHERE hash = {};").format(
+        sql.Identifier(table_name), sql.Identifier(url_hash)))
+
+    return psql_cursor.fetchone()
 
 
 def change_table_to_production(postgresql_client, postgresql_cursor,
@@ -130,7 +138,7 @@ def change_table_to_production(postgresql_client, postgresql_cursor,
 
 def insert_rows_into_index(psql_client, psql_cursor, indexed_rows, table_name):
     dataText = ','.join(
-        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
+        psql_cursor.mogrify('(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', row).decode('utf-8') for row in indexed_rows)
 
     response = psql_cursor.execute(
         'INSERT INTO {0} VALUES {1} ON CONFLICT DO NOTHING;'.format(table_name, dataText))
@@ -138,6 +146,13 @@ def insert_rows_into_index(psql_client, psql_cursor, indexed_rows, table_name):
     psql_client.commit()
 
     return response
+
+
+def copy_row_from_table_to_table(psql_client, psql_cursor, document_hash, table_from, table_to):
+    psql_cursor.execute(sql.SQL("INSERT INTO {} SELECT * FROM {} WHERE hash = {}").format(
+        sql.Identifier(table_to), sql.Identifier(table_from), sql.Literal(document_hash)))
+
+    psql_client.commit()
 
 
 def test_if_table_exists(psql_cursor, table_name):

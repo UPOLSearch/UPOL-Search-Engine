@@ -141,6 +141,7 @@ def extract_body_text(soup):
 
 def prepare_one_document_for_index(document, limit_domain):
     content = document.get('content').get('binary')
+    content_hash = document.get('content').get('hashes').get('text')
     url_hash = document.get('_id')
     url = document.get('url')
     url_decoded = urls.decode(url)
@@ -180,6 +181,7 @@ def prepare_one_document_for_index(document, limit_domain):
            description,
            important_headlines,
            body_text,
+           content_hash,
            depth,
            is_file,
            pagerank,

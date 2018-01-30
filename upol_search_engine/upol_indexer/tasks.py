@@ -84,18 +84,37 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
     postgresql_client = postgresql.create_client()
     postgresql_cursor = postgresql_client.cursor()
     postgresql_table_name = indexer_settings.get('table_name')
-    # postgresql_table_name_production = indexer_settings.get('table_name_production')
+    postgresql_table_name_production = indexer_settings.get('table_name_production')
 
     batch = mongodb.get_batch_by_id(mongodb_database, ids_batch)
 
     indexed_rows = []
+    copied_rows = []
 
     for document in batch:
-        row = indexer.prepare_one_document_for_index(
-            document, crawler_settings.get('limit_domain'))
+        url_hash = document.get('_id')
+        content_hash = document.get('content').get('hashes').get('text')
 
-        if row is not None:
-            indexed_rows.append(row)
+        production_document = postgresql.get_document_by_hash(psql_client,
+                                                              psql_cursor,
+                                                              url_hash,
+                                                              table_name)
+
+        if (production_document is None) or (production_document[10] != content_hash):
+            row = indexer.prepare_one_document_for_index(
+                document, crawler_settings.get('limit_domain'))
+
+            if row is not None:
+                indexed_rows.append(row)
+        else:
+            copied_rows.append(production_document)
+
+            postgresql.copy_row_from_table_to_table(
+                postgresql_client,
+                postgresql_cursor,
+                url_hash,
+                postgresql_table_name_production,
+                postgresql_table_name)
 
     if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
@@ -104,7 +123,7 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
                                               postgresql_table_name)
 
     mongodb.update_indexer_progress(
-        mongodb_client, task_id, len(indexed_rows))
+        mongodb_client, task_id, len(indexed_rows) + len(copied_rows))
 
     postgresql_client.commit()
     postgresql_cursor.close()
