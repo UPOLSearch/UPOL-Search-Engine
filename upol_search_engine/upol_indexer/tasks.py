@@ -101,6 +101,7 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         if does_production_exists:
             url_hash = document.get('_id')
             content_hash = document.get('content').get('hashes').get('text')
+            is_file = document.get('file')
 
             production_document = postgresql.get_document_by_hash(postgresql_client,
                                                                   postgresql_cursor,
@@ -112,8 +113,12 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         if (production_document is None) or (production_document[10] != content_hash):
             log.info('INDEXER: Indexing document.')
 
-            row = indexer.prepare_one_document_for_index(
-                document, crawler_settings.get('limit_domain'))
+            if is_file:
+                row = indexer.prepare_one_file_for_index(
+                    document, crawler_settings.get('limit_domain'))
+            else:
+                row = indexer.prepare_one_document_for_index(
+                    document, crawler_settings.get('limit_domain'))
 
             if row is not None:
                 indexed_rows.append(row)

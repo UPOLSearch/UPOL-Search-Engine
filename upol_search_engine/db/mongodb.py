@@ -46,6 +46,7 @@ def init(db):
     db['Urls'].create_index('indexed')
     db['Urls'].create_index('noindex')
     db['Urls'].create_index('file')
+    db['Urls'].create_index('file_type')
     db['Urls'].create_index('invalid')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
@@ -275,6 +276,16 @@ def _format_response_header(response, url_addition):
 def set_visited_file_url(db, url, response, original_url=None):
     """Save file into database and set is as visited"""
 
+    filename = urls.get_filename(url)
+    content_type = response.headers.get('Content-Type')
+
+    if 'application/pdf' in content_type:
+        file_type = 'pdf'
+    elif 'text/plain' in content_type:
+        file_type = 'txt'
+    else:
+        file_type = None
+
     url_hash = urls.hash(url)
 
     is_redirect, is_permanent_redirect = _determine_type_of_redirect(response)
@@ -282,7 +293,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition = {}
 
     # Pairing url with canonical group id
-    content_hash = document.hash_document(response.content)
+    content_hash = urls.hash_document(response.content)
     url_addition['canonical_group'] = get_or_create_canonical_group(
         db,
         content_hash)
@@ -292,6 +303,8 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['indexed'] = False
     url_addition['noindex'] = False
     url_addition['file'] = True
+    url_addition['file_type'] = file_type
+    url_addition['filename'] = filename
 
     url_addition['progress.last_visited'] = str(datetime.utcnow())
 
@@ -707,12 +720,11 @@ def get_batch_of_ids_for_indexer(db, size):
         {'$match': {
             'page.visited': True,
             'page.noindex': False,
-            'page.file': False,  # Just for now
             'page.invalid': False,
             'page.response.status_code': 200,
             'page.indexed': False
         }},
-        {'$project': {'representative': 1,}},
+        {'$project': {'representative': 1}},
         {'$limit': size}
     ]
 

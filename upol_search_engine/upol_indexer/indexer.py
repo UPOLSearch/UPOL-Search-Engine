@@ -1,8 +1,69 @@
 import re
 import urllib.parse
+from io import BytesIO, StringIO
 
+import PyPDF2
 from bs4 import BeautifulSoup
+from langdetect import detect
+from lxml import etree
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFTextExtractionNotAllowed
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdftypes import PDFException
+from pdfminer.psparser import PSSyntaxError
+from PyPDF2 import utils
 from upol_search_engine.utils import document, urls
+
+
+def utf8len(s):
+    return len(s.encode('utf-8'))
+
+
+def extract_content_from_pdf(file_bytes):
+    pdf_file = BytesIO(file_bytes)
+
+    pagenums = set()
+
+    try:
+        info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
+    except utils.PdfReadError as e:
+        info = {'/Title': ""}
+
+    try:
+        output = StringIO()
+        manager = PDFResourceManager()
+        converter = TextConverter(manager, output, laparams=LAParams())
+        interpreter = PDFPageInterpreter(manager, converter)
+        pages = PDFPage.get_pages(pdf_file, pagenums)
+
+        for page in pages:
+            interpreter.process_page(page)
+
+        converter.close()
+
+        text = output.getvalue()
+    except Exception as e:
+        return "", ""
+
+    if text is not None:
+        text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
+
+    if info is not None:
+        title = info.get('/Title')
+    else:
+        title = ""
+
+    if type(title) is str:
+        if title is not None:
+            title = title.replace('\x00', '')
+    else:
+        title = ""
+
+    output.close
+
+    return text, title
 
 
 def remove_multiple_newlines_and_spaces(string):
@@ -146,7 +207,8 @@ def prepare_one_document_for_index(document, limit_domain):
     url = document.get('url')
     url_decoded = urls.decode(url)
     url_length = len(url)
-    is_file = document.get('file')
+    is_file = False
+    file_type = None
     depth = document.get('depth')
     pagerank = document.get('pagerank')
     language = document.get('language')
@@ -184,6 +246,72 @@ def prepare_one_document_for_index(document, limit_domain):
            content_hash,
            depth,
            is_file,
+           file_type,
+           pagerank,
+           url_length)
+
+    return row
+
+
+def prepare_one_file_for_index(document, limit_domain):
+    import gridfs
+    from upol_search_engine.db import mongodb
+
+    mongodb_client = mongodb.create_client()
+    mongodb_database = mongodb.get_database(limit_domain,
+                                            mongodb_client)
+    fs = gridfs.GridFS(mongodb_database)
+    out = fs.get(document.get('content').get('binary'))
+    content = out.read()
+
+    mongodb_client.close()
+
+    content_hash = document.get('content').get('hashes').get('text')
+    url_hash = document.get('representative')
+    url = document.get('url')
+    url_decoded = urls.decode(url)
+    url_length = len(url)
+    is_file = True
+    file_type = document.get('file_type')
+    filename = document.get('filename')
+    depth = document.get('depth')
+    pagerank = document.get('pagerank')
+
+    body_text, title = extract_content_from_pdf(content)
+
+    # Reduce size of body_text for database
+    while utf8len(body_text) > 900000:
+        body_text = body_text[:-10000]
+
+    if (body_text == "") or (body_text is None) or (len(body_text) < 500):
+        return None
+
+    # Add later, performance problem
+    # language = detect(body_text)
+    language = 'cs'
+
+    if (title is None) or (title == ""):
+        title = filename
+
+    description = ""
+    keywords = ""
+    important_headlines = ""
+    url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
+
+    row = (url_hash,
+           url,
+           url_decoded,
+           url_words,
+           title,
+           language,
+           keywords,
+           description,
+           important_headlines,
+           body_text,
+           content_hash,
+           depth,
+           is_file,
+           file_type,
            pagerank,
            url_length)
 
