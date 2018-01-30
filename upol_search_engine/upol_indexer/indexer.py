@@ -267,7 +267,7 @@ def prepare_one_file_for_index(document, limit_domain):
     mongodb_client.close()
 
     content_hash = document.get('content').get('hashes').get('text')
-    url_hash = document.get('representative')
+    url_hash = document.get('_id')
     url = document.get('url')
     url_decoded = urls.decode(url)
     url_length = len(url)
