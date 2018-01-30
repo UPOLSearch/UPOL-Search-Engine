@@ -1,7 +1,11 @@
+from upol_search_engine.celery_app import app
+
+
 def indexer_task(crawler_settings, indexer_settings, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
-    from upol_search_engine.upol_indexer import indexer
+    from celery import group
+    from celery.result import allow_join_result
     import locale
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
@@ -27,50 +31,80 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                      postgresql_cursor,
                                      postgresql_table_name)
 
-    batch_number = 0
-
-    total_pages = mongodb.get_count_of_not_indexed(mongodb_database)
-    progress_pages = 0
+    tasks_list = []
 
     while True:
-        document_batch = mongodb.get_batch_for_indexer(mongodb_database,
-                                                       mongodb_batch_size)
+        document_batch = mongodb.get_batch_of_ids_for_indexer(mongodb_database,
+                                                              mongodb_batch_size)
 
         document_batch = list(document_batch)
 
         if len(document_batch) == 0:
             break
 
-        batch_number += 1
-        indexed_rows = []
-        document_hashes = []
+        document_ids = []
 
         for document in document_batch:
-            row = indexer.prepare_one_document_for_index(
-                document, crawler_settings.get('limit_domain'))
+            document_ids.append(document.get('representative'))
 
-            document_hashes.append(document.get('representative'))
+        if len(document_ids) > 0:
+            mongodb.set_documents_as_indexed(mongodb_database, document_ids)
+            tasks_list.append(index_batch_task.s(document_ids,
+                                                 task_id,
+                                                 crawler_settings,
+                                                 indexer_settings))
 
-            if row is not None:
-                indexed_rows.append(row)
+    tasks_group = group(*tasks_list)
 
-        if len(indexed_rows) > 0:
-            postgresql.insert_rows_into_index(postgresql_client,
-                                              postgresql_cursor,
-                                              indexed_rows,
-                                              postgresql_table_name)
-
-        if len(document_hashes) > 0:
-            mongodb.set_documents_as_indexed(mongodb_database, document_hashes)
-            progress_pages = progress_pages + len(indexed_rows)
-
-            mongodb.update_indexer_progress(
-                mongodb_client, task_id, progress_pages, total_pages)
+    with allow_join_result():
+        result = tasks_group.apply_async()
+        result.join()
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
                                           postgresql_table_name,
                                           postgresql_table_name_production)
+
+    postgresql_client.commit()
+    postgresql_cursor.close()
+    postgresql_client.close()
+    mongodb_client.close()
+
+
+@app.task(queue='indexer')
+def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
+    from upol_search_engine.db import mongodb
+    from upol_search_engine.db import postgresql
+    from upol_search_engine.upol_indexer import indexer
+
+    mongodb_client = mongodb.create_client()
+    mongodb_database = mongodb.get_database(
+        crawler_settings.get('limit_domain'), mongodb_client)
+
+    postgresql_client = postgresql.create_client()
+    postgresql_cursor = postgresql_client.cursor()
+    postgresql_table_name = indexer_settings.get('table_name')
+    # postgresql_table_name_production = indexer_settings.get('table_name_production')
+
+    batch = mongodb.get_batch_by_id(mongodb_database, ids_batch)
+
+    indexed_rows = []
+
+    for document in batch:
+        row = indexer.prepare_one_document_for_index(
+            document, crawler_settings.get('limit_domain'))
+
+        if row is not None:
+            indexed_rows.append(row)
+
+    if len(indexed_rows) > 0:
+            postgresql.insert_rows_into_index(postgresql_client,
+                                              postgresql_cursor,
+                                              indexed_rows,
+                                              postgresql_table_name)
+
+    mongodb.update_indexer_progress(
+        mongodb_client, task_id, len(indexed_rows))
 
     postgresql_client.commit()
     postgresql_cursor.close()

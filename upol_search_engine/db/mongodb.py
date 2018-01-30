@@ -162,6 +162,12 @@ def get_url(db, url):
     return document
 
 
+def get_batch_by_id(db, id_list):
+    result = db['Urls'].find({'_id': {'$in': id_list}})
+
+    return result
+
+
 def select_representative_for_canonical_group(db, canonical_group):
     """Return id of URL which is suitable
     as representative of canonical group"""
@@ -597,13 +603,16 @@ def update_pagerank_progress(client, task_id, stage):
         {'$set': {'pagerank.progress.' + stage: start_time}})
 
 
-def update_indexer_progress(client, task_id, progress, total):
+def update_indexer_progress(client, task_id, progress):
     db_stats = get_stats_database(client)
+
+    actual = db_stats['Stats'].find_one({'task_id': task_id})
+
+    new = int(actual['indexer']['progress']['progress']) + int(progress)
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
-        {'$set': {'indexer.progress.total': total,
-                  'indexer.progress.progress': progress}})
+        {'$set': {'indexer.progress.progress': new}})
 
 
 def get_latest_stats(client):
@@ -631,7 +640,6 @@ def insert_or_iterate_search_words(db, words):
         db['SearchWordsStats'].update({'word': word}, {'$inc': {'count': 1}})
 
 
-
 def insert_search_query(db, query, language):
     db['SearchStats'].insert(
         {'query': query, 'language': language, 'date': str(datetime.utcnow())})
@@ -650,6 +658,7 @@ def get_count_of_not_indexed(db):
     return count
 
 
+# DEPRECATED
 def get_batch_for_indexer(db, size):
     pipeline = [
         {'$lookup': {
@@ -674,6 +683,33 @@ def get_batch_for_indexer(db, size):
                       'page.language': 1,
                       'page.content.binary': 1,
                       'page.pagerank': 1}},
+        {'$limit': size}
+    ]
+
+    url_batch = db['CanonicalGroups'].aggregate(
+        pipeline, allowDiskUse=True)
+
+    return url_batch
+
+
+def get_batch_of_ids_for_indexer(db, size):
+    pipeline = [
+        {'$lookup': {
+            'from': 'Urls',
+            'localField': 'representative',
+            'foreignField': '_id',
+            'as': 'page'
+        }},
+        {'$unwind': '$page'},
+        {'$match': {
+            'page.visited': True,
+            'page.noindex': False,
+            'page.file': False,  # Just for now
+            'page.invalid': False,
+            'page.response.status_code': 200,
+            'page.indexed': False
+        }},
+        {'$project': {'representative': 1,}},
         {'$limit': size}
     ]
 
