@@ -76,6 +76,9 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
     from upol_search_engine.upol_indexer import indexer
+    from celery.utils.log import get_task_logger
+
+    log = get_task_logger(__name__)
 
     mongodb_client = mongodb.create_client()
     mongodb_database = mongodb.get_database(
@@ -107,12 +110,16 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
             production_document = None
 
         if (production_document is None) or (production_document[10] != content_hash):
+            log.info('INDEXER: Indexing document.')
+
             row = indexer.prepare_one_document_for_index(
                 document, crawler_settings.get('limit_domain'))
 
             if row is not None:
                 indexed_rows.append(row)
         else:
+            log.info('INDEXER: Coping document.')
+
             copied_rows.append(production_document)
 
             postgresql.copy_row_from_table_to_table(
