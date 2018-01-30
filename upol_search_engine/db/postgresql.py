@@ -114,7 +114,7 @@ def reset_and_init_db(postgresql_client, postgresql_cursor, table_name):
 
 def get_document_by_hash(psql_client, psql_cursor, url_hash, table_name):
     psql_cursor.execute(sql.SQL("SELECT * FROM {} WHERE hash = {};").format(
-        sql.Identifier(table_name), sql.Identifier(url_hash)))
+        sql.Identifier(table_name), sql.Literal(url_hash)))
 
     return psql_cursor.fetchone()
 
