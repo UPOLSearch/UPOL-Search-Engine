@@ -98,10 +98,11 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         postgresql_cursor, postgresql_table_name_production)
 
     for document in batch:
+        is_file = document.get('file')
+
         if does_production_exists:
             url_hash = document.get('_id')
             content_hash = document.get('content').get('hashes').get('text')
-            is_file = document.get('file')
 
             production_document = postgresql.get_document_by_hash(postgresql_client,
                                                                   postgresql_cursor,
