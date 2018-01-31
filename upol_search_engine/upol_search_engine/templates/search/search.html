@@ -7,6 +7,9 @@
                 {% for row in output %}
                     <div class="result">
                         <div class="truncate-ellipsis">
+                            {% if row[7] %}
+                                <span class="small-gray">[{{row[7]}}]</span>
+                            {% endif %}
                             <h3><span class="language">[{{row[6]}}]</span><a href='{{row[0]}}'>{{row[2]}}</a></h3>
                             </div>
                         <div class="block">
@@ -15,7 +18,7 @@
                             </div>
 
                             <div class="preview">
-                                {{ row[7]|safe }}
+                                {{ row[8]|safe }}
                             </div>
                             <div class="debug">Depth: {{10 - row[3]}} | Pagerank: {{row[4]}}</div>
                         </div>
