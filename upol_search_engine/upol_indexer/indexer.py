@@ -265,7 +265,7 @@ def prepare_one_file_for_index(document, limit_domain):
     url_length = len(url)
     is_file = True
     file_type = document.get('file_type')
-    filename = document.get('filename')
+    filename = urls.get_filename(url_decoded)
     depth = document.get('depth')
     pagerank = document.get('pagerank')
 

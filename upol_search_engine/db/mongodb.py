@@ -276,7 +276,6 @@ def _format_response_header(response, url_addition):
 def set_visited_file_url(db, url, response, original_url=None):
     """Save file into database and set is as visited"""
 
-    filename = urls.get_filename(url)
     content_type = response.headers.get('Content-Type')
 
     if 'application/pdf' in content_type:
@@ -304,7 +303,6 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['noindex'] = False
     url_addition['file'] = True
     url_addition['file_type'] = file_type
-    url_addition['filename'] = filename
 
     url_addition['progress.last_visited'] = str(datetime.utcnow())
 
@@ -623,7 +621,7 @@ def update_indexer_progress(client, task_id, progress):
 
     if actual is None:
         return
-        
+
     indexer_progress = actual.get('indexer').get('progress')
 
     if indexer_progress is None:
