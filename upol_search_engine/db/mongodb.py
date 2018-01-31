@@ -623,8 +623,13 @@ def update_indexer_progress(client, task_id, progress):
 
     if actual is None:
         return
+        
+    indexer_progress = actual.get('indexer').get('progress')
 
-    new = int(actual['indexer']['progress']['progress']) + int(progress)
+    if indexer_progress is None:
+        new = int(progress)
+    else:
+        new = int(indexer_progress.get('progress')) + int(progress)
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
