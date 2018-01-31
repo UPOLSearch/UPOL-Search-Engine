@@ -272,7 +272,7 @@ def prepare_one_file_for_index(document, limit_domain):
     body_text = extract_content_from_pdf(content)
 
     # Reduce size of body_text for database
-    while utf8len(body_text) > 900000:
+    while utf8len(body_text) > 800000:
         body_text = body_text[:-10000]
 
     if (body_text == "") or (body_text is None) or (len(body_text) < 500):
