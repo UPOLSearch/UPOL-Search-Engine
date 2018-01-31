@@ -114,12 +114,17 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         if (production_document is None) or (production_document[10] != content_hash):
             if is_file:
                 log.info('INDEXER: Indexing document (file).')
-                try:
-                    row = indexer.prepare_one_file_for_index(
-                        document, crawler_settings.get('limit_domain'))
-                except Exception as e:
-                    log.exception('Exception: {0}'.format(document.get('url')))
-                    log.exception('Exception description: {0}'.format(e))
+
+                # Index only pdf this time
+                if document.get('file_type') == 'pdf':
+                    try:
+                        row = indexer.prepare_one_file_for_index(
+                            document, crawler_settings.get('limit_domain'))
+                    except Exception as e:
+                        log.exception('Exception: {0}'.format(document.get('url')))
+                        log.exception('Exception description: {0}'.format(e))
+                        row = None
+                else:
                     row = None
             else:
                 log.info('INDEXER: Indexing document.')
