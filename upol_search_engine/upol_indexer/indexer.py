@@ -37,7 +37,9 @@ def extract_content_from_pdf(file_bytes):
 
     output = StringIO()
     manager = PDFResourceManager()
-    converter = TextConverter(manager, output, laparams=LAParams())
+    # laparams = LAParams()
+    laparams = None
+    converter = TextConverter(manager, output, laparams=laparams)
     interpreter = PDFPageInterpreter(manager, converter)
     pages = PDFPage.get_pages(pdf_file, pagenums)
 
