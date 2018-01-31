@@ -112,9 +112,8 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
             production_document = None
 
         if (production_document is None) or (production_document[10] != content_hash):
-            log.info('INDEXER: Indexing document.')
-
             if is_file:
+                log.info('INDEXER: Indexing document (file).')
                 try:
                     row = indexer.prepare_one_file_for_index(
                         document, crawler_settings.get('limit_domain'))
@@ -123,13 +122,17 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
                     log.exception('Exception description: {0}'.format(e))
                     row = None
             else:
+                log.info('INDEXER: Indexing document.')
                 row = indexer.prepare_one_document_for_index(
                     document, crawler_settings.get('limit_domain'))
 
             if row is not None:
                 indexed_rows.append(row)
         else:
-            log.info('INDEXER: Coping document.')
+            if is_file:
+                log.info('INDEXER: Coping document (file).')
+            else:
+                log.info('INDEXER: Coping document.')
 
             copied_rows.append(production_document)
 
