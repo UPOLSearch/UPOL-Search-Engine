@@ -1,3 +1,4 @@
+import logging
 import re
 import urllib.parse
 from io import BytesIO, StringIO
@@ -22,6 +23,9 @@ def utf8len(s):
 
 
 def extract_content_from_pdf(file_bytes):
+    logging.propagate = False
+    logging.getLogger().setLevel(logging.ERROR)
+
     pdf_file = BytesIO(file_bytes)
 
     pagenums = set()
