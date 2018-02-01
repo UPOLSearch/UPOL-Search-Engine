@@ -358,7 +358,8 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     try:
         url_addition['language'] = detect(text)
     except Exception as e:
-        url_addition['language'] = None
+        # Fallback language
+        url_addition['language'] = 'cs'
 
     text_hash = document.hash_document(
         document.extract_document_text_for_hash(soup))

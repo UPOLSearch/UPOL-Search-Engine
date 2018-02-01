@@ -5,7 +5,7 @@ from io import BytesIO, StringIO
 
 import PyPDF2
 from bs4 import BeautifulSoup
-from langdetect import detect
+from langdetect import detect, lang_detect_exception
 from lxml import etree
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
