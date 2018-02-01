@@ -278,9 +278,19 @@ def prepare_one_file_for_index(document, limit_domain):
     if (body_text == "") or (body_text is None) or (len(body_text) < 500):
         return None
 
-    # Add later, performance problem
-    # language = detect(body_text)
-    language = 'cs'
+    max_length_detection = 10000
+    body_text_length = len(body_text)
+
+    try:
+        if body_text_length < max_length_detection:
+            language = detect(body_text)
+        else:
+            half = body_text_length / 2
+            language = detect(
+                body_text[int(half - max_length_detection / 2):int(half + max_length_detection / 2)])
+    except lang_detect_exception.LangDetectException as e:
+        # Fallback language
+        language = 'cs'
 
     title = filename
 
