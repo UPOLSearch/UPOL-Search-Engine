@@ -48,8 +48,10 @@ def is_url_absolute(url):
 def get_filename(url):
     """Return filename from url"""
     path = urllib.parse.urlparse(url).path
+    filename = os.path.basename(path)
+    filename = os.path.splitext(filename)[0]
 
-    return os.path.basename(path)
+    return filename.capitalize()
 
 
 def domain(url):
