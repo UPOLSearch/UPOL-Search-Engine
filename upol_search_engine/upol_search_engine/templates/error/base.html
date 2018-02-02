@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+{% include "search/head.html" %}
+
+<body class="white gray-border">
+    <div id="wrap">
+        <div class="container justify-content-center text-center">
+            <img src="{{ url_for('static', filename='images/upol-search-logo-lg.png') }}" alt="UPOL Search" width="150px" class="mr-auto logo logo-error">
+            <div class="row justify-content-center mb-2">
+                <div class="col-8 error">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block footer %}{% include "search/footer.html" %}{% endblock %} {% include "search/scripts.html" %} {% block scripts %}{% endblock %}
+</body>
+
+</html>

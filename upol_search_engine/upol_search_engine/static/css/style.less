@@ -35,6 +35,10 @@ body {
     border-top: 5px @up-original solid;
 }
 
+.gray-border {
+    border-top: 5px @gray solid;
+}
+
 body.white{
     background-color: white;
 }
@@ -215,6 +219,22 @@ h3 {
     height: 120px;
     clear:both;
     padding-top:20px;
+}
+
+.error {
+    h1 {
+        font-size: 3em;
+    }
+
+    a {
+        text-decoration: underline;
+        color: @gray;
+    }
+}
+
+.logo-error {
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
 }
 
 .search-results {

@@ -1,0 +1,7 @@
+{% extends "error/base.html" %}
+{% block body %}
+    <h1>Ups...</h1>
+    <p>
+        Tuto stránku ani vyhledávač nenašel, zkuste přejít na <a href="{{ url_for('search.home') }}">domovskou stránku</a>.
+    </p>
+{% endblock %}
