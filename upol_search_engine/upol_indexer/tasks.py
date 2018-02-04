@@ -49,16 +49,33 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
         if len(document_ids) > 0:
             mongodb.set_documents_as_indexed(mongodb_database, document_ids)
-            tasks_list.append(index_batch_task.s(document_ids,
-                                                 task_id,
-                                                 crawler_settings,
-                                                 indexer_settings))
+            tasks_list.append(index_batch_task.delay(document_ids,
+                                                     task_id,
+                                                     crawler_settings,
+                                                     indexer_settings))
 
-    tasks_group = group(*tasks_list)
+    # tasks_group = group(*tasks_list)
 
-    with allow_join_result():
-        result = tasks_group.apply_async()
-        result.join()
+    # with allow_join_result():
+        # result = tasks_group.apply_async()
+        # result.join()
+    from celery.result import AsyncResult
+    import time
+
+    waiting = True
+
+    while waiting:
+        n_of_running = 0
+        for task in tasks_list:
+            if not AsyncResult(task.task_id).status == 'SUCCESS':
+                n_of_running += 1
+            else:
+                tasks_list.remove(task)
+
+        if n_of_running == 0:
+            waiting = False
+
+        time.sleep(10)
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
