@@ -79,6 +79,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
         time.sleep(10)
 
+    print("Done")
+
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
                                           postgresql_table_name,
