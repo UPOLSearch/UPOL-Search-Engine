@@ -33,7 +33,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                      postgresql_table_name)
 
     tasks_list = []
-
+    counter = 0
     while True:
         document_batch = mongodb.get_batch_of_ids_for_indexer(mongodb_database,
                                                               mongodb_batch_size)
@@ -54,8 +54,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                                      task_id,
                                                      crawler_settings,
                                                      indexer_settings))
-
-        print("Adding {} documents into queue.".format(len(document_ids)))
+        counter += 1
+        print("{}: Adding {} documents into queue.".format(counter, len(document_ids)))
 
     waiting = True
 
