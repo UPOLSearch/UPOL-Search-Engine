@@ -6,7 +6,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     from upol_search_engine.db import postgresql
     import locale
     from celery.result import AsyncResult
-    from celery.states import PENDING, STARTED, SUCCESS
+    from celery.states import PENDING, STARTED, RECIEVED
     import time
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
@@ -65,7 +65,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         for task in tasks_list:
             state = AsyncResult(task.task_id).status
 
-            if state == PENDING or state == STARTED or state == SUCCESS:
+            if state == PENDING or state == STARTED or state == RECIEVED:
                 n_of_running += 1
             else:
                 tasks_list.remove(task)
