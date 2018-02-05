@@ -4,9 +4,10 @@ from upol_search_engine.celery_app import app
 def indexer_task(crawler_settings, indexer_settings, task_id):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
-    from celery import group
-    from celery.result import allow_join_result
     import locale
+    from celery.result import AsyncResult
+    import celery.states
+    import time
 
     locale.setlocale(locale.LC_ALL, 'cs_CZ.utf-8')
 
@@ -54,26 +55,25 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                                      crawler_settings,
                                                      indexer_settings))
 
-    # tasks_group = group(*tasks_list)
-
-    # with allow_join_result():
-        # result = tasks_group.apply_async()
-        # result.join()
-    from celery.result import AsyncResult
-    import time
-
     waiting = True
 
     while waiting:
         n_of_running = 0
+
         for task in tasks_list:
-            if not AsyncResult(task.task_id).status == 'SUCCESS':
+            state = AsyncResult(task.task_id).status
+
+            if state == celery.states.PENDING or state == celery.states.RUNNING or state == celery.states.RECEIVED:
                 n_of_running += 1
             else:
                 tasks_list.remove(task)
 
         if n_of_running == 0:
             waiting = False
+
+        print("Waiting")
+        print("Number of running: {}".format(n_of_running))
+        print("Number of tasks: {}".format(len(tasks_list)))
 
         time.sleep(10)
 
