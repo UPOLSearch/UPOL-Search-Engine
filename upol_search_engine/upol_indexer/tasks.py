@@ -72,6 +72,9 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
         if n_of_running == 0:
             waiting = False
+            for task in tasks_list:
+                state = AsyncResult(task.task_id).status
+                print(state)
 
         print("Waiting")
         print("Number of running: {}".format(n_of_running))
@@ -81,10 +84,10 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     print("Done")
 
-    postgresql.change_table_to_production(postgresql_client,
-                                          postgresql_cursor,
-                                          postgresql_table_name,
-                                          postgresql_table_name_production)
+    # postgresql.change_table_to_production(postgresql_client,
+    #                                       postgresql_cursor,
+    #                                       postgresql_table_name,
+    #                                       postgresql_table_name_production)
 
     postgresql_client.commit()
     postgresql_cursor.close()
