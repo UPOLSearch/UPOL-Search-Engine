@@ -176,6 +176,10 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
             log.exception('Exception: {0}'.format(document.get('url')))
             pass
 
+    postgresql_client.commit()
+    postgresql_cursor.close()
+    postgresql_client.close()
+
     if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
                                               postgresql_cursor,
@@ -185,7 +189,4 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
     mongodb.update_indexer_progress(
         mongodb_client, task_id, len(indexed_rows) + len(copied_rows))
 
-    postgresql_client.commit()
-    postgresql_cursor.close()
-    postgresql_client.close()
     mongodb_client.close()
