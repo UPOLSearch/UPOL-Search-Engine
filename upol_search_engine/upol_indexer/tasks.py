@@ -83,10 +83,12 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     print("Done")
 
-    # postgresql.change_table_to_production(postgresql_client,
-    #                                       postgresql_cursor,
-    #                                       postgresql_table_name,
-    #                                       postgresql_table_name_production)
+    postgresql.change_table_to_production(postgresql_client,
+                                          postgresql_cursor,
+                                          postgresql_table_name,
+                                          postgresql_table_name_production)
+
+    print("Production changed")
 
     postgresql_client.commit()
     postgresql_cursor.close()
