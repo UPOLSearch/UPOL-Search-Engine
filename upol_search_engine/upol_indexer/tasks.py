@@ -123,54 +123,58 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
         postgresql_cursor, postgresql_table_name_production)
 
     for document in batch:
-        is_file = document.get('file')
+        try:
+            is_file = document.get('file')
 
-        if does_production_exists:
-            url_hash = document.get('_id')
-            content_hash = document.get('content').get('hashes').get('text')
+            if does_production_exists:
+                url_hash = document.get('_id')
+                content_hash = document.get('content').get('hashes').get('text')
 
-            production_document = postgresql.get_document_by_hash(postgresql_client,
-                                                                  postgresql_cursor,
-                                                                  url_hash,
-                                                                  postgresql_table_name_production)
-        else:
-            production_document = None
+                production_document = postgresql.get_document_by_hash(postgresql_client,
+                                                                      postgresql_cursor,
+                                                                      url_hash,
+                                                                      postgresql_table_name_production)
+            else:
+                production_document = None
 
-        if (production_document is None) or (production_document[10] != content_hash):
-            if is_file:
-                log.info('INDEXER: Indexing document (file).')
+            if (production_document is None) or (production_document[10] != content_hash):
+                if is_file:
+                    log.info('INDEXER: Indexing document (file).')
 
-                # Index only pdf this time
-                if document.get('file_type') == 'pdf':
-                    try:
-                        row = indexer.prepare_one_file_for_index(
-                            document, crawler_settings.get('limit_domain'))
-                    except Exception as e:
-                        log.exception('Exception: {0}'.format(document.get('url')))
+                    # Index only pdf this time
+                    if document.get('file_type') == 'pdf':
+                        try:
+                            row = indexer.prepare_one_file_for_index(
+                                document, crawler_settings.get('limit_domain'))
+                        except Exception as e:
+                            log.exception('Exception: {0}'.format(document.get('url')))
+                            row = None
+                    else:
                         row = None
                 else:
-                    row = None
+                    log.info('INDEXER: Indexing document.')
+                    row = indexer.prepare_one_document_for_index(
+                        document, crawler_settings.get('limit_domain'))
+
+                if row is not None:
+                    indexed_rows.append(row)
             else:
-                log.info('INDEXER: Indexing document.')
-                row = indexer.prepare_one_document_for_index(
-                    document, crawler_settings.get('limit_domain'))
+                if is_file:
+                    log.info('INDEXER: Coping document (file).')
+                else:
+                    log.info('INDEXER: Coping document.')
 
-            if row is not None:
-                indexed_rows.append(row)
-        else:
-            if is_file:
-                log.info('INDEXER: Coping document (file).')
-            else:
-                log.info('INDEXER: Coping document.')
+                copied_rows.append(production_document)
 
-            copied_rows.append(production_document)
-
-            postgresql.copy_row_from_table_to_table(
-                postgresql_client,
-                postgresql_cursor,
-                url_hash,
-                postgresql_table_name_production,
-                postgresql_table_name)
+                postgresql.copy_row_from_table_to_table(
+                    postgresql_client,
+                    postgresql_cursor,
+                    url_hash,
+                    postgresql_table_name_production,
+                    postgresql_table_name)
+        except Exception as e:
+            log.exception('Exception: {0}'.format(document.get('url')))
+            pass
 
     if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
