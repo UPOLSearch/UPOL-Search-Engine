@@ -22,8 +22,9 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     postgresql_table_name_production = indexer_settings.get('table_name_production')
 
     # Test if postgresql table is ready
-    if not postgresql.test_if_table_exists(postgresql_cursor, postgresql_table_name):
-        if not postgresql.test_if_table_exists(postgresql_cursor,
+    if not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name):
+        if not postgresql.test_if_table_exists(postgresql_client,
+                                               postgresql_cursor,
                                                postgresql_table_name_production):
             postgresql.create_function(postgresql_client,
                                        postgresql_cursor)
@@ -90,7 +91,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     print("Production changed")
 
-    postgresql_client.commit()
+    # postgresql_client.commit()
     postgresql_cursor.close()
     postgresql_client.close()
     mongodb_client.close()
@@ -120,7 +121,7 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
     copied_rows = []
 
     does_production_exists = postgresql.test_if_table_exists(
-        postgresql_cursor, postgresql_table_name_production)
+        postgresql_client, postgresql_cursor, postgresql_table_name_production)
 
     for document in batch:
         try:
@@ -174,17 +175,16 @@ def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
                     postgresql_table_name)
         except Exception as e:
             log.exception('Exception: {0}'.format(document.get('url')))
-            pass
-
-    postgresql_client.commit()
-    postgresql_cursor.close()
-    postgresql_client.close()
 
     if len(indexed_rows) > 0:
             postgresql.insert_rows_into_index(postgresql_client,
                                               postgresql_cursor,
                                               indexed_rows,
                                               postgresql_table_name)
+
+    # postgresql_client.commit()
+    postgresql_cursor.close()
+    postgresql_client.close()
 
     mongodb.update_indexer_progress(
         mongodb_client, task_id, len(indexed_rows) + len(copied_rows))
