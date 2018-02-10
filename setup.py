@@ -37,7 +37,8 @@ setup(name='UPOL-Search-Engine',
           'html5lib',
           'PyPDF2',
           'pdfminer.six',
-          'backports.pbkdf2'
+          'backports.pbkdf2',
+          'timeout-decorator'
       ],
       entry_points={
           'console_scripts': [

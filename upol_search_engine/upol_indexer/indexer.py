@@ -4,6 +4,7 @@ import urllib.parse
 from io import BytesIO, StringIO
 
 import PyPDF2
+import timeout_decorator
 from bs4 import BeautifulSoup
 from langdetect import detect, lang_detect_exception
 from lxml import etree
@@ -245,6 +246,7 @@ def prepare_one_document_for_index(document, limit_domain):
     return row
 
 
+@timeout_decorator.timeout(60, use_signals=False)
 def prepare_one_file_for_index(document, limit_domain):
     import gridfs
     from upol_search_engine.db import mongodb
