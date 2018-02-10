@@ -246,7 +246,7 @@ def prepare_one_document_for_index(document, limit_domain):
     return row
 
 
-@timeout_decorator.timeout(60, use_signals=False)
+@timeout_decorator.timeout(60)
 def prepare_one_file_for_index(document, limit_domain):
     import gridfs
     from upol_search_engine.db import mongodb
