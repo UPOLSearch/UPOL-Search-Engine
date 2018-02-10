@@ -163,6 +163,12 @@ def get_url(db, url):
     return document
 
 
+def get_document_by_id(db, document_id):
+    document = db['Urls'].find_one({'_id': document_id})
+
+    return document
+
+
 def get_batch_by_id(db, id_list):
     result = db['Urls'].find({'_id': {'$in': id_list}})
 
