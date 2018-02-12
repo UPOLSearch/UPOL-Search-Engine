@@ -103,102 +103,102 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     mongodb_client.close()
 
 
-@app.task(queue='indexer')
-def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
-    from upol_search_engine.db import mongodb
-    from upol_search_engine.db import postgresql
-    from upol_search_engine.upol_indexer import indexer
-    from celery.utils.log import get_task_logger
+# @app.task(queue='indexer', task_compression='zlib')
+# def index_batch_task(ids_batch, task_id, crawler_settings, indexer_settings):
+#     from upol_search_engine.db import mongodb
+#     from upol_search_engine.db import postgresql
+#     from upol_search_engine.upol_indexer import indexer
+#     from celery.utils.log import get_task_logger
+#
+#     log = get_task_logger(__name__)
+#
+#     mongodb_client = mongodb.create_client()
+#     mongodb_database = mongodb.get_database(
+#         crawler_settings.get('limit_domain'), mongodb_client)
+#     postgresql_client = postgresql.create_client()
+#     postgresql_cursor = postgresql_client.cursor()
+#     postgresql_table_name = indexer_settings.get('table_name')
+#     postgresql_table_name_production = indexer_settings.get('table_name_production')
+#
+#     try:
+#         batch = mongodb.get_batch_by_id(mongodb_database, ids_batch)
+#
+#         indexed_rows = []
+#         copied_rows = []
+#
+#         does_production_exists = postgresql.test_if_table_exists(
+#             postgresql_client, postgresql_cursor, postgresql_table_name_production)
+#
+#         for document in batch:
+#             try:
+#                 is_file = document.get('file')
+#
+#                 if does_production_exists:
+#                     url_hash = document.get('_id')
+#                     content_hash = document.get('content').get('hashes').get('text')
+#
+#                     production_document = postgresql.get_document_by_hash(postgresql_client,
+#                                                                           postgresql_cursor,
+#                                                                           url_hash,
+#                                                                           postgresql_table_name_production)
+#                 else:
+#                     production_document = None
+#
+#                 if (production_document is None) or (production_document[10] != content_hash):
+#                     if is_file:
+#                         log.info('INDEXER: Indexing document (file).')
+#
+#                         # Index only pdf this time
+#                         if document.get('file_type') == 'pdf':
+#                             try:
+#                                 row = indexer.prepare_one_file_for_index(
+#                                     document, crawler_settings.get('limit_domain'))
+#                             except Exception as e:
+#                                 log.exception('Exception: {0}'.format(document.get('url')))
+#                                 row = None
+#                         else:
+#                             row = None
+#                     else:
+#                         log.info('INDEXER: Indexing document.')
+#                         row = indexer.prepare_one_document_for_index(
+#                             document, crawler_settings.get('limit_domain'))
+#
+#                     if row is not None:
+#                         indexed_rows.append(row)
+#                 else:
+#                     if is_file:
+#                         log.info('INDEXER: Coping document (file).')
+#                     else:
+#                         log.info('INDEXER: Coping document.')
+#
+#                     copied_rows.append(production_document)
+#
+#                     postgresql.copy_row_from_table_to_table(
+#                         postgresql_client,
+#                         postgresql_cursor,
+#                         url_hash,
+#                         postgresql_table_name_production,
+#                         postgresql_table_name)
+#             except Exception as e:
+#                 log.exception('Exception: {0}'.format(document.get('url')))
+#
+#         if len(indexed_rows) > 0:
+#                 postgresql.insert_rows_into_index(postgresql_client,
+#                                                   postgresql_cursor,
+#                                                   indexed_rows,
+#                                                   postgresql_table_name)
+#
+#         mongodb.update_indexer_progress(
+#             mongodb_client, task_id, len(indexed_rows) + len(copied_rows))
+#     except Exception as e:
+#         log.exception('Exception: INDEXER TASK POSSIBLE FAILURE')
+#     finally:
+#         postgresql_cursor.close()
+#         postgresql_client.close()
+#         mongodb_client.close()
 
-    log = get_task_logger(__name__)
 
-    mongodb_client = mongodb.create_client()
-    mongodb_database = mongodb.get_database(
-        crawler_settings.get('limit_domain'), mongodb_client)
-    postgresql_client = postgresql.create_client()
-    postgresql_cursor = postgresql_client.cursor()
-    postgresql_table_name = indexer_settings.get('table_name')
-    postgresql_table_name_production = indexer_settings.get('table_name_production')
-
-    try:
-        batch = mongodb.get_batch_by_id(mongodb_database, ids_batch)
-
-        indexed_rows = []
-        copied_rows = []
-
-        does_production_exists = postgresql.test_if_table_exists(
-            postgresql_client, postgresql_cursor, postgresql_table_name_production)
-
-        for document in batch:
-            try:
-                is_file = document.get('file')
-
-                if does_production_exists:
-                    url_hash = document.get('_id')
-                    content_hash = document.get('content').get('hashes').get('text')
-
-                    production_document = postgresql.get_document_by_hash(postgresql_client,
-                                                                          postgresql_cursor,
-                                                                          url_hash,
-                                                                          postgresql_table_name_production)
-                else:
-                    production_document = None
-
-                if (production_document is None) or (production_document[10] != content_hash):
-                    if is_file:
-                        log.info('INDEXER: Indexing document (file).')
-
-                        # Index only pdf this time
-                        if document.get('file_type') == 'pdf':
-                            try:
-                                row = indexer.prepare_one_file_for_index(
-                                    document, crawler_settings.get('limit_domain'))
-                            except Exception as e:
-                                log.exception('Exception: {0}'.format(document.get('url')))
-                                row = None
-                        else:
-                            row = None
-                    else:
-                        log.info('INDEXER: Indexing document.')
-                        row = indexer.prepare_one_document_for_index(
-                            document, crawler_settings.get('limit_domain'))
-
-                    if row is not None:
-                        indexed_rows.append(row)
-                else:
-                    if is_file:
-                        log.info('INDEXER: Coping document (file).')
-                    else:
-                        log.info('INDEXER: Coping document.')
-
-                    copied_rows.append(production_document)
-
-                    postgresql.copy_row_from_table_to_table(
-                        postgresql_client,
-                        postgresql_cursor,
-                        url_hash,
-                        postgresql_table_name_production,
-                        postgresql_table_name)
-            except Exception as e:
-                log.exception('Exception: {0}'.format(document.get('url')))
-
-        if len(indexed_rows) > 0:
-                postgresql.insert_rows_into_index(postgresql_client,
-                                                  postgresql_cursor,
-                                                  indexed_rows,
-                                                  postgresql_table_name)
-
-        mongodb.update_indexer_progress(
-            mongodb_client, task_id, len(indexed_rows) + len(copied_rows))
-    except Exception as e:
-        log.exception('Exception: INDEXER TASK POSSIBLE FAILURE')
-    finally:
-        postgresql_cursor.close()
-        postgresql_client.close()
-        mongodb_client.close()
-
-
-@app.task(queue='indexer')
+@app.task(queue='indexer', task_compression='zlib')
 def index_document_task(document_id, task_id, crawler_settings, indexer_settings):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
