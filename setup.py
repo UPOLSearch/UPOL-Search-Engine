@@ -3,7 +3,7 @@
 from setuptools import find_packages, setup
 
 setup(name='UPOL-Search-Engine',
-      version='0.7-dev',
+      version='0.8-dev',
       description='UPOL Search engine is search engine for upol.cz domain, \
       topic of Master thesis on Department of Computer Science UPOL',
       author='Tomas Mikula',
