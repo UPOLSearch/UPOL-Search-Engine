@@ -6,16 +6,23 @@
             {% if output %}
                 {% for row in output %}
                     <div class="result">
+                        {% if row[7] %}
+                            <span class="small-gray file-type">[{{row[7]}}]</span>
+                        {% endif %}
+                            <span class="small-gray language">[{{row[6]}}]</span>
                         <div class="truncate-ellipsis">
-                            <h3><span class="language">[{{row[6]}}]</span><a href='{{row[0]}}'>{{row[2]}}</a></h3>
+
+                            <h3><a href='{{row[0]}}'>{{row[2]}}</a></h3>
                             </div>
+
                         <div class="block">
                             <div class="truncate-ellipsis">
+
                                 <div class="url">{{row[1]}}</div>
                             </div>
 
                             <div class="preview">
-                                {{ row[7]|safe }}
+                                {{ row[8]|safe }}
                             </div>
                             <div class="debug">Depth: {{10 - row[3]}} | Pagerank: {{row[4]}}</div>
                         </div>

@@ -46,6 +46,7 @@ def init(db):
     db['Urls'].create_index('indexed')
     db['Urls'].create_index('noindex')
     db['Urls'].create_index('file')
+    db['Urls'].create_index('file_type')
     db['Urls'].create_index('invalid')
     db['Urls'].create_index('queued')
     db['Urls'].create_index('timeout')
@@ -158,6 +159,12 @@ def get_or_create_canonical_group(db, text_hash):
 
 def get_url(db, url):
     document = db['Urls'].find_one({'_id': urls.hash(url)})
+
+    return document
+
+
+def get_document_by_id(db, document_id):
+    document = db['Urls'].find_one({'_id': document_id})
 
     return document
 
@@ -275,6 +282,15 @@ def _format_response_header(response, url_addition):
 def set_visited_file_url(db, url, response, original_url=None):
     """Save file into database and set is as visited"""
 
+    content_type = response.headers.get('Content-Type')
+
+    if 'application/pdf' in content_type:
+        file_type = 'pdf'
+    elif 'text/plain' in content_type:
+        file_type = 'txt'
+    else:
+        file_type = None
+
     url_hash = urls.hash(url)
 
     is_redirect, is_permanent_redirect = _determine_type_of_redirect(response)
@@ -282,7 +298,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition = {}
 
     # Pairing url with canonical group id
-    content_hash = document.hash_document(response.content)
+    content_hash = urls.hash_document(response.content)
     url_addition['canonical_group'] = get_or_create_canonical_group(
         db,
         content_hash)
@@ -292,6 +308,7 @@ def set_visited_file_url(db, url, response, original_url=None):
     url_addition['indexed'] = False
     url_addition['noindex'] = False
     url_addition['file'] = True
+    url_addition['file_type'] = file_type
 
     url_addition['progress.last_visited'] = str(datetime.utcnow())
 
@@ -347,7 +364,8 @@ def set_visited_url(db, url, response, soup, noindex, original_url=None):
     try:
         url_addition['language'] = detect(text)
     except Exception as e:
-        url_addition['language'] = None
+        # Fallback language
+        url_addition['language'] = 'cs'
 
     text_hash = document.hash_document(
         document.extract_document_text_for_hash(soup))
@@ -611,7 +629,12 @@ def update_indexer_progress(client, task_id, progress):
     if actual is None:
         return
 
-    new = int(actual['indexer']['progress']['progress']) + int(progress)
+    indexer_progress = actual.get('indexer').get('progress')
+
+    if indexer_progress is None:
+        new = int(progress)
+    else:
+        new = int(indexer_progress.get('progress')) + int(progress)
 
     return db_stats['Stats'].find_one_and_update(
         {'task_id': task_id},
@@ -707,12 +730,11 @@ def get_batch_of_ids_for_indexer(db, size):
         {'$match': {
             'page.visited': True,
             'page.noindex': False,
-            'page.file': False,  # Just for now
             'page.invalid': False,
             'page.response.status_code': 200,
             'page.indexed': False
         }},
-        {'$project': {'representative': 1,}},
+        {'$project': {'representative': 1}},
         {'$limit': size}
     ]
 

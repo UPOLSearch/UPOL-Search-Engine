@@ -45,6 +45,15 @@ def is_url_absolute(url):
     return bool(urllib.parse.urlparse(url).netloc)
 
 
+def get_filename(url):
+    """Return filename from url"""
+    path = urllib.parse.urlparse(url).path
+    filename = os.path.basename(path)
+    filename = os.path.splitext(filename)[0]
+
+    return filename.capitalize()
+
+
 def domain(url):
     """Return domain of the url"""
     url = remove_www(url)

@@ -1,8 +1,49 @@
+import logging
 import re
 import urllib.parse
+from io import BytesIO, StringIO
 
+import timeout_decorator
 from bs4 import BeautifulSoup
+from langdetect import detect, lang_detect_exception
+from pdfminer.converter import TextConverter
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
+from pdfminer.pdfpage import PDFPage
 from upol_search_engine.utils import document, urls
+
+
+def utf8len(s):
+    return len(s.encode('utf-8'))
+
+
+def extract_content_from_pdf(file_bytes):
+    logging.propagate = False
+    logging.getLogger().setLevel(logging.ERROR)
+
+    pdf_file = BytesIO(file_bytes)
+
+    pagenums = set()
+
+    output = StringIO()
+    manager = PDFResourceManager()
+    laparams = None
+    converter = TextConverter(manager, output, laparams=laparams)
+    interpreter = PDFPageInterpreter(manager, converter)
+    pages = PDFPage.get_pages(pdf_file, pagenums)
+
+    for page in pages:
+        interpreter.process_page(page)
+
+    converter.close()
+
+    text = output.getvalue()
+
+    if text is not None:
+        text = text.replace('ˇ', '').replace('’', '').replace('´', '').replace('˚', '').replace('ı', 'i').replace('\x00', '')
+
+    output.close
+
+    return text
 
 
 def remove_multiple_newlines_and_spaces(string):
@@ -146,7 +187,8 @@ def prepare_one_document_for_index(document, limit_domain):
     url = document.get('url')
     url_decoded = urls.decode(url)
     url_length = len(url)
-    is_file = document.get('file')
+    is_file = False
+    file_type = None
     depth = document.get('depth')
     pagerank = document.get('pagerank')
     language = document.get('language')
@@ -184,6 +226,82 @@ def prepare_one_document_for_index(document, limit_domain):
            content_hash,
            depth,
            is_file,
+           file_type,
+           pagerank,
+           url_length)
+
+    return row
+
+
+@timeout_decorator.timeout(60)
+def prepare_one_file_for_index(document, limit_domain):
+    import gridfs
+    from upol_search_engine.db import mongodb
+
+    mongodb_client = mongodb.create_client()
+    mongodb_database = mongodb.get_database(limit_domain,
+                                            mongodb_client)
+    fs = gridfs.GridFS(mongodb_database)
+    out = fs.get(document.get('content').get('binary'))
+    content = out.read()
+
+    mongodb_client.close()
+
+    content_hash = document.get('content').get('hashes').get('text')
+    url_hash = document.get('_id')
+    url = document.get('url')
+    url_decoded = urls.decode(url)
+    url_length = len(url)
+    is_file = True
+    file_type = document.get('file_type')
+    filename = urls.get_filename(url_decoded)
+    depth = document.get('depth')
+    pagerank = document.get('pagerank')
+
+    body_text = extract_content_from_pdf(content)
+
+    # Reduce size of body_text for database
+    while utf8len(body_text) > 800000:
+        body_text = body_text[:-10000]
+
+    if (body_text == "") or (body_text is None) or (len(body_text) < 500):
+        return None
+
+    max_length_detection = 10000
+    body_text_length = len(body_text)
+
+    try:
+        if body_text_length < max_length_detection:
+            language = detect(body_text)
+        else:
+            half = body_text_length / 2
+            language = detect(
+                body_text[int(half - max_length_detection / 2):int(half + max_length_detection / 2)])
+    except lang_detect_exception.LangDetectException as e:
+        # Fallback language
+        language = 'cs'
+
+    title = filename
+
+    description = ""
+    keywords = ""
+    important_headlines = ""
+    url_words = ' '.join(extract_words_from_url(url_decoded, limit_domain))
+
+    row = (url_hash,
+           url,
+           url_decoded,
+           url_words,
+           title,
+           language,
+           keywords,
+           description,
+           important_headlines,
+           body_text,
+           content_hash,
+           depth,
+           is_file,
+           file_type,
            pagerank,
            url_length)
 

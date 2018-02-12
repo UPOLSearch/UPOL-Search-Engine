@@ -15,6 +15,7 @@ setup(name='UPOL-Search-Engine',
           'upol_search_engine': ['config-default.ini',
                                  'upol_search_engine/templates/search/*',
                                  'upol_search_engine/templates/info/*',
+                                 'upol_search_engine/templates/error/*',
                                  'upol_search_engine/static/css/*',
                                  'upol_search_engine/static/js/*',
                                  'upol_search_engine/static/fonts/*',
@@ -31,10 +32,12 @@ setup(name='UPOL-Search-Engine',
           'w3lib',
           'langdetect',
           'networkx',
-          'psycopg2',
+          'psycopg2-binary',
           'flask',
           'html5lib',
-          'backports.pbkdf2'
+          'pdfminer.six',
+          'backports.pbkdf2',
+          'timeout-decorator'
       ],
       entry_points={
           'console_scripts': [

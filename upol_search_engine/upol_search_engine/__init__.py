@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, render_template
 from upol_search_engine.db import postgresql
 from upol_search_engine.upol_search_engine.views import search
 from upol_search_engine.upol_search_engine.views import info
@@ -29,3 +29,13 @@ def close_db(error):
     if hasattr(g, 'postgresql_db'):
         g.postgresql_db.cursor().close()
         g.postgresql_db.close()
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error/404.html'), 404
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('error/500.html'), 500
