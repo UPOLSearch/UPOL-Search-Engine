@@ -35,7 +35,6 @@ setup(name='UPOL-Search-Engine',
           'psycopg2-binary',
           'flask',
           'html5lib',
-          'PyPDF2',
           'pdfminer.six',
           'backports.pbkdf2',
           'timeout-decorator'

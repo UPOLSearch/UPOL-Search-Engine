@@ -3,19 +3,12 @@ import re
 import urllib.parse
 from io import BytesIO, StringIO
 
-import PyPDF2
 import timeout_decorator
 from bs4 import BeautifulSoup
 from langdetect import detect, lang_detect_exception
-from lxml import etree
 from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfdocument import PDFTextExtractionNotAllowed
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
-from pdfminer.pdftypes import PDFException
-from pdfminer.psparser import PSSyntaxError
-from PyPDF2 import utils
 from upol_search_engine.utils import document, urls
 
 
@@ -31,14 +24,8 @@ def extract_content_from_pdf(file_bytes):
 
     pagenums = set()
 
-    # try:
-    #     info = PyPDF2.PdfFileReader(pdf_file).getDocumentInfo()
-    # except utils.PdfReadError as e:
-    #     info = {'/Title': ""}
-
     output = StringIO()
     manager = PDFResourceManager()
-    # laparams = LAParams()
     laparams = None
     converter = TextConverter(manager, output, laparams=laparams)
     interpreter = PDFPageInterpreter(manager, converter)
