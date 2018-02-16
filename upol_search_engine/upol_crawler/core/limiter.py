@@ -52,18 +52,18 @@ def is_crawl_allowed(url, database, max_frequency):
     result = True
     record = get_limits_for_ip(database, ip)
 
-    record_domain = record.get('domain')
-    domain = urls.domain(url)
-
-    # For track of real number of domains
-    if record_domain != domain:
-        insert_limits_for_ip(database,
-                             urls.domain(url),
-                             ip,
-                             datetime.utcnow(),
-                             max_frequency)
-
     if record is not None:
+        record_domain = record.get('domain')
+        domain = urls.domain(url)
+
+        # For track of real number of domains
+        if record_domain != domain:
+            insert_limits_for_ip(database,
+                                 urls.domain(url),
+                                 ip,
+                                 datetime.utcnow(),
+                                 max_frequency)
+
         try:
             last = datetime.strptime(record['last'], '%Y-%m-%d %H:%M:%S.%f')
         except ValueError as e:
