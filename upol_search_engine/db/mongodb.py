@@ -52,7 +52,7 @@ def init(db):
     db['Urls'].create_index('timeout')
     db['Urls'].create_index('alias')
     db['Urls'].create_index('canonical_group')
-    db['Limiter'].create_index('ip', unique=True)
+    db['Limiter'].create_index('ip')
     db['PageRank'].create_index('to_hash')
     db['PageRank'].create_index([('from_hash', pymongo.DESCENDING),
                                  ('to_hash', pymongo.DESCENDING)], unique=True)
