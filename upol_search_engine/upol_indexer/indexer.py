@@ -7,6 +7,7 @@ import timeout_decorator
 from bs4 import BeautifulSoup
 from langdetect import detect, lang_detect_exception
 from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from upol_search_engine.utils import document, urls
@@ -26,7 +27,7 @@ def extract_content_from_pdf(file_bytes):
 
     output = StringIO()
     manager = PDFResourceManager()
-    laparams = None
+    laparams = LAParams()
     converter = TextConverter(manager, output, laparams=laparams)
     interpreter = PDFPageInterpreter(manager, converter)
     pages = PDFPage.get_pages(pdf_file, pagenums)
@@ -233,7 +234,7 @@ def prepare_one_document_for_index(document, limit_domain):
     return row
 
 
-@timeout_decorator.timeout(60)
+@timeout_decorator.timeout(120)
 def prepare_one_file_for_index(document, limit_domain):
     import gridfs
     from upol_search_engine.db import mongodb
