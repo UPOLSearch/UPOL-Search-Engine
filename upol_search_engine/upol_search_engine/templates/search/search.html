@@ -1,84 +1,90 @@
-{% extends "search/base.html" %}
-{% block body %}
-    <div class="container">
-        <div class="col-md-12 search-results">
-            <p class="performance"><small>Požadavek zpracován za {{ time }} s</small></p>
-            {% if output %}
-                {% for row in output %}
-                    <div class="result">
-                        {% if row[7] %}
-                            <span class="small-gray file-type">[{{row[7]}}]</span>
-                        {% endif %}
-                            <span class="small-gray language">[{{row[6]}}]</span>
-                        <div class="truncate-ellipsis">
-
-                            <h3><a href='{{row[0]}}'>{{row[2]}}</a></h3>
-                            </div>
-
-                        <div class="block">
-                            <div class="truncate-ellipsis">
-
-                                <div class="url">{{row[1]}}</div>
-                            </div>
-
-                            <div class="preview">
-                                {{ row[8]|safe }}
-                            </div>
-                            <div class="debug">Depth: {{10 - row[3]}} | Pagerank: {{row[4]}}</div>
-                        </div>
-
-
-                    </div>
-                {% endfor %}
-            {% else %}
-            <div class="not-found">
-                <p>
-                    Omlouváme se, pro hledavný výraz <b>{{search}}</b> nebyly nalezeny žádné výsledky.
-                </p>
-                <ul>
-                    <li>
-                        Zkuste hledaný pojem zjednodušit.
-                    </li>
-                    <li>
-                        Může trvat až týden, než začne vyhledávač nové stránky registrovat.
-                    </li>
-                    <li>
-                        Pokud víte, že stránka s hledaným pojmem existuje a vyhledávač ji nenašel, informujte nás na adrese mail@tomasmikula.cz
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
-
-            {% if output %}
-            <nav aria-label="pagination">
-              <ul class="pagination justify-content-center">
-                {% if (page > 1) %}
-                    <li class="page-item">
-                {% else %}
-                    <li class="page-item disabled">
-                {% endif %}
-                <a class="page-link" href="./?search={{search}}&page={{page - 1}}" tabindex="-1">Předchozí</a>
-                </li>
-
-                {% for page_number in range(1,page) %}
-                    {% if (page_number < 2) %}
-                    <li class="page-item"><a class="page-link" href="./?search={{search}}">{{ page_number }}</a></li>
-                    {% else %}
-                    <li class="page-item"><a class="page-link" href="./?search={{search}}&page={{page_number - 1}}">{{ page_number }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if page_size < 10 %}
-                    <li class="page-item disabled">
-                {% else %}
-                    <li class="page-item">
-                {% endif %}
-                  <a class="page-link" href="./?search={{search}}&page={{page + 1}}">Další</a>
-                </li>
-              </ul>
-            </nav>
-            {% endif %}
+{% extends "search/base.html" %} {% block body %}
+<div class="container">
+    <div class="col-md-12">
+    <p class="performance"><small>Požadavek zpracován za {{ time }} s</small></p></div>
+    <div class="row">
+    {% if metadata %}<div class="col-lg-4 order-md-2 order-sm-1 metadata">{% for row in metadata %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{row[0]}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{row[1]}}</h6>
+            {% for type, data in row[2] %}
+                <span><b>{{type}}:</b> {{data|safe}}</span>
+            </br/>
+            {% endfor %}
         </div>
-
     </div>
+
+    {% endfor %} </div>{% endif %}
+    <div class="col-md-8 order-lg-1 order-sm-2 search-results">
+        {% if output %} {% for row in output %}
+        <div class="result">
+            {% if row[7] %}
+            <span class="small-gray file-type">[{{row[7]}}]</span> {% endif %}
+            <span class="small-gray language">[{{row[6]}}]</span>
+            <div class="truncate-ellipsis">
+
+                <h3><a href='{{row[0]}}'>{{row[2]}}</a></h3>
+            </div>
+
+            <div class="block">
+                <div class="truncate-ellipsis">
+
+                    <div class="url">{{row[1]}}</div>
+                </div>
+
+                <div class="preview">
+                    {{ row[8]|safe }}
+                </div>
+                <div class="debug">Depth: {{10 - row[3]}} | Pagerank: {{row[4]}}</div>
+            </div>
+
+
+        </div>
+        {% endfor %} {% else %}
+        <div class="not-found">
+            <p>
+                Omlouváme se, pro hledavný výraz <b>{{search}}</b> nebyly nalezeny žádné výsledky.
+            </p>
+            <ul>
+                <li>
+                    Zkuste hledaný pojem zjednodušit.
+                </li>
+                <li>
+                    Může trvat až týden, než začne vyhledávač nové stránky registrovat.
+                </li>
+                <li>
+                    Pokud víte, že stránka s hledaným pojmem existuje a vyhledávač ji nenašel, informujte nás na adrese mail@tomasmikula.cz
+                </li>
+            </ul>
+        </div>
+        {% endif %} {% if output %}
+        <nav aria-label="pagination">
+            <ul class="pagination justify-content-center">
+                {% if (page > 1) %}
+                <li class="page-item">
+                    {% else %}
+                    <li class="page-item disabled">
+                        {% endif %}
+                        <a class="page-link" href="./?search={{search}}&page={{page - 1}}" tabindex="-1">Předchozí</a>
+                    </li>
+
+                    {% for page_number in range(1,page) %} {% if (page_number
+                    < 2) %} <li class="page-item"><a class="page-link" href="./?search={{search}}">{{ page_number }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="./?search={{search}}&page={{page_number - 1}}">{{ page_number }}</a></li>
+                {% endif %} {% endfor %} {% if page_size
+                < 10 %} <li class="page-item disabled">
+                    {% else %}
+                    <li class="page-item">
+                        {% endif %}
+                        <a class="page-link" href="./?search={{search}}&page={{page + 1}}">Další</a>
+                    </li>
+            </ul>
+        </nav>
+        {% endif %}
+        </div>
+    </div>
+
+</div>
 {% endblock %}

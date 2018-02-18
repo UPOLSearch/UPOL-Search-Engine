@@ -137,8 +137,24 @@ h3 {
     padding-top: 6rem;
     padding-bottom: 5rem;
 }
+.metadata {
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-bottom: 40px;
 
-.card {
+    .card {
+        width: auto;
+        margin-bottom: 10px;
+    }
+
+    .card-body {
+        span {
+            font-size: .9rem;
+        }
+    }
+}
+
+.card.custom {
     border: 0;
     // border-radius: 0;
     border-top: 5px @up-original solid;
@@ -237,8 +253,14 @@ h3 {
     filter: grayscale(100%);
 }
 
-.search-results {
+.performance {
     padding-top: 30px;
+    color: @gray;
+    margin-bottom: 30px;
+    margin-left: 35px;
+}
+
+.search-results {
 
     .truncate-ellipsis {
         display: table;
@@ -251,12 +273,6 @@ h3 {
         display: table-cell;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    .performance {
-        color: @gray;
-        margin-bottom: 30px;
-        margin-left: 35px;
     }
 
     h3 {
@@ -342,6 +358,12 @@ background-size: 1600px 1000px;
     .navbar.shadow {
         background-color: white;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .metadata{
+        .card {
+            width: 100%;
+        }
     }
 }
 

@@ -181,8 +181,13 @@ def extract_body_text(soup):
     return body_text
 
 
-def prepare_one_document_for_index(document, limit_domain):
+def get_soup_from_document(document):
     content = document.get('content').get('binary')
+
+    return BeautifulSoup(content, 'html5lib')
+
+
+def prepare_one_document_for_index(document, soup, limit_domain):
     content_hash = document.get('content').get('hashes').get('text')
     url_hash = document.get('_id')
     url = document.get('url')
@@ -193,8 +198,6 @@ def prepare_one_document_for_index(document, limit_domain):
     depth = document.get('depth')
     pagerank = document.get('pagerank')
     language = document.get('language')
-
-    soup = BeautifulSoup(content, 'html5lib')
 
     for script in soup('script'):
         script.extract()

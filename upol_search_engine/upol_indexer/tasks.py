@@ -23,7 +23,7 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
         'table_name_production')
 
     # Test if postgresql table is ready
-    if not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name):
+    if (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name)) or (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, 'metadata_tmp')):
         if not postgresql.test_if_table_exists(postgresql_client,
                                                postgresql_cursor,
                                                postgresql_table_name_production):
@@ -32,7 +32,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
         postgresql.reset_and_init_db(postgresql_client,
                                      postgresql_cursor,
-                                     postgresql_table_name)
+                                     postgresql_table_name,
+                                     'metadata_tmp')
 
     tasks_list = []
 
@@ -86,6 +87,11 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                           postgresql_table_name,
                                           postgresql_table_name_production)
 
+    postgresql.change_table_to_production(postgresql_client,
+                                          postgresql_cursor,
+                                          'metadata_tmp',
+                                          'metadata')
+
     postgresql_cursor.close()
     postgresql_client.close()
     mongodb_client.close()
@@ -97,6 +103,10 @@ def index_document_task(document_id, task_id, crawler_settings, indexer_settings
     from upol_search_engine.db import postgresql
     from upol_search_engine.upol_indexer import indexer
     from celery.utils.log import get_task_logger
+    from upol_search_engine.upol_indexer import microformat
+    from psycopg2 import IntegrityError
+    import json
+    import hashlib
 
     log = get_task_logger(__name__)
 
@@ -121,6 +131,34 @@ def index_document_task(document_id, task_id, crawler_settings, indexer_settings
 
         try:
             is_file = document.get('file')
+
+            # Metadata
+            if not is_file:
+                soup = indexer.get_soup_from_document(document)
+                metadata = microformat.find_microformat_on_page(soup)
+
+                if metadata is not None:
+                    parsed_metadata = microformat.parse_json(metadata)
+                    metadata_hash = hashlib.sha1(
+                        str(parsed_metadata).encode('utf-8')).hexdigest()
+
+                    if microformat.validate_json_schema(parsed_metadata):
+
+                        parsed_metadata, metadata_type = microformat.prepare_metadata_for_insert(parsed_metadata)
+
+                        try:
+                            postgresql.insert_microformat(postgresql_client,
+                                                          postgresql_cursor,
+                                                          json.dumps(parsed_metadata),
+                                                          metadata_hash,
+                                                          metadata_type,
+                                                          'metadata_tmp')
+                        except IntegrityError as e:
+                            log.info('METADATA duplicity: {}'.format(
+                                parsed_metadata))
+                    else:
+                        log.info('METADATA not valid: {}'.format(
+                            document.get('url')))
 
             if does_production_exists:
                 url_hash = document.get('_id')
@@ -151,7 +189,9 @@ def index_document_task(document_id, task_id, crawler_settings, indexer_settings
                 else:
                     log.info('INDEXER: Indexing document.')
                     row = indexer.prepare_one_document_for_index(
-                        document, crawler_settings.get('limit_domain'))
+                        document,
+                        soup,
+                        crawler_settings.get('limit_domain'))
 
                 if row is not None:
                     indexed_rows.append(row)

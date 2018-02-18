@@ -76,6 +76,22 @@ def home():
             psql_cursor.execute(sql_outside_query_filled)
 
             output = psql_cursor.fetchall()
+
+            sql_metadata_query = sql.SQL("SELECT type, json FROM metadata WHERE microformat_index @@ plainto_tsquery('czech', {query}) ORDER BY ts_rank(microformat_index, plainto_tsquery('czech', {query})) DESC LIMIT 3;")
+
+            sql_metadata_query_filled = sql_metadata_query.format(
+                query=sql.Literal(search)
+            )
+
+            psql_cursor.execute(sql_metadata_query_filled)
+
+            output_metadata = psql_cursor.fetchall()
+
+            formated_metadata = []
+
+            for metadata in output_metadata:
+                formated_metadata.append(format_metadata(metadata))
+
             page_size = len(output)
             end_time = datetime.datetime.now()
 
@@ -84,6 +100,53 @@ def home():
             return render_template('search/search.html',
                                    search=search,
                                    output=output,
+                                   metadata=formated_metadata,
                                    page=page,
                                    time=query_time,
                                    page_size=page_size)
+
+
+def format_metadata(metadata):
+    metadata_types = {
+        'employee': 'Zaměstnanec',
+        'department': 'Katedra',
+        'class': 'Předmět'}
+    metadata_keys = {
+        'name': 'Jméno',
+        'url': 'Web',
+        'phone': 'Telefon',
+        'email': 'E-mail',
+        'office': 'Kancelář',
+        'abbreviation': 'Zkratka předmětu'
+    }
+    metadata_order = {
+        'employee': ['url', 'email', 'phone', 'office'],
+        'department': ['url'],
+        'class': ['url', 'abbreviation']
+    }
+
+    result = []
+
+    metadata_type = metadata[0].lower()
+    metadata = metadata[1]
+
+    result.append(metadata.get('name'))
+    result.append(metadata_types.get(metadata_type))
+
+    rest_of_metadata = []
+
+    for key in metadata_order.get(metadata_type):
+        if key == 'url':
+            data = '<a href="{}">{}</a>'.format(metadata.get(key), metadata.get(key))
+        elif key == 'email':
+            data = '<a href="mailto:{}">{}</a>'.format(metadata.get(key), metadata.get(key))
+        elif key == 'phone':
+            data = '<a href="tel:{}">{}</a>'.format(metadata.get(key), metadata.get(key))
+        else:
+            data = metadata.get(key)
+
+        rest_of_metadata.append([metadata_keys.get(key), data])
+
+    result.append(rest_of_metadata)
+
+    return result
