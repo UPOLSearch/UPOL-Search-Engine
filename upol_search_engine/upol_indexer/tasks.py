@@ -91,7 +91,9 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     mongodb_client.close()
 
 
-@app.task(queue='indexer', task_compression='zlib')
+@app.task(rate_limit=settings.CONFIG.get('Indexer', 'indexer_task_frequency'),
+          queue='indexer',
+          task_compression='zlib')
 def index_document_task(document_id, task_id, crawler_settings, indexer_settings):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
