@@ -1,3 +1,4 @@
+from upol_search_engine import settings
 from upol_search_engine.celery_app import app
 
 
