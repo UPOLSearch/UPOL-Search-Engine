@@ -129,12 +129,15 @@ def reset_and_init_db(postgresql_client, postgresql_cursor,
         sql.SQL("ALTER TABLE {} ENABLE TRIGGER tsvectorupdate;").format(
             sql.Identifier(table_name)))
 
-    postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS search_idx;"))
+    # postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS search_idx;"))
 
-    postgresql_cursor.execute(
-        sql.SQL(
-            "CREATE INDEX search_idx ON {} USING gin(search_index);").format(
-                sql.Identifier(table_name)))
+    try:
+        postgresql_cursor.execute(
+            sql.SQL(
+                "CREATE INDEX search_idx ON {} USING gin(search_index);").format(
+                    sql.Identifier(table_name)))
+    except Exception as e:
+        pass
 
     # Microformat
 
@@ -156,12 +159,15 @@ def reset_and_init_db(postgresql_client, postgresql_cursor,
         sql.SQL("ALTER TABLE {} ENABLE TRIGGER microformat_tsvectorupdate;").format(
             sql.Identifier(microformat_table_name)))
 
-    postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS microformat_idx;"))
+    # postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS microformat_idx;"))
 
-    postgresql_cursor.execute(
-        sql.SQL(
-            "CREATE INDEX microformat_idx ON {} USING gin(microformat_index);").format(
-                sql.Identifier(microformat_table_name)))
+    try:
+        postgresql_cursor.execute(
+            sql.SQL(
+                "CREATE INDEX microformat_idx ON {} USING gin(microformat_index);").format(
+                    sql.Identifier(microformat_table_name)))
+    except Exception as e:
+        pass
 
 
     postgresql_client.commit()
