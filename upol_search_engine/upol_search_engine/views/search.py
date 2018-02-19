@@ -145,6 +145,9 @@ def format_metadata(metadata):
         else:
             data = metadata.get(key)
 
+        if data == "" or data is None:
+            continue
+            
         rest_of_metadata.append([metadata_keys.get(key), data])
 
     result.append(rest_of_metadata)
