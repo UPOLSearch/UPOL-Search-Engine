@@ -24,12 +24,6 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     # Test if postgresql table is ready
     if (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name)) or (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, 'metadata_tmp')):
-        if not postgresql.test_if_table_exists(postgresql_client,
-                                               postgresql_cursor,
-                                               postgresql_table_name_production):
-            postgresql.create_function(postgresql_client,
-                                       postgresql_cursor)
-
         postgresql.reset_and_init_db(postgresql_client,
                                      postgresql_cursor,
                                      postgresql_table_name,
