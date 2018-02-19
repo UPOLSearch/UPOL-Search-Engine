@@ -136,6 +136,9 @@ def format_metadata(metadata):
     rest_of_metadata = []
 
     for key in metadata_order.get(metadata_type):
+        if metadata.get(key) == "" or metadata.get(key) is None:
+            continue
+            
         if key == 'url':
             data = '<a href="{}">{}</a>'.format(metadata.get(key), metadata.get(key))
         elif key == 'email':
@@ -145,9 +148,6 @@ def format_metadata(metadata):
         else:
             data = metadata.get(key)
 
-        if data == "" or data is None:
-            continue
-            
         rest_of_metadata.append([metadata_keys.get(key), data])
 
     result.append(rest_of_metadata)
