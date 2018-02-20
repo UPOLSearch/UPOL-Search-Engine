@@ -76,7 +76,7 @@ microformat = {
 
 def find_microformat_on_page(soup):
     tag = soup.find('script',
-                    {'id': '“upsearch”', 'type': 'application/ld+json'})
+                    {'id': 'upsearch', 'type': 'application/ld+json'})
 
     if tag is None:
         return None
