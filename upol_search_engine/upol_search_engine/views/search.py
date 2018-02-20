@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from flask import Blueprint, render_template, request
 from langdetect import detect, lang_detect_exception
@@ -77,10 +78,12 @@ def home():
 
             output = psql_cursor.fetchall()
 
-            sql_metadata_query = sql.SQL("SELECT type, json FROM metadata WHERE microformat_index @@ plainto_tsquery('czech', {query}) ORDER BY ts_rank(microformat_index, plainto_tsquery('czech', {query})) DESC LIMIT 3;")
+            sql_metadata_query = sql.SQL("SELECT type, json FROM metadata WHERE microformat_index @@ to_tsquery('czech', {query}) ORDER BY ts_rank(microformat_index, to_tsquery('czech', {query})) DESC LIMIT 3;")
+
+            search_metadata = to_tsquery_with_or(search)
 
             sql_metadata_query_filled = sql_metadata_query.format(
-                query=sql.Literal(search)
+                query=sql.Literal(search_metadata)
             )
 
             psql_cursor.execute(sql_metadata_query_filled)
@@ -104,6 +107,20 @@ def home():
                                    page=page,
                                    time=query_time,
                                    page_size=page_size)
+
+
+def to_tsquery_with_or(search_query):
+    splitted = re.split('\s+', search_query)
+    splitted = list(filter(None, splitted))
+    final_query = ""
+
+    for i in range(len(splitted)):
+        if i != len(splitted) - 1:
+            final_query += splitted[i] + ' | '
+        else:
+            final_query += splitted[i]
+
+    return final_query
 
 
 def format_metadata(metadata):
@@ -138,7 +155,7 @@ def format_metadata(metadata):
     for key in metadata_order.get(metadata_type):
         if metadata.get(key) == "" or metadata.get(key) is None:
             continue
-            
+
         if key == 'url':
             data = '<a href="{}">{}</a>'.format(metadata.get(key), metadata.get(key))
         elif key == 'email':
