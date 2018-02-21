@@ -214,6 +214,9 @@ def prepare_one_document_for_index(document, soup, limit_domain):
     if len(body_text) < 500:
         return None
 
+    # Because of terms like 'KMI/ALM'
+    body_text = body_text.replace('/', ' / ')
+
     description = extract_description(soup)
     keywords = extract_keywords(soup)
     important_headlines = extract_important_headlines(soup)
