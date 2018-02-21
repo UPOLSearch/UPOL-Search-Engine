@@ -10,6 +10,7 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from upol_search_engine import settings
 from upol_search_engine.utils import document, urls
 
 
@@ -17,6 +18,7 @@ def utf8len(s):
     return len(s.encode('utf-8'))
 
 
+@timeout_decorator.timeout(settings.CONFIG.get('Indexer', 'pdf_parse_timeout'))
 def extract_content_from_pdf(file_bytes):
     logging.propagate = False
     logging.getLogger().setLevel(logging.ERROR)
@@ -237,7 +239,6 @@ def prepare_one_document_for_index(document, soup, limit_domain):
     return row
 
 
-@timeout_decorator.timeout(120)
 def prepare_one_file_for_index(document, limit_domain):
     import gridfs
     from upol_search_engine.db import mongodb
