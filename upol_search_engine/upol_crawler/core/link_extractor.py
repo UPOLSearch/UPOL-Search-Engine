@@ -169,7 +169,7 @@ def validated_page_urls(soup, url, regex, blacklist):
         if not urls.is_url_absolute(link_url):
             link_url = urllib.parse.urljoin(page_base_url, link_url)
 
-        scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
+        # scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link_url)
 
         try:
             link_url = urls.clean(link_url)

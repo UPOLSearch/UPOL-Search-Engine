@@ -17,10 +17,10 @@ def load_seed(seed, database, regex, max_depth, blacklist):
         url = urls.clean(url)
         if validator.validate(url, regex, blacklist):
             insert_result = mongodb.insert_url(database,
-                                          url,
-                                          False,
-                                          False,
-                                          max_depth)
+                                               url,
+                                               False,
+                                               False,
+                                               max_depth)
 
             if insert_result:
                 number_of_url = number_of_url + 1

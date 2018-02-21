@@ -13,28 +13,6 @@ def main_task(self):
     """Main task of the project"""
 
     try:
-        # Later load these settings from DB
-
-        # blacklist = """
-        # portal.upol.cz
-        # stag.upol.cz
-        # library.upol.cz
-        # adfs.upol.cz
-        # portalbeta.upol.cz
-        # idp.upol.cz
-        # famaplus.upol.cz
-        # es.upol.cz
-        # smlouvy.upol.cz
-        # menza.upol.cz
-        # edis.upol.cz
-        # courseware.upol.cz
-        # m.zurnal.upol.cz
-        # stagservices.upol.cz
-        # """
-        #
-        #
-        # seed = "https://www.upol.cz \n https://www.cmtf.upol.cz \n https://www.lf.upol.cz \n https://www.ff.upol.cz \n https://www.prf.upol.cz \n https://www.pdf.upol.cz \n https://ftk.upol.cz \n https://www.pf.upol.cz \n https://www.fzv.upol.cz \n http://upcrowd.upol.cz \n http://vychodil.inf.upol.cz/kmi/pp1/ \n http://vychodil.inf.upol.cz/"
-
         blacklist = urls.load_urls_from_file(settings.blacklist_path)
         seed = urls.load_urls_from_file(settings.seed_path)
 
@@ -49,7 +27,7 @@ def main_task(self):
                             'table_name':  settings.CONFIG.get('General', 'postgresql_table_name_tmp'),
                             'table_name_production': settings.CONFIG.get('General', 'postgresql_table_name'),
                             'metadata_table_name':  settings.CONFIG.get('General', 'postgresql_metadata_table_name_tmp'),
-                            'metadata_table_name_production': settings.CONFIG.get('General', 'postgresql_metadata_table_name'),}
+                            'metadata_table_name_production': settings.CONFIG.get('General', 'postgresql_metadata_table_name')}
 
         mongodb_client = mongodb.create_client()
 
