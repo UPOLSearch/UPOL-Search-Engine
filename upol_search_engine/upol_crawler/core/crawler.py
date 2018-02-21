@@ -85,7 +85,7 @@ def _handle_response(database, url, original_url, redirected,
 
             else:
                 mongodb.set_visited_invalid_url(database, original_url,
-                                           response, "invalid_redirect")
+                                                response, "invalid_redirect")
                 mongodb.delete_pagerank_edge_to(database, urls.hash(original_url))
 
                 log.info('Not Valid Redirect: {0} (original: {1})'.format(
@@ -115,7 +115,7 @@ def _handle_response(database, url, original_url, redirected,
 
                 mongodb.delete_pagerank_edge_to(database, urls.hash(url))
                 mongodb.set_visited_invalid_url(database, url, response,
-                                           "invalid_file", True)
+                                                "invalid_file", True)
 
                 log.info('Not valid file: {0}'.format(url))
                 return
@@ -123,7 +123,7 @@ def _handle_response(database, url, original_url, redirected,
                 # Handle file
                 if original_url != url:
                     mongodb.set_visited_file_url(database, url,
-                                            response, original_url)
+                                                 response, original_url)
                 else:
                     mongodb.set_visited_file_url(database, url, response)
                 log.info('Done (file) [{0}]: {1}'.format(response.reason, url))
@@ -152,11 +152,11 @@ def _handle_response(database, url, original_url, redirected,
             if len(urls_for_insert) > 0:
                 mongodb.batch_insert_url(database, urls_for_insert, False, False)
                 mongodb.batch_insert_pagerank_outlinks(database, url,
-                                                  urls_for_insert)
+                                                       urls_for_insert)
 
             if original_url != url:
                 mongodb.set_visited_url(database, url, response, soup,
-                                   no_index, original_url)
+                                        no_index, original_url)
             else:
                 mongodb.set_visited_url(database, url, response, soup, no_index)
 
@@ -173,7 +173,7 @@ def crawl_url(url, depth, crawler_settings, ignore_blacklist=False):
     try:
         client = mongodb.create_client()
         database = mongodb.get_database(crawler_settings.get('limit_domain'),
-                                   client)
+                                        client)
 
         allowed = limiter.is_crawl_allowed(url, database, crawler_settings.get(
             'frequency_per_server'))
