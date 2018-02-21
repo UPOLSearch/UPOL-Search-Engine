@@ -47,7 +47,9 @@ def main_task(self):
 
         indexer_settings = {'batch_size': settings.CONFIG.getint('Indexer', 'batch_size'),
                             'table_name':  settings.CONFIG.get('General', 'postgresql_table_name_tmp'),
-                            'table_name_production': settings.CONFIG.get('General', 'postgresql_table_name'),}
+                            'table_name_production': settings.CONFIG.get('General', 'postgresql_table_name'),
+                            'metadata_table_name':  settings.CONFIG.get('General', 'postgresql_metadata_table_name_tmp'),
+                            'metadata_table_name_production': settings.CONFIG.get('General', 'postgresql_metadata_table_name'),}
 
         mongodb_client = mongodb.create_client()
 

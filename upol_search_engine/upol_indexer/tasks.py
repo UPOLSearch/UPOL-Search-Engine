@@ -22,13 +22,16 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     postgresql_table_name = indexer_settings.get('table_name')
     postgresql_table_name_production = indexer_settings.get(
         'table_name_production')
+    postgresql_metadata_table_name = indexer_settings.get('metadata_table_name')
+    postgresql_metadata_table_name_production = indexer_settings.get(
+        'metadatatable_name_production')
 
     # Test if postgresql table is ready
-    if (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name)) or (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, 'metadata_tmp')):
-        postgresql.reset_and_init_db(postgresql_client,
-                                     postgresql_cursor,
-                                     postgresql_table_name,
-                                     'metadata_tmp')
+    # if (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name)) or (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, 'metadata_tmp')):
+    postgresql.reset_and_init_db(postgresql_client,
+                                 postgresql_cursor,
+                                 postgresql_table_name,
+                                 postgresql_metadata_table_name)
 
     tasks_list = []
 
@@ -84,8 +87,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
-                                          'metadata_tmp',
-                                          'metadata')
+                                          postgresql_metadata_table_name,
+                                          postgresql_metadata_table_name_production)
 
     postgresql_cursor.close()
     postgresql_client.close()
@@ -95,7 +98,8 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
 @app.task(rate_limit=settings.CONFIG.get('Indexer', 'indexer_task_frequency'),
           queue='indexer',
           task_compression='zlib')
-def index_document_task(document_id, task_id, crawler_settings, indexer_settings):
+def index_document_task(document_id, task_id,
+                        crawler_settings, indexer_settings):
     from upol_search_engine.db import mongodb
     from upol_search_engine.db import postgresql
     from upol_search_engine.upol_indexer import indexer
@@ -113,7 +117,11 @@ def index_document_task(document_id, task_id, crawler_settings, indexer_settings
     postgresql_client = postgresql.create_client()
     postgresql_cursor = postgresql_client.cursor()
     postgresql_table_name = indexer_settings.get('table_name')
-    postgresql_table_name_production = indexer_settings.get('table_name_production')
+    postgresql_table_name_production = indexer_settings.get(
+        'table_name_production')
+    postgresql_metadata_table_name = indexer_settings.get('metadata_table_name')
+    postgresql_metadata_table_name_production = indexer_settings.get(
+        'metadatatable_name_production')
 
     try:
         document = mongodb.get_document_by_id(mongodb_database, document_id)
@@ -149,7 +157,7 @@ def index_document_task(document_id, task_id, crawler_settings, indexer_settings
                                                           json.dumps(parsed_metadata),
                                                           metadata_hash,
                                                           metadata_type,
-                                                          'metadata_tmp')
+                                                          postgresql_metadata_table_name)
                         except IntegrityError as e:
                             log.info('METADATA duplicity: {}'.format(
                                 parsed_metadata))
