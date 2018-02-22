@@ -22,9 +22,10 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
     postgresql_table_name = indexer_settings.get('table_name')
     postgresql_table_name_production = indexer_settings.get(
         'table_name_production')
-    postgresql_metadata_table_name = indexer_settings.get('metadata_table_name')
+    postgresql_metadata_table_name = indexer_settings.get(
+        'metadata_table_name')
     postgresql_metadata_table_name_production = indexer_settings.get(
-        'metadatatable_name_production')
+        'metadata_table_name_production')
 
     # Test if postgresql table is ready
     # if (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, postgresql_table_name)) or (not postgresql.test_if_table_exists(postgresql_client, postgresql_cursor, 'metadata_tmp')):
