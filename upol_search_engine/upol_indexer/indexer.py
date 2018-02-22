@@ -18,7 +18,7 @@ def utf8len(s):
     return len(s.encode('utf-8'))
 
 
-@timeout_decorator.timeout(settings.CONFIG.get('Indexer', 'pdf_parse_timeout'))
+@timeout_decorator.timeout(settings.CONFIG.getint('Indexer', 'pdf_parse_timeout'))
 def extract_content_from_pdf(file_bytes):
     logging.propagate = False
     logging.getLogger().setLevel(logging.ERROR)
