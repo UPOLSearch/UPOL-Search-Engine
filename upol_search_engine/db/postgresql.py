@@ -98,6 +98,18 @@ def reset_and_init_languages(postgresql_client, postgresql_cursor):
     postgresql_client.commit()
 
 
+def create_psql_index(postgresql_client, postgresql_cursor,
+                      table_name, table_field, index_name):
+    postgresql_cursor.execute(
+        sql.SQL(
+            "CREATE INDEX {} ON {} USING gin({});").format(
+                sql.Identifier(index_name),
+                sql.Identifier(table_name),
+                sql.Identifier(table_field)))
+
+    postgresql_client.commit()
+
+
 def reset_and_init_db(postgresql_client, postgresql_cursor,
                       table_name, microformat_table_name):
     postgresql_cursor.execute(
@@ -131,13 +143,13 @@ def reset_and_init_db(postgresql_client, postgresql_cursor,
 
     # postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS search_idx;"))
 
-    try:
-        postgresql_cursor.execute(
-            sql.SQL(
-                "CREATE INDEX search_idx ON {} USING gin(search_index);").format(
-                    sql.Identifier(table_name)))
-    except Exception as e:
-        pass
+    # try:
+    #     postgresql_cursor.execute(
+    #         sql.SQL(
+    #             "CREATE INDEX search_idx ON {} USING gin(search_index);").format(
+    #                 sql.Identifier(table_name)))
+    # except Exception as e:
+    #     pass
 
     # Microformat
 
@@ -161,13 +173,13 @@ def reset_and_init_db(postgresql_client, postgresql_cursor,
 
     # postgresql_cursor.execute(sql.SQL("DROP INDEX IF EXISTS microformat_idx;"))
 
-    try:
-        postgresql_cursor.execute(
-            sql.SQL(
-                "CREATE INDEX microformat_idx ON {} USING gin(microformat_index);").format(
-                    sql.Identifier(microformat_table_name)))
-    except Exception as e:
-        pass
+    # try:
+    #     postgresql_cursor.execute(
+    #         sql.SQL(
+    #             "CREATE INDEX microformat_idx ON {} USING gin(microformat_index);").format(
+    #                 sql.Identifier(microformat_table_name)))
+    # except Exception as e:
+    #     pass
 
 
     postgresql_client.commit()

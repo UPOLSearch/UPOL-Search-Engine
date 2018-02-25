@@ -86,10 +86,22 @@ def indexer_task(crawler_settings, indexer_settings, task_id):
                                           postgresql_table_name,
                                           postgresql_table_name_production)
 
+    postgresql.create_psql_index(postgresql_client,
+                                 postgresql_cursor,
+                                 postgresql_table_name_production,
+                                 'search_index',
+                                 'search_idx')
+
     postgresql.change_table_to_production(postgresql_client,
                                           postgresql_cursor,
                                           postgresql_metadata_table_name,
                                           postgresql_metadata_table_name_production)
+
+    postgresql.create_psql_index(postgresql_client,
+                                 postgresql_cursor,
+                                 postgresql_metadata_table_name_production,
+                                 'microformat_index',
+                                 'microformat_idx')
 
     postgresql_cursor.close()
     postgresql_client.close()
