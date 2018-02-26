@@ -84,4 +84,4 @@ def debugger():
                 is_metadata_valid = microformat.validate_json_schema(
                     parsed_metadata)
 
-        return render_template('info/debugger.html', **locals())
+    return render_template('info/debugger.html', **locals())
