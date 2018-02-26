@@ -150,6 +150,7 @@ def validated_page_urls(soup, url, regex, blacklist):
     """Parse page and return set of valid urls"""
 
     valid_urls = set()
+    not_valid_urls = set()
 
     # Check if page has meta robots tag
     if not check_meta_robots(soup):
@@ -162,6 +163,7 @@ def validated_page_urls(soup, url, regex, blacklist):
     for link in links_on_page:
         # if has some rel attributes - ignore
         if not check_rel_attribute(link):
+            not_valid_urls.add(link['href'])
             continue
 
         link_url = link['href']
@@ -183,6 +185,8 @@ def validated_page_urls(soup, url, regex, blacklist):
             # If canonical url is part of url, skip this url
             if canonical_url in link_url:
                 continue
+            else:
+                not_valid_urls.add(link_url)
 
         valid, reason = validator.validate(link_url, regex, blacklist)
 
@@ -192,5 +196,6 @@ def validated_page_urls(soup, url, regex, blacklist):
             if reason == 'UrlRobotsBlocked':
                 log.exception('Robots blocked: {1} (on url: {0})'.format(
                     url, link_url))
+            not_valid_urls.add(link_url)
 
-    return valid_urls
+    return valid_urls, not_valid_urls
