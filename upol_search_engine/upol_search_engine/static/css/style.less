@@ -11,13 +11,22 @@ html, body {
   height: 100%;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
 #wrap {
   min-height: 100%;
 }
 
 #main {
   overflow:auto;
-  padding-bottom:150px; /* this needs to be bigger than footer height*/
+  // padding-bottom:150px; /* this needs to be bigger than footer height*/
 }
 
 
@@ -238,16 +247,18 @@ h3 {
 
 .footer {
     color: lighten(@dark-gray, 20%);
-    height: 120px;
+    margin-top: 40px;
+    padding-bottom: 20px;
+    flex-shrink: 0;
 }
 
-.footer-fixed {
-    position: relative;
-    margin-top: -140px; /* negative value of footer height */
-    height: 120px;
-    clear:both;
-    padding-top:20px;
-}
+// .footer-fixed {
+//     position: relative;
+//     margin-top: -140px; /* negative value of footer height */
+//     height: 120px;
+//     clear:both;
+//     padding-top:20px;
+// }
 
 .error {
     h1 {
@@ -348,7 +359,7 @@ h3 {
     .pagination {
         font-size: 0.9rem;
         margin-top: 50px;
-        margin-bottom: 230px;
+        margin-bottom: 20px;
 
         a {
             color: @up-original;
@@ -372,6 +383,10 @@ background-size: 1600px 1000px;
 }
 
 @media only screen and (max-width: 667px) {
+    .logo {
+        margin-top: 40px;
+        margin-bottom: 30px;
+    }
     .navbar.shadow {
         background-color: white;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);

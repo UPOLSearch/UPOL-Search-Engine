@@ -4,8 +4,10 @@
 {% include "info/head.html" %}
 
 <body>
+    <div class="content">
     {% include "info/nav.html" %}
     {% block body %}{% endblock %}
+    </div>
     {% include "info/footer.html" %}
     {% include "info/scripts.html" %}
     {% block scripts %}{% endblock %}
