@@ -1,0 +1,186 @@
+{% extends "info/base.html" %} {% block body %}
+<div class="jumbotron jumbotron-fluid text-center">
+    <div class="container">
+        <h1>Debugger</h1>
+        <p class="lead">Ověřte zda vyhledávač rozumí Vaši stránce.</p>
+        <div class="row">
+            <div class="col-lg-6 search">
+        <form method="GET" action="{{ url_for('info.debugger') }}">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Adresa, kterou chcete ladit..." name="page" value="{{page}}" class="mt-4" autofocus>
+            <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">Debug</button>
+            </span>
+        </div>
+        </form>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+<div class="container margin-overlap debugger mb-5">
+
+{% if page and is_url_valid %}
+    <div class="card custom">
+        <div class="card-body">
+            <h2>Základní informace</h2>
+            <table class="table mt-3">
+                <tbody class="fixed-th">
+                    {% if not is_valid %}
+                    <tr class="table-danger">
+                    {% else %}
+                    <tr>
+                    {% endif %}
+                        <th scope="row">Akceptováno</th>
+                        <td>{{ is_valid | bool }}</td>
+                        {% if not is_valid %}
+                            <td>{{ reason }}</td>
+                        {% endif %}
+                    </tr>
+                    {% if is_valid %}
+                    {% if is_redirect %}
+                    <tr>
+                        <th scope="row">Přesměrováno</th>
+                        <td>{{ is_redirect | bool }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Originální URL</th>
+                        <td>{{ original_url }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Výsledná URL</th>
+                        <td>{{ url }}</td>
+                    </tr>
+                    {% if not is_valid_redirect %}
+                    <tr class="table-danger">
+                    {% else %}
+                    <tr>
+                    {% endif %}
+                        <th scope="row">Akceptováno po přesměrování</th>
+                        <td>{{ is_valid_redirect | bool }}</td>
+                        {% if not is_valid_redirect %}
+                            <td>{{ reason_redirect }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th scope="row">Kód odpovědi</th>
+                        <td>{{ response.status_code }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Content-Type</th>
+                        <td>{{ content_type }}</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if not is_file %}
+    {% if is_valid or is_valid_redirect %}
+    <div class="card custom mt-5">
+        <div class="card-body">
+            <h2>Obsah</h2>
+            <table class="table mt-3">
+                <tbody class="fixed-th">
+                    <tr>
+                        <th scope="row">Wikipedie</th>
+                        <td>{{ is_wiki | bool }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">phpBB</th>
+                        <td>{{ is_phpbb | bool }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">nofollow</th>
+                        <td>{{ is_nofollow | bool }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">noindex</th>
+                        <td>{{ is_noindex | bool }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    {% if metadata %}
+    <div class="card custom mt-5">
+        <div class="card-body">
+            <h2>Metadata</h2>
+            <table class="table mt-3">
+                <tbody class="fixed-th">
+                    <tr>
+                        <th scope="row">Obsahuje metadata</th>
+                        <td>{{ parsed_metadata | bool }}</td>
+                    </tr>
+                    {% if not is_metadata_valid %}
+                    <tr class="table-danger">
+                    {% else %}
+                    <tr>
+                    {% endif %}
+                        <th scope="row">Validní metadata</th>
+                        <td>{{ is_metadata_valid | bool }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <pre style="padding: 0 40px 0 40px;">
+<code>
+{{ parsed_metadata }}
+</code>
+            </pre>
+        </div>
+    </div>
+
+<div class="card custom mt-5">
+    <div class="card-body">
+        <h2>Akceptované nalezené odkazy</h2>
+        <table class="table mt-3 table-striped">
+            <tbody>
+                {% for link in accepted_links %}
+                <tr>
+                    <th scope="row">{{ loop.index }}#</th>
+                    <td>{{ link }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card custom mt-5">
+    <div class="card-body">
+        <h2>Ignorované nalezené odkazy</h2>
+        <table class="table mt-3 table-striped">
+            <tbody>
+                {% for link in not_accepted_links %}
+                <tr>
+                    <th scope="row">{{ loop.index }}#</th>
+                    <td>{{ link }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+        {% endif %}
+        {% endif %}
+        {% else %}
+        <div class="card custom mt-5">
+            <div class="card-body">
+                <h2>Nevalidní adresa</h2>
+                Obsahuje adresa http:// a ostatní náležitosti?
+            </div>
+        </div>
+    {% endif %}
+
+
+
+
+
+</div>
+
+{% endblock %} {% block scripts %}
+{% endblock %}

@@ -44,6 +44,17 @@ def get_page(url, connect_max_timeout, read_max_timeout):
     return url, original_url, is_redirect, response
 
 
+def test_content_type_file(content_type):
+    return 'text/html' not in content_type
+
+
+def test_file_valid_type(content_type):
+    if (('application/pdf' not in content_type) and ('text/plain' not in content_type)):
+        return False
+    else:
+        return True
+
+
 def _handle_response(database, url, original_url, redirected,
                      response, depth, max_depth, limit_domain, blacklist,
                      ignore_blacklist=False):
@@ -105,14 +116,11 @@ def _handle_response(database, url, original_url, redirected,
         if content_type is None:
             content_type = ''
 
-        if 'text/html' not in content_type:
-            if (('application/pdf' not in content_type) and ('text/plain' not in content_type)):
-                # Not valid file
-                if content_type is not '':
-                    content_type = content_type.split(';')[0]
-                else:
-                    content_type = 'unknown'
+        is_content_type_file = test_content_type_file(content_type)
+        is_file_valid_type = test_file_valid_type(content_type)
 
+        if is_content_type_file:
+            if not is_file_valid_type:
                 mongodb.delete_pagerank_edge_to(database, urls.hash(url))
                 mongodb.set_visited_invalid_url(database, url, response,
                                                 "invalid_file", True)
@@ -120,7 +128,6 @@ def _handle_response(database, url, original_url, redirected,
                 log.info('Not valid file: {0}'.format(url))
                 return
             else:
-                # Handle file
                 if original_url != url:
                     mongodb.set_visited_file_url(database, url,
                                                  response, original_url)
@@ -131,7 +138,7 @@ def _handle_response(database, url, original_url, redirected,
             # Handle normal page
             soup = BeautifulSoup(response.content, 'html5lib')
             no_index = link_extractor.has_noindex(soup)
-            validated_urls_on_page = link_extractor.validated_page_urls(
+            validated_urls_on_page, not_valid_urls = link_extractor.validated_page_urls(
                 soup, url, regex, blacklist)
 
             urls_for_insert = []

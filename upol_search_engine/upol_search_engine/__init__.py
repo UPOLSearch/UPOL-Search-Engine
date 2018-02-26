@@ -23,6 +23,14 @@ def get_db():
     return g.postgresql_db
 
 
+@app.template_filter()
+def bool(value):
+    if value:
+        return 'Ano'
+    else:
+        return 'Ne'
+
+
 @app.teardown_appcontext
 def close_db(error):
     """Closes the database again at the end of the request."""
