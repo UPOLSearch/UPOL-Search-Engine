@@ -3,6 +3,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <!-- FB OpenGraph metadata -->
+    <meta property="og:url" content="{{ url_for(request.endpoint, _external=True) }}"/>
+    <meta property="og:title" content="UPSearch - Univerzitní vyhledávač"/>
+    <meta property="og:site_name" content="UPSearch"/>
+    <meta property="og:locale" content="cs_CZ"/>
+    <meta property="og:see_also" content="{{ url_for('info.home') }}"/>
+    <meta property="og:rich_attachment" content="true"/>
+    <meta property="fb:profile_id" content="1176331991"/>
+    <meta property="og:description" content="Fultextový vyhledávač Univerzity Palackého v Olomouci."/>
+    <meta property="og:image" content="{{ url_for('static', filename='images/upol-search-logo-chatbot.png') }}"/>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&amp;subset=latin-ext" rel="stylesheet">
