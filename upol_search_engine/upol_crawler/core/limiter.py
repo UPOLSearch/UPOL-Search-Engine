@@ -1,6 +1,7 @@
 import socket
 from datetime import datetime
 
+import pymongo
 from celery.utils.log import get_task_logger
 from upol_search_engine.utils import urls
 
@@ -9,10 +10,13 @@ log = get_task_logger(__name__)
 
 def insert_limits_for_ip(db, domain, ip, last, max_frequency):
     """Insert limits for specific IP"""
-    result = db['Limiter'].insert_one({'ip': ip,
-                                       'domain': domain,
-                                       'last': str(last),
-                                       'max_frequency': max_frequency})
+    try:
+        result = db['Limiter'].insert_one({'ip': ip,
+                                           'domain': domain,
+                                           'last': str(last),
+                                           'max_frequency': max_frequency})
+    except pymongo.errors.DuplicateKeyError as e:
+        return False
 
     return result is not None
 
