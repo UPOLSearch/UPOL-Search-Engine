@@ -158,7 +158,8 @@ def index_document_task(document_id, task_id,
                 if metadata is not None:
                     parsed_metadata = microformat.parse_json(metadata)
                     metadata_hash = hashlib.sha1(
-                        str(parsed_metadata).encode('utf-8')).hexdigest()
+                        json.dumps(parsed_metadata,
+                                   sort_keys=True).encode('utf-8')).hexdigest()
 
                     if microformat.validate_json_schema(parsed_metadata):
 
